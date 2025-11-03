@@ -1,19 +1,20 @@
 {
-  "tasks": {
-    "dev": "deno run --watch main.ts",
-    "prisma": "deno -A prisma",
-    "seed": "deno -A --env-file seed.ts"
-  },
-  "imports": {
-    "@faker-js/faker": "npm:@faker-js/faker@^10.1.0",
-    "@prisma/client": "npm:@prisma/client@^6.17.0",
-    "@std/assert": "jsr:@std/assert@1",
-    "bcrypt": "npm:bcrypt@^6.0.0",
-    "faker-js": "npm:faker-js@^1.0.0",
-    "prisma": "npm:prisma@^6.17.0"
-  },
-  "fmt": {
-    "indentWidth": 4,
-    "lineWidth": 120
-  }
+    "tasks": {
+        "dev": "deno run --watch main.ts",
+        "prisma": "deno -A prisma",
+        "seed": "deno -A --env-file seed.ts"
+    },
+    "imports": {
+        "@faker-js/faker": "npm:@faker-js/faker@^10.1.0",
+        "@prisma/client": "npm:@prisma/client@^6.17.0",
+        "@std/assert": "jsr:@std/assert@1",
+        "bcrypt": "npm:bcrypt@^6.0.0",
+        "faker-js": "npm:faker-js@^1.0.0",
+        "prisma": "npm:prisma@^6.17.0"
+    },
+    "fmt": {
+        "indentWidth": 4,
+        "lineWidth": 120
+    },
+    "nodeModulesDir": "auto"
 }

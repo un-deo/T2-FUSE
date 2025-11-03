@@ -8,3 +8,10 @@ generator client {
     output   = "client"
     runtime  = "deno"
 }
+
+model user {
+    userid   String @id @default(uuid())
+    name     String @unique
+    email    String @unique
+    password String
+}
