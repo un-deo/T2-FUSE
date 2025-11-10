@@ -2,5 +2,4 @@
 **/obj/
 **/prisma/client/
 **/dev.db
-**/node_modules/
 .env
