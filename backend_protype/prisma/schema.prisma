@@ -10,8 +10,114 @@ generator client {
 }
 
 model user {
-    id       String @id @default(uuid())
-    name     String @unique
-    email    String @unique
-    password String
+    userId       String @id @default(uuid())
+    statusId     Int
+    name         String @unique
+    email        String @unique
+    passwort     String
+    strasse      String
+    hausnummer   String
+    postleitzahl String
+    land         String
+    telefonNr    String
+
+    // Beziehungen
+    produkte       produkte[]
+    einstellungen  einstellungen[]
+    bestellung     bestellung[]
+    warenkorb      warenkorb[]
+    statusanfragen verkäuferstatusanfrage[]
+}
+
+model produkte {
+    produktId           String  @id @default(uuid())
+    name                String
+    beschreibung        String
+    preis               Float
+    userId              String
+    selbstabholung      Boolean
+    versand             Boolean
+    kategorieId         String
+    suchfilterattribute String
+    status              String
+
+    // Beziehungen
+    user           user                 @relation(fields: [userId], references: [userId])
+    kategorie      kategorie            @relation(fields: [kategorieId], references: [kategorieId])
+    warenkorbItems warenkorbProdukte[]
+    bestellItems   bestellungProdukte[]
+}
+
+model kategorie {
+    kategorieId  String  @id @default(uuid())
+    name         String
+    beschreibung String?
+
+    // Beziehungen
+    produkte produkte[]
+}
+
+model einstellungen {
+    userId         String  @id
+    lightDark      Boolean
+    schriftgröße Int
+
+    // Beziehungen
+    user user @relation(fields: [userId], references: [userId])
+}
+
+model verkäuferstatusanfrage {
+    anfrageId      String    @id @default(uuid())
+    userId         String
+    status         String?
+    datum          DateTime?
+    kommentarAdmin String?
+
+    // Beziehungen
+    user user @relation(fields: [userId], references: [userId])
+}
+
+model warenkorb {
+    warenkorbId      String   @id @default(uuid())
+    userId           String   @unique
+    erstellungsdatum DateTime
+
+    // Beziehungen
+    user     user                @relation(fields: [userId], references: [userId])
+    produkte warenkorbProdukte[]
+}
+
+model warenkorbProdukte {
+    warenkorbId String
+    produktId   String
+    menge       Int
+
+    // Beziehungen
+    warenkorb warenkorb @relation(fields: [warenkorbId], references: [warenkorbId])
+    produkt   produkte  @relation(fields: [produktId], references: [produktId])
+
+    @@id([warenkorbId, produktId])
+}
+
+model bestellung {
+    bestellId    String   @id @default(uuid())
+    userId       String
+    datum        DateTime
+    gesamtbetrag Float
+
+    // Beziehungen
+    user     user                 @relation(fields: [userId], references: [userId])
+    produkte bestellungProdukte[]
+}
+
+model bestellungProdukte {
+    bestellId String
+    produktId String
+    menge     Int
+
+    // Beziehungen
+    bestellung bestellung @relation(fields: [bestellId], references: [bestellId])
+    produkt    produkte   @relation(fields: [produktId], references: [produktId])
+
+    @@id([bestellId, produktId])
 }
