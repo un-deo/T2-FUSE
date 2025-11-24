@@ -1,18 +1,19 @@
-/* -------------------------------
-   Honey navbar: symmetric animations
-   ------------------------------- */
+/* ---------------------------
+  Full navbar CSS (restored stable behavior + icons + profile dropdown)
+   - No body changes
+   - Tweak variables at top for padding, collapsed size
+   --------------------------- */
 
-/* tweak these variables to adjust gap / collapsed size */
 :root {
-  --nav-side-gap: 1.25rem;     /* side padding when expanded (both left & right) */
-  --collapsed-width: 56%;      /* collapsed pill width (percentage of nav) */
-  --collapsed-half: calc(var(--collapsed-width) / 2);
+  --nav-side-gap: 1.25rem;   /* expanded side gap */
+  --nav-top-gap: 2rem;       /* top margin to emphasize floating */
+  --collapsed-width: 56%;    /* centered pill width when not focused */
 }
 
-/* floating, bigger spacing top & sides so it feels like floating */
+/* container */
 .honey-nav {
-  width: calc(100% - 3rem);   /* outer side gap (1.5rem each side in previous version) */
-  margin: 2rem auto;
+  width: calc(100% - 3rem);  /* left+right outer spacing combined */
+  margin: var(--nav-top-gap) auto;
   border-radius: 1rem;
   background: linear-gradient(180deg, #fff7e6 0%, #fff3da 60%, #ffefcc 100%);
   box-shadow: 0 0.9rem 2.6rem rgba(99, 46, 9, 0.18);
@@ -21,158 +22,152 @@
   z-index: 50;
 }
 
-/* grid layout */
+/* layout */
 .honey-inner {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 1rem;
   height: 4.5rem;
-  position: relative; /* anchors absolutely-positioned search-inner */
+  position: relative;
 }
 
 /* brand */
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  z-index: 20;
-}
-.logo { border-radius: 50%; box-shadow: 0 6px 12px rgba(255,183,0,0.12); }
-.brand-text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; color: #6b3e00; font-weight:700; }
+.brand { display:flex; align-items:center; gap:0.6rem; z-index:20; }
+.logo { border-radius:50%; box-shadow: 0 6px 12px rgba(255,183,0,0.12); }
+.brand-text { color:#6b3e00; font-weight:700; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; }
 
-/* -----------------------
-   SEARCH (absolute)
-   ----------------------- */
-.search-wrap { display:flex; justify-content:center; position:relative; height:100%; }
+/* center search wrap */
+.search-wrap { position:relative; display:flex; justify-content:center; height:100%; }
 
-/* COLLAPSED = centered pill; we set left/right to symmetric values so animating them produces symmetric shrink/expand */
+/* collapsed centered pill: use left/right to determine width */
 .search-inner {
-  position: absolute;
-  /* collapsed: left/right set so width becomes var(--collapsed-width) centered */
-  left: calc(50% - var(--collapsed-half));
-  right: calc(50% - var(--collapsed-half));
-  top: 50%;
+  position:absolute;
+  left: calc(50% - (var(--collapsed-width) / 2));
+  right: calc(50% - (var(--collapsed-width) / 2));
+  top:50%;
   transform: translateY(-50%);
   z-index: 60;
-  /* width determined by left/right, so no explicit width */
-  min-width: 220px;
-  max-width: 760px; /* only limits the collapsed pill; removed when expanded */
-  display: flex;
-  align-items: center;
-  background: rgba(255,255,255,0.975);
+  min-width:220px;
+  max-width:760px;
+  display:flex;
+  align-items:center;
+  background: rgba(255,255,255,0.98);
   border-radius: 999px;
   padding: 0.35rem 0.55rem;
   box-shadow: 0 7px 18px rgba(107,62,0,0.06);
-  /* transitions: left/right animate both ways; max-width toggles so we clear clamp */
-  transition:
-    left 360ms cubic-bezier(.2,.9,.2,1),
-    right 360ms cubic-bezier(.2,.9,.2,1),
-    max-width 300ms ease,
-    box-shadow 280ms ease,
-    transform 280ms ease;
+  transition: left 320ms cubic-bezier(.2,.9,.2,1), right 320ms cubic-bezier(.2,.9,.2,1), max-width 240ms ease, box-shadow 240ms ease;
 }
 
-/* search elements */
-.search-icon { border: none; background: transparent; font-size:1.05rem; padding:0.4rem 0.5rem; pointer-events:none; }
+.search-icon { border:none; background:transparent; font-size:1.05rem; padding:0.4rem 0.5rem; pointer-events:none; }
 .nav-search { border:none; outline:none; flex:1; font-size:1rem; padding:0.5rem 0.6rem; background:transparent; color:#6b3e00; }
 
-/* buttons default: present but invisible (so they can animate) */
+/* filter & close: hidden visually (opacity) but present so transitions are smooth */
 .filter-btn, .search-close {
-  border: none;
-  cursor: pointer;
-  opacity: 0;
-  transform: scale(0.95);
-  pointer-events: none;
-  transition: opacity 220ms ease, transform 220ms ease;
+  border:none;
+  cursor:pointer;
+  opacity:0;
+  transform: scale(0.97);
+  pointer-events:none;
+  transition: opacity 200ms ease, transform 200ms ease;
 }
-
-/* filter styling */
 .filter-btn {
   background: linear-gradient(180deg,#ffb703,#ffa000);
-  color: #472400;
-  padding: 0.45rem 0.68rem;
-  margin-left: 0.4rem;
-  border-radius: 999px;
-  font-weight: 600;
+  color:#472400;
+  padding:0.45rem 0.68rem;
+  margin-left:0.4rem;
+  border-radius:999px;
+  font-weight:600;
   box-shadow: 0 6px 10px rgba(255,167,0,0.12);
 }
+.search-close { font-size:1.05rem; padding:0.45rem; margin-left:0.35rem; background:transparent; }
 
-/* close X styling */
-.search-close { background: transparent; font-size: 1.05rem; padding: 0.45rem; margin-left: 0.35rem; }
+/* right group contains menus and icons */
+.right-group { display:flex; align-items:center; gap:0.75rem; z-index:80; }
 
-/* menus (right) */
-.menu-list {
-  display:flex;
-  align-items:center;
-  gap:0.9rem;               /* default wider gap */
-  list-style:none;
-  margin:0;
-  padding-left:0;
-  z-index: 80;              /* above the search so clicks remain available */
-  pointer-events: auto;
-  transition: transform 300ms cubic-bezier(.2,.9,.2,1), gap 240ms ease, opacity 220ms ease;
-}
-.menu-list a {
-  text-decoration:none;
-  color:#5a3300;
-  padding:0.45rem 0.6rem;
-  border-radius:0.5rem;
-  font-weight:600;
-  transition: background 160ms, transform 110ms;
-}
+/* menus */
+.menu-list { display:flex; align-items:center; gap:0.9rem; list-style:none; margin:0; padding:0; transition: transform 260ms cubic-bezier(.2,.9,.2,1), gap 220ms ease; }
+.menu-list a { text-decoration:none; color:#5a3300; padding:0.45rem 0.6rem; border-radius:0.5rem; font-weight:600; transition: background 160ms, transform 110ms; }
 .menu-list a:hover { background: rgba(255,183,3,0.14); transform: translateY(-2px); }
 
-/* -----------------------
-   SEARCH ACTIVE (expanded)
-   ----------------------- */
+/* icon buttons */
+.icon-btn { background: transparent; border: none; padding: 0.25rem; border-radius: 0.45rem; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+.icon-btn:focus { box-shadow: 0 0 0 3px rgba(255,183,3,0.18); outline:none; }
+
+/* profile dropdown */
+.profile-wrap { position: relative; display:inline-block; }
+.profile-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 160px;
+  background: #faf9f8;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(25,20,10,0.08);
+  border: 1px solid rgba(0,0,0,0.04);
+  padding: 8px 0;
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  z-index: 200;
+}
+.profile-menu a {
+  display:block;
+  padding: 10px 14px;
+  color: #222;
+  text-decoration:none;
+  font-size: 15px;
+}
+.profile-menu a:hover { background: rgba(0,0,0,0.03); }
+.profile-menu hr { border: none; border-top: 1px solid rgba(0,0,0,0.06); margin: 8px 0; }
+
+/* =========================
+   Active (search focused) — symmetrical expand & fade-in buttons
+   ========================= */
 .honey-nav.search-active .search-inner {
-  /* expanded: anchor to both sides using nav padding */
   left: var(--nav-side-gap);
   right: var(--nav-side-gap);
-  top: 50%;
+  top:50%;
   transform: translateY(-50%);
-  max-width: none; /* allow it to fully expand */
+  max-width: none;
   box-shadow: 0 12px 36px rgba(107,62,0,0.12);
 }
 
-/* show filter & close smoothly */
+/* reveal filter & close */
 .honey-nav.search-active .filter-btn,
 .honey-nav.search-active .search-close {
-  opacity: 1;
+  opacity:1;
   transform: scale(1);
-  pointer-events: auto;
+  pointer-events:auto;
 }
 
-/* menus remain visible and gently shift right; gap tightens */
+/* nudge menus to the right slightly (remain visible) */
 .honey-nav.search-active .menu-list {
-  opacity: 1;
   transform: translateX(10px);
-  gap: 0.5rem;         /* tighter spacing while search open */
-  z-index: 90;
+  gap:0.5rem;
 }
+
+/* profile menu visible (controlled via JS) */
+.profile-menu.show { display: flex; }
 
 /* keyboard focus ring */
-.menu-list a:focus, .filter-btn:focus, .search-close:focus, .nav-search:focus {
+.menu-list a:focus, .filter-btn:focus, .search-close:focus, .nav-search:focus, .icon-btn:focus {
   box-shadow: 0 0 0 3px rgba(255,183,3,0.18);
-  outline: none;
+  outline:none;
 }
 
-/* responsive adjustments */
-@media (max-width: 900px) {
-  .honey-nav { width: calc(100% - 2.2rem); margin: 1.8rem auto; padding: 0.7rem 1rem; }
-  .menu-list { gap: 0.7rem; }
+/* responsive */
+@media (max-width:900px) {
+  .honey-nav { width: calc(100% - 2.2rem); margin:1.8rem auto; padding:0.7rem 1rem; }
 }
 @media (max-width:720px) {
-  /* collapsed centered on small screens */
   :root { --collapsed-width: 72%; }
-  .search-inner { left: calc(50% - calc(var(--collapsed-width) / 2)); right: calc(50% - calc(var(--collapsed-width) / 2)); transform: translateY(-50%); }
-  .honey-nav.search-active .search-inner { left: 0.6rem; right: 0.6rem; transform: translateY(-50%); }
   .brand-text { display:none; }
-  .honey-nav.search-active .menu-list { transform: translateX(6px); gap: 0.45rem; }
+  .search-inner { left: calc(50% - (var(--collapsed-width) / 2)); right: calc(50% - (var(--collapsed-width) / 2)); transform: translateY(-50%); }
+  .honey-nav.search-active .search-inner { left: 0.6rem; right: 0.6rem; }
+  .menu-list { gap:0.6rem; }
 }
 @media (max-width:420px) {
-  .honey-nav { width: calc(100% - 1.5rem); margin:1rem auto; padding: 0.6rem 0.8rem; }
   :root { --collapsed-width: 64%; }
-  .honey-nav.search-active .menu-list { gap: 0.35rem; transform: translateX(4px); }
+  .honey-nav { width: calc(100% - 1.5rem); margin:1rem auto; padding:0.6rem 0.8rem; }
 }
