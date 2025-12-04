@@ -40,6 +40,7 @@ model produkte {
     kategorieId         String
     suchfilterattribute String
     status              String
+    bildUrl             String?
 
     // Beziehungen
     user           user                 @relation(fields: [userId], references: [userId])
