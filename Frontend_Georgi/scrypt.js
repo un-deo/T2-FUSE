@@ -1,55 +1,71 @@
-/* Minimal JS for opening/closing search & keyboard handling */
+/* Minimal JS: handles search open/close and profile dropdown */
 (function () {
   const nav = document.querySelector(".honey-nav");
   const searchInput = document.getElementById("nav-search");
   const searchClose = document.getElementById("searchClose");
   const filterBtn = document.getElementById("filterBtn");
   const menuList = document.querySelector(".menu-list");
+  const profileBtn = document.getElementById("profileBtn");
+  const profileMenu = document.getElementById("profileMenu");
+  const cartBtn = document.getElementById("cartBtn");
 
   if (!nav || !searchInput) return;
 
   function openSearch() {
     nav.classList.add("search-active");
-    // keep focus in the input (helpful when user clicked a visual search icon)
+    // focus input (ensure keyboard users are positioned)
     setTimeout(() => searchInput.focus(), 0);
   }
 
   function closeSearch() {
-    // remove active class (triggers smooth CSS animation for closing)
     nav.classList.remove("search-active");
-    // blur the input to ensure :focus-within / focus states don't interfere
     searchInput.blur();
-    // return keyboard focus to first menu link for accessibility
-    const firstMenuLink = menuList && menuList.querySelector("a");
-    if (firstMenuLink) firstMenuLink.focus();
+    // return focus to first menu link (accessibility)
+    const first = menuList && menuList.querySelector("a");
+    if (first) first.focus();
   }
 
-  // open when input is focused
+  // Open on focus
   searchInput.addEventListener("focus", openSearch);
-
-  // close when pressing close X
+  // Close button
   searchClose.addEventListener("click", closeSearch);
-
-  // close on Escape
+  // Esc key to close
   searchInput.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       closeSearch();
       e.stopPropagation();
     }
   });
-
-  // placeholder filter handler (replace with real behavior)
+  // Filter placeholder
   filterBtn.addEventListener("click", () => {
     alert("Open filter panel (implement on your site)");
   });
 
-  // Optional: clicking outside search should close it.
-  // If you want that behavior, uncomment the following:
-  /*
-  document.addEventListener('click', (e) => {
-    if (!nav.contains(e.target)) {
-      closeSearch();
+  // Profile dropdown toggle
+  profileBtn.addEventListener("click", (e) => {
+    const isShown = profileMenu.classList.toggle("show");
+    profileBtn.setAttribute("aria-expanded", isShown ? "true" : "false");
+  });
+
+  // Close profile menu when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".profile-wrap")) {
+      profileMenu.classList.remove("show");
+      profileBtn.setAttribute("aria-expanded", "false");
     }
   });
-  */
+
+  // Keyboard: close profile on Escape when open
+  profileMenu.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      profileMenu.classList.remove("show");
+      profileBtn.setAttribute("aria-expanded", "false");
+      profileBtn.focus();
+    }
+  });
+
+  // Cart click (placeholder)
+  cartBtn.addEventListener("click", () => {
+    alert("Open cart (implement on your site)");
+  });
 })();
