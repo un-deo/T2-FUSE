@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FUSE-SHOP – Regionaler Honig direkt vom Imker</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="home.js" defer></script>
+
     <style>
       body {
         margin: 0;
@@ -27,7 +29,7 @@
     >
       <div class="max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between h-16 md:h-20">
-          <a href="/" class="flex items-center gap-2 group">
+          <a href="/Frontend/home.html" class="flex items-center gap-2 group">
             <div class="relative">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -55,15 +57,19 @@
           </a>
 
           <nav class="hidden md:flex gap-8">
-            <a href="#" class="text-stone-600 hover:text-green-900 font-medium"
+            <a
+              href="/Frontend/product.html"
+              class="text-stone-600 hover:text-green-900 font-medium"
               >Produkte</a
             >
+            <!-- Hier eine ueber uns Seite erstellen und anbinden -Dejan -->
             <a href="#" class="text-stone-600 hover:text-green-900 font-medium"
               >Über Uns</a
             >
           </nav>
 
           <div class="hidden md:flex gap-2">
+            <!-- anmelden/registrieren -->
             <button
               class="px-4 py-2 text-sm font-medium rounded-md hover:bg-stone-100"
             >
@@ -115,11 +121,12 @@
 
         <div class="flex flex-wrap justify-center md:justify-start gap-4">
           <a
-            href="/produkte"
+            href="/Frontend/product.html"
             class="inline-flex items-center justify-center bg-amber-600 hover:bg-amber-700 text-white rounded-full px-8 py-4 text-lg font-medium transition-colors shadow-lg"
           >
             Produkte entdecken
           </a>
+          <!-- mehr effahren seite    -Dejan -->
           <a
             href="/ueber-uns"
             class="inline-flex items-center justify-center border border-white/30 text-white hover:bg-white/10 rounded-full px-8 py-4 text-lg font-medium transition-colors"
@@ -134,7 +141,6 @@
       >
         <svg
           width="100%"
-          height="150"
           viewBox="0 0 1440 120"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -303,7 +309,7 @@
           </div>
 
           <a
-            href="#"
+            href="/Frontend/product.html"
             class="mt-4 md:mt-0 inline-flex items-center gap-2 text-green-900 hover:text-amber-600 font-medium transition-colors"
           >
             Alle Produkte ansehen →
@@ -485,6 +491,8 @@
               genau, woher Ihr Honig stammt und wer ihn mit Hingabe produziert
               hat.
             </p>
+            <!-- hier weider die ueber und seite Verlinken    -Dejan -->
+
             <button
               class="inline-flex items-center justify-center gap-2 bg-green-900 hover:bg-green-800 text-white rounded-full px-8 py-6 text-sm font-medium shadow"
             >
@@ -518,6 +526,7 @@
           Sie sind Imker und möchten Ihre Produkte verkaufen? Registrieren Sie
           sich und erreichen Sie Kunden in ganz Österreich.
         </p>
+        <!-- verlinken    -Dejan  -->
         <div class="flex flex-wrap justify-center gap-4">
           <button
             class="inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white rounded-full px-8 py-6 text-lg font-medium shadow-lg"
@@ -537,7 +546,7 @@
       <div class="max-w-7xl mx-auto px-6 py-16">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div class="lg:col-span-1">
-            <a class="flex items-center gap-2 mb-4" href="/">
+            <a class="flex items-center gap-2 mb-4" href="/Frontend/home.html">
               <div class="relative">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -572,7 +581,7 @@
             <ul class="space-y-2">
               <li>
                 <a
-                  href="/produkte"
+                  href="/Frontend/product.html"
                   class="text-green-200 hover:text-amber-400 text-sm"
                   >Alle Produkte</a
                 >
