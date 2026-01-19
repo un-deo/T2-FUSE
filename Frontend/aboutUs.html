@@ -3,7 +3,746 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>FUSE-SHOP – Regionaler Honig direkt vom Imker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body></body>
+  <body class="bg-white text-stone-900">
+    <header
+      class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-stone-200"
+    >
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="flex items-center justify-between h-16 md:h-20">
+          <a href="/Frontend/home.html" class="flex items-center gap-2 group">
+            <div class="relative">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                class="w-8 h-8 md:w-10 md:h-10 text-amber-600 fill-amber-100 group-hover:fill-amber-200 transition-colors"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                />
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="text-amber-700 font-bold text-xs md:text-sm"
+                  >F</span
+                >
+              </div>
+            </div>
+            <span
+              class="font-serif text-xl md:text-2xl font-semibold text-green-900"
+            >
+              FUSE-SHOP
+            </span>
+          </a>
+
+          <nav class="hidden md:flex gap-8">
+            <a
+              href="/Frontend/product.html"
+              class="text-stone-600 hover:text-green-900 font-medium"
+              >Produkte</a
+            >
+
+            <a
+              href="/Frontend/aboutUs.html"
+              class="text-stone-600 hover:text-green-900 font-medium"
+              >Über Uns</a
+            >
+          </nav>
+
+          <div class="hidden md:flex gap-2">
+            <button
+              class="px-4 py-2 text-sm font-medium rounded-md hover:bg-stone-100"
+              id="anmeldenBtn"
+              onclick="window.location.href = 'anmelden.html'"
+            >
+              Anmelden
+            </button>
+            <button
+              class="px-6 py-2 text-sm font-medium rounded-full bg-amber-600 hover:bg-amber-700 text-white"
+              id="registrierenBtn"
+              onclick="window.location.href = 'registrieren.html'"
+            >
+              Registrieren
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="relative overflow-hidden py-20 md:py-32">
+      <div
+        class="absolute inset-0 bg-cover bg-center"
+        style="
+          background-image: url(&quot;https://images.unsplash.com/photo-1712490355780-13585ce1ef71?crop=entropy&cs=srgb&fm=jpg&q=85&quot;);
+        "
+      >
+        <div class="absolute inset-0 bg-green-900/80"></div>
+      </div>
+
+      <div
+        class="relative mx-auto max-w-7xl px-6 md:px-12 lg:px-24 text-center"
+      >
+        <h1
+          class="mb-6 font-serif text-4xl font-bold text-white md:text-5xl lg:text-6xl"
+        >
+          Über FUSE-SHOP
+        </h1>
+
+        <p class="mx-auto max-w-2xl text-xl leading-relaxed text-green-100">
+          Österreichs Marktplatz für regionale Honig- und Imkereiprodukte. Wir
+          verbinden leidenschaftliche Imker mit Honigliebhabern.
+        </p>
+      </div>
+    </section>
+    <section class="py-16 md:py-24">
+      <div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <span
+              class="text-amber-600 font-medium text-sm uppercase tracking-wider"
+              >Unsere Geschichte</span
+            >
+            <h2
+              class="font-serif text-3xl md:text-4xl font-bold text-stone-900 mt-2 mb-6"
+            >
+              Von der Idee zum Marktplatz
+            </h2>
+            <div class="space-y-4 text-stone-600 leading-relaxed">
+              <p>
+                FUSE-SHOP entstand aus der Überzeugung, dass österreichischer
+                Honig eine Plattform verdient, die seine Qualität und Herkunft
+                in den Vordergrund stellt.
+              </p>
+              <p>
+                Regionale Imker haben oft Schwierigkeiten, ihre Produkte
+                außerhalb des lokalen Marktes zu verkaufen. Bestehende
+                Online-Plattformen sind häufig zu teuer, unpersönlich oder auf
+                Großhändler ausgelegt.
+              </p>
+              <p>
+                Gleichzeitig wünschen sich viele Konsumenten die Möglichkeit,
+                hochwertige Produkte direkt vom Erzeuger zu beziehen - mit der
+                Gewissheit, woher ihr Honig stammt.
+              </p>
+              <p>
+                <strong class="text-stone-900">FUSE-SHOP</strong> bringt beide
+                Seiten zusammen: Eine moderne Plattform, die Tradition und
+                Qualität mit digitaler Einfachheit verbindet.
+              </p>
+            </div>
+          </div>
+          <div class="relative">
+            <img
+              alt="Honigproduktion"
+              class="rounded-3xl shadow-2xl"
+              src="https://images.unsplash.com/photo-1587049352851-8d4e89133924?crop=entropy&amp;cs=srgb&amp;fm=jpg&amp;q=85"
+            />
+            <div
+              class="absolute -bottom-6 -left-6 bg-amber-600 text-white p-6 rounded-2xl shadow-xl"
+            >
+              <p class="font-mono text-3xl font-bold">100%</p>
+              <p class="text-amber-100">Österreichisch</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 md:py-24 bg-white">
+      <div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+        <div class="text-center mb-12">
+          <span
+            class="text-amber-600 font-medium text-sm uppercase tracking-wider"
+            >Unsere Werte</span
+          >
+          <h2
+            class="font-serif text-3xl md:text-4xl font-bold text-stone-900 mt-2"
+          >
+            Wofür wir stehen
+          </h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div
+            class="bg-[#F9F9F7] p-8 rounded-3xl border border-stone-100 hover:border-amber-200 transition-colors"
+          >
+            <div
+              class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-leaf w-7 h-7 text-amber-700"
+                aria-hidden="true"
+              >
+                <path
+                  d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"
+                ></path>
+                <path
+                  d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="font-serif text-xl font-bold text-stone-900 mb-2">
+              100% Regional
+            </h3>
+            <p class="text-stone-600 leading-relaxed">
+              Alle unsere Produkte stammen ausschließlich von geprüften
+              österreichischen Imkern. Wir setzen auf kurze Wege und
+              unterstützen die heimische Landwirtschaft.
+            </p>
+          </div>
+          <div
+            class="bg-[#F9F9F7] p-8 rounded-3xl border border-stone-100 hover:border-amber-200 transition-colors"
+          >
+            <div
+              class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-shield w-7 h-7 text-amber-700"
+                aria-hidden="true"
+              >
+                <path
+                  d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="font-serif text-xl font-bold text-stone-900 mb-2">
+              Geprüfte Qualität
+            </h3>
+            <p class="text-stone-600 leading-relaxed">
+              Jeder Imker auf unserer Plattform wird sorgfältig geprüft. Wir
+              garantieren höchste Qualitätsstandards und Transparenz bei der
+              Herkunft.
+            </p>
+          </div>
+          <div
+            class="bg-[#F9F9F7] p-8 rounded-3xl border border-stone-100 hover:border-amber-200 transition-colors"
+          >
+            <div
+              class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-heart w-7 h-7 text-amber-700"
+                aria-hidden="true"
+              >
+                <path
+                  d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="font-serif text-xl font-bold text-stone-900 mb-2">
+              Nachhaltig
+            </h3>
+            <p class="text-stone-600 leading-relaxed">
+              Bienen sind unverzichtbar für unser Ökosystem. Mit jedem Kauf
+              unterstützen Sie nachhaltige Imkerei und den Schutz der
+              Bienenpopulation.
+            </p>
+          </div>
+          <div
+            class="bg-[#F9F9F7] p-8 rounded-3xl border border-stone-100 hover:border-amber-200 transition-colors"
+          >
+            <div
+              class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-users w-7 h-7 text-amber-700"
+                aria-hidden="true"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <path d="M16 3.128a4 4 0 0 1 0 7.744"></path>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <h3 class="font-serif text-xl font-bold text-stone-900 mb-2">
+              Direkt vom Erzeuger
+            </h3>
+            <p class="text-stone-600 leading-relaxed">
+              Keine Zwischenhändler. Beim Kauf über FUSE-SHOP kaufen Sie direkt
+              beim Imker - fair für beide Seiten.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 md:py-24">
+      <div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+        <div class="text-center mb-12">
+          <span
+            class="text-amber-600 font-medium text-sm uppercase tracking-wider"
+          >
+            Unsere Imker
+          </span>
+          <h2
+            class="font-serif text-3xl md:text-4xl font-bold text-stone-900 mt-2"
+          >
+            Aus allen Bundesländern
+          </h2>
+          <p class="text-stone-500 mt-4 max-w-2xl mx-auto">
+            Unsere Partner-Imkereien sind in ganz Österreich verteilt – von den
+            Alpen bis ins Burgenland.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-3">
+          <span
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 rounded-full text-stone-700 hover:border-amber-300 hover:bg-amber-50 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 text-amber-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+              />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Wien
+          </span>
+
+          <span
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 rounded-full text-stone-700 hover:border-amber-300 hover:bg-amber-50 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 text-amber-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+              />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Niederösterreich
+          </span>
+
+          <span
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 rounded-full text-stone-700 hover:border-amber-300 hover:bg-amber-50 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 text-amber-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+              />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Oberösterreich
+          </span>
+
+          <span
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 rounded-full text-stone-700 hover:border-amber-300 hover:bg-amber-50 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 text-amber-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+              />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Salzburg
+          </span>
+
+          <span
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 rounded-full text-stone-700 hover:border-amber-300 hover:bg-amber-50 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 text-amber-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+              />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Tirol
+          </span>
+
+          <span
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 rounded-full text-stone-700 hover:border-amber-300 hover:bg-amber-50 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 text-amber-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+              />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Vorarlberg
+          </span>
+
+          <span
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 rounded-full text-stone-700 hover:border-amber-300 hover:bg-amber-50 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 text-amber-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+              />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Kärnten
+          </span>
+
+          <span
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 rounded-full text-stone-700 hover:border-amber-300 hover:bg-amber-50 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 text-amber-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+              />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Steiermark
+          </span>
+
+          <span
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 rounded-full text-stone-700 hover:border-amber-300 hover:bg-amber-50 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 text-amber-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+              />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Burgenland
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 md:py-24 bg-green-900">
+      <div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 text-center">
+        <h2 class="font-serif text-3xl md:text-4xl font-bold text-white mb-4">
+          Werden Sie Teil unserer Community
+        </h2>
+        <p class="text-green-200 text-lg mb-8 max-w-2xl mx-auto">
+          Sie sind Imker und möchten Ihre Produkte verkaufen? Registrieren Sie
+          sich und erreichen Sie Kunden in ganz Österreich.
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-4">
+          <button
+            class="inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white rounded-full px-8 py-6 text-lg font-medium shadow-lg"
+            onclick="window.location.href = 'registrieren.html'"
+          >
+            Jetzt registrieren
+          </button>
+          <button
+            class="inline-flex items-center justify-center gap-2 border border-white/30 text-white hover:bg-white/10 rounded-full px-8 py-6 text-lg font-medium"
+            onclick="window.location.href = 'anmelden.html'"
+          >
+            Verkäufer werden
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="bg-green-900 text-green-200">
+      <div class="max-w-7xl mx-auto px-6 py-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          <div class="lg:col-span-1">
+            <a class="flex items-center gap-2 mb-4" href="/">
+              <div class="relative">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  class="w-10 h-10 text-amber-600 fill-amber-100"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                  />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-amber-700 font-bold text-xs md:text-sm"
+                    >F</span
+                  >
+                </div>
+              </div>
+              <span class="font-serif text-2xl font-semibold tracking-tight"
+                >FUSE-SHOP</span
+              >
+            </a>
+            <p class="text-green-200 text-sm leading-relaxed">
+              Österreichs Marktplatz für regionale Honig- und Imkereiprodukte.
+              Direkt vom Imker zu Ihnen.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-serif text-lg font-semibold mb-4">Navigation</h4>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="/produkte"
+                  class="text-green-200 hover:text-amber-400 text-sm"
+                  >Alle Produkte</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/ueber-uns"
+                  class="text-green-200 hover:text-amber-400 text-sm"
+                  >Über Uns</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/verkaeufer-werden"
+                  class="text-green-200 hover:text-amber-400 text-sm"
+                  >Verkäufer werden</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="font-serif text-lg font-semibold mb-4">Kategorien</h4>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="/produkte?category=Honig"
+                  class="text-green-200 hover:text-amber-400 text-sm"
+                  >Honig</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/produkte?category=Propolis"
+                  class="text-green-200 hover:text-amber-400 text-sm"
+                  >Propolis</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/produkte?category=Bienenwachs"
+                  class="text-green-200 hover:text-amber-400 text-sm"
+                  >Bienenwachs</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/produkte?category=Pollen"
+                  class="text-green-200 hover:text-amber-400 text-sm"
+                  >Pollen</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/produkte?category=Met"
+                  class="text-green-200 hover:text-amber-400 text-sm"
+                  >Met</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="font-serif text-lg font-semibold mb-4">Kontakt</h4>
+            <ul class="space-y-3">
+              <li class="flex items-start gap-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-map-pin w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5"
+                >
+                  <path
+                    d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+                  ></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span class="text-green-200 text-sm"
+                  >Musterstraße 123<br />1010 Wien, Österreich</span
+                >
+              </li>
+              <li class="flex items-center gap-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-phone w-5 h-5 text-amber-500 flex-shrink-0"
+                >
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                  ></path>
+                </svg>
+                <a
+                  href="tel:+431234567"
+                  class="text-green-200 hover:text-amber-400 text-sm"
+                  >+43 1 234 567</a
+                >
+              </li>
+              <li class="flex items-center gap-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-mail w-5 h-5 text-amber-500 flex-shrink-0"
+                >
+                  <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path>
+                  <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                </svg>
+                <a
+                  href="mailto:info@fuse-shop.at"
+                  class="text-green-200 hover:text-amber-400 text-sm"
+                  >info@fuse-shop.at</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          class="border-t border-green-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
+        >
+          <p class="text-green-300 text-sm">
+            © 2026 FUSE-SHOP. Alle Rechte vorbehalten.
+          </p>
+          <div class="flex items-center gap-6">
+            <a
+              href="/datenschutz"
+              class="text-green-300 hover:text-amber-400 text-sm"
+              >Datenschutz</a
+            >
+            <a
+              href="/impressum"
+              class="text-green-300 hover:text-amber-400 text-sm"
+              >Impressum</a
+            >
+            <a href="/agb" class="text-green-300 hover:text-amber-400 text-sm"
+              >AGB</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
 </html>
