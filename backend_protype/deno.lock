@@ -233,6 +233,10 @@
       "integrity": "sha512-5uC6DDlmeqiOwCPmK9jMSdOuZTh8bU39Ys6yidB+UTt5hfZUPGAypSgFRiEp+jbi9qH40BLDvy85jIU88wKSqw=="
     }
   },
+  "remote": {
+    "https://deno.land/std@0.206.0/async/delay.ts": "a6142eb44cdd856b645086af2b811b1fcce08ec06bb7d50969e6a872ee9b8659",
+    "https://deno.land/std@0.206.0/http/server.ts": "1aebcfb61a5918b15af128e32adbcea166fa28e02c53d544b41e39d2c6cfa24b"
+  },
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1",

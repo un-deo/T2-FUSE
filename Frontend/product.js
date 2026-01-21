@@ -11,11 +11,11 @@ searchForm.addEventListener("submit", async (e) => {
     const products = await res.json();
     console.log("products", products);
     // display results on the page:
-    const container = document.getElementById("results-container");
-    container.innerHTML = products
-      .map((p) => `<div>${p.name} — ${p.beschreibung ?? ""}</div>`)
-      .join("");
+    //const container = document.getElementById("results-container");
+    // container.innerHTML = products
+    //   .map((p) => `<div>${p.name} — ${p.beschreibung ?? ""}</div>`)
+    //   .join("");
   } catch (err) {
-    console.error("Fetch error:", err);
+    //console.error("Fetch error:", err);
   }
 });
