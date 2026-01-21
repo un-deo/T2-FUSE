@@ -6,5 +6,5 @@ Ben was here
 
 
 
-Notizen von Dejan
-deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --env-file=.env productSearch.ts
+Notizen von Dejan  
+deno task server

@@ -2,7 +2,8 @@
     "tasks": {
         "dev": "deno run --watch main.ts",
         "prisma": "deno -A prisma",
-        "seed": "deno -A --env-file seed.ts"
+        "seed": "deno -A --env-file seed.ts",
+        "server": "deno run -A --env-file=.env productSearch.ts"
     },
     "imports": {
         "@faker-js/faker": "npm:@faker-js/faker@^10.1.0",

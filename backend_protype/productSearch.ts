@@ -1,5 +1,4 @@
 import { PrismaClient } from "./prisma/client/client.ts";
-import { serve } from "https://deno.land/std@0.206.0/http/server.ts";
 
 const prisma = new PrismaClient();
 
@@ -63,9 +62,9 @@ async function router(req: Request): Promise<Response> {
   });
 }
 
-// Start server when run directly
+// Start server when run directly (modern Deno.serve: options first, handler second)
 if (import.meta.main) {
   const port = Number(Deno.env.get("PORT") ?? 3000);
   console.log(`Starting productSearch server on http://localhost:${port}`);
-  serve(router, { port });
+  Deno.serve({ port }, router);
 }
