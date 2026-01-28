@@ -7,4 +7,10 @@ Ben was here
 
 
 Notizen von Dejan  
-deno task server
+deno task server  
+fetch for userlogin  http://localhost:3000/api/search?logininfo=ben@example.com&pw=abc123  
+--> returns true or false (can be changed in the future if needed)  
+  
+  Get all categories  
+  http://localhost:3000/api/search?kategorie=all
+  

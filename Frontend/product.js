@@ -7,18 +7,14 @@ searchForm.addEventListener("submit", async (e) => {
 
   try {
     const url = `http://localhost:3000/api/search?search=${encodeURIComponent(query)}`;
+    console.log("Fetching URL:", url);
     const res = await fetch(url, { method: "GET" });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const products = await res.json();
     console.log("products", products);
     displayProducts(products);
-    // display results on the page:
-    //const container = document.getElementById("results-container");
-    // container.innerHTML = products
-    //   .map((p) => `<div>${p.name} — ${p.beschreibung ?? ""}</div>`)
-    //   .join("");
   } catch (err) {
-    //console.error("Fetch error:", err);
+    console.error("Fetch error:", err);
   }
 });
 
