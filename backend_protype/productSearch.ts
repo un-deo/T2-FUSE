@@ -25,10 +25,15 @@ async function searchHandler(req: Request): Promise<Response> {
 
     const results = await prisma.produkte.findMany({
       where: {
+      AND: [
+        { status: "active" },
+        {
         OR: [
           { name: { contains: searchTerm } },
           { beschreibung: { contains: searchTerm } },
         ],
+        },
+      ],
       },
     });
 
@@ -45,19 +50,8 @@ async function searchHandler(req: Request): Promise<Response> {
   }
 }
 
-async function kategorieHandler(req: Request): Promise<Response> {
+async function kategorieHandler(): Promise<Response> {
   try {
-    const url = new URL(req.url);
-    const searchTerm = url.searchParams.get("kategorie") ?? "";
-
-    // if (searchTerm === "") {
-    //   return new Response(JSON.stringify([]), {
-    //     status: 200,
-    //     headers: corsHeaders(),
-    //   });
-    // }
-
-    // return all categories
     const results = await prisma.kategorie.findMany();
 
     return new Response(JSON.stringify(results), {
@@ -112,11 +106,6 @@ async function kategorieHandler(req: Request): Promise<Response> {
       });
     }
 
-
-    // return new Response(JSON.stringify(results), {
-    //   status: 200,
-    //   headers: corsHeaders(),
-    // });
   } catch (err) {
     console.error("useremailHandler error:", err);
     return new Response(JSON.stringify({ error: "internal" }), {
@@ -143,7 +132,7 @@ async function router(req: Request): Promise<Response> {
     }
     if (url.searchParams.has("kategorie"))
     {
-      return await kategorieHandler(req)
+      return await kategorieHandler()
     }
   }
   return new Response(JSON.stringify({ error: "not_found" }), {

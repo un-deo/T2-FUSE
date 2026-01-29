@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FUSE-SHOP – Regionaler Honig direkt vom Imker</title>
+    <title>FUSE-SHOP - Regionaler Honig direkt vom Imker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="home.js" defer></script>
 
@@ -897,13 +897,13 @@
         <div class="flex flex-wrap justify-center gap-4">
           <button
             class="inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white rounded-full px-8 py-6 text-lg font-medium shadow-lg"
-            onclick="window.location.href = 'registrieren.html'"
+            onclick="openRegisterModal()"
           >
             Jetzt registrieren
           </button>
           <button
             class="inline-flex items-center justify-center gap-2 border border-white/30 text-white hover:bg-white/10 rounded-full px-8 py-6 text-lg font-medium"
-            onclick="window.location.href = 'registrieren.html'"
+            onclick="openLoginModal()"
           >
             <!-- Man könnte es auch anders verlinken-->
             Verkäufer werden
@@ -965,7 +965,11 @@
               </li>
               <li>
                 <a
-                  href="/Frontend/anmelden.html"
+                  href="#"
+                  onclick="
+                    openLoginModal();
+                    return false;
+                  "
                   class="text-green-200 hover:text-amber-400 text-sm"
                   >Verkäufer werden</a
                 >
