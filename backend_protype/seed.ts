@@ -101,8 +101,17 @@ export async function seed() {
     });
 
     // Categories (datagroups)
-    const catA = await ensureKategorie("Honey", "Rohhonig und Sortenhonig");
-    const catB = await ensureKategorie("Beeswax & Apiary", "Bienenwachsprodukte und Imkereibedarf");
+    const catA = await ensureKategorie("Honig", "Rohhonig, Sortenhonig und Honigspezialitäten");
+    const catB = await ensureKategorie("Propolis", "Propolisprodukte, Tinkturen und Naturheilmittel aus dem Bienenstock");
+    const catC = await ensureKategorie("Bienenwachs", "Bienenwachsprodukte, Kerzen, Kosmetik und Rohwachs");
+    const catD = await ensureKategorie("Pollen", "Bienenpollen, Blütenpollen und Nahrungsergänzungen");
+    const catE = await ensureKategorie("Met", "Honigwein (Met) und honigbasierte alkoholische Getränke");   
+
+
+
+    
+
+
 
     // Products (at least 2 per category)
     const products = [];

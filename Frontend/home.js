@@ -312,14 +312,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const registerName = document.getElementById("registerName");
   const registerEmail = document.getElementById("registerEmail");
 
-  loginModal?.addEventListener("click", (e) => {
-    if (e.target === loginModal) closeLoginModal();
-  });
-
-  registerModal?.addEventListener("click", (e) => {
-    if (e.target === registerModal) closeRegisterModal();
-  });
-
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       closeLoginModal();
