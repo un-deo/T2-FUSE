@@ -27,3 +27,4 @@ ToDos:
   - login Token like stated above
   - Fix pictures. currently every time it seeds it changes produkt id --> picture paths wrong
   - Fix Product.html --> footer is noton the bottom when no products are shown (whitespace bellow footer is ugly)
+  - add our real LOGO to all pages 
