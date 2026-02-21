@@ -276,17 +276,48 @@ function handleRegister(event) {
   const phone = document.getElementById("registerPhone").value.trim();
   const address = document.getElementById("registerAddress").value.trim();
 
-  const existingUsers = ["test@email.at", "admin@fuse-shop.at"];
+  // Disable submit button while processing
+  const submitBtn = document.getElementById("registerSubmitBtn");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Wird registriert...";
 
-  if (existingUsers.includes(email.toLowerCase())) {
-    showRegisterError("Diese E-Mail-Adresse ist bereits registriert");
-    return;
-  }
-
-  console.log("Registrierung:", { name, email, phone, address });
-
-  alert("Registrierung erfolgreich! (Noch keine Backend-Anbindung)");
-  closeRegisterModal();
+  // Send registration data to backend
+  fetch("http://localhost:3000/api/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: name,
+      email: email,
+      passwort: password,
+      telefonNr: phone,
+      strasse: address, // You might want to split address into separate fields
+      hausnummer: "",
+      postleitzahl: "",
+      land: "AT",
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        console.log("Registrierung erfolgreich:", data.user);
+        alert("Registrierung erfolgreich! Willkommen " + data.user.name);
+        closeRegisterModal();
+      } else {
+        showRegisterError(data.error || "Registrierung fehlgeschlagen");
+      }
+    })
+    .catch((error) => {
+      console.error("Registrierung Fehler:", error);
+      showRegisterError(
+        "Verbindung zum Server fehlgeschlagen. Bitte versuchen Sie es später erneut.",
+      );
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Konto erstellen";
+    });
 }
 
 function switchToRegister(event) {

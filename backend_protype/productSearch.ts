@@ -115,11 +115,95 @@ async function kategorieHandler(): Promise<Response> {
   }
 }
 
+// Register a new user
+async function registerHandler(req: Request): Promise<Response> {
+  try {
+    // Parse JSON body from request
+    const body = await req.json();
+    
+    const { name, email, passwort, strasse, hausnummer, postleitzahl, land, telefonNr } = body;
+
+    // Validate required fields
+    if (!name || !email || !passwort) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Name, Email und Passwort sind erforderlich" 
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    // Check if user already exists (by email or name)
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: email },
+          { name: name },
+        ],
+      },
+    });
+
+    if (existingUser) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Benutzer mit dieser E-Mail oder diesem Namen existiert bereits" 
+      }), {
+        status: 409, // Conflict
+        headers: corsHeaders(),
+      });
+    }
+
+    // Create the new user
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        passwort, // Note: In production, hash the password!
+        statusId: 1, // Default status
+        strasse: strasse ?? "",
+        hausnummer: hausnummer ?? "",
+        postleitzahl: postleitzahl ?? "",
+        land: land ?? "AT",
+        telefonNr: telefonNr ?? "",
+      },
+    });
+
+    // Return success (don't send password back)
+    return new Response(JSON.stringify({ 
+      success: true, 
+      user: {
+        userId: newUser.userId,
+        name: newUser.name,
+        email: newUser.email,
+      }
+    }), {
+      status: 201,
+      headers: corsHeaders(),
+    });
+
+  } catch (err) {
+    console.error("registerHandler error:", err);
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: "Registrierung fehlgeschlagen" 
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders() });
+  }
+
+  // POST /api/register - User registration
+  if (url.pathname === "/api/register" && req.method === "POST") {
+    return await registerHandler(req);
   }
 
   if (url.pathname.startsWith("/api/search")) {

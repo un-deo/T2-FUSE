@@ -148,7 +148,7 @@ export async function seed() {
       userId: userA.userId,
       selbstabholung: false,
       versand: true,
-      kategorieId: catB.kategorieId,
+      kategorieId: catC.kategorieId,
       suchfilterattribute: "bienenwachs,kerzen,nachhaltig",
       status: "active",
       bildUrl: null,
@@ -161,8 +161,89 @@ export async function seed() {
       userId: userB.userId,
       selbstabholung: false,
       versand: true,
-      kategorieId: catB.kategorieId,
+      kategorieId: catC.kategorieId,
       suchfilterattribute: "bienenwachs,wrap,verpackung",
+      status: "active",
+      bildUrl: null,
+    }));
+
+    // Propolis products
+    products.push(await ensureProdukt({
+      name: "Propolis Tinktur 30ml",
+      beschreibung: "Natürliche Propolis-Tinktur zur Stärkung des Immunsystems.",
+      preis: 18.0,
+      userId: userA.userId,
+      selbstabholung: true,
+      versand: true,
+      kategorieId: catB.kategorieId,
+      suchfilterattribute: "propolis,tinktur,naturheilmittel",
+      status: "active",
+      bildUrl: null,
+    }));
+
+    products.push(await ensureProdukt({
+      name: "Propolis Kapseln (60 Stück)",
+      beschreibung: "Propolis-Kapseln als Nahrungsergänzung für das tägliche Wohlbefinden.",
+      preis: 24.5,
+      userId: userB.userId,
+      selbstabholung: false,
+      versand: true,
+      kategorieId: catB.kategorieId,
+      suchfilterattribute: "propolis,kapseln,gesundheit",
+      status: "active",
+      bildUrl: null,
+    }));
+
+    // Pollen products
+    products.push(await ensureProdukt({
+      name: "Blütenpollen - 250g",
+      beschreibung: "Frische Blütenpollen, reich an Vitaminen und Proteinen.",
+      preis: 15.0,
+      userId: userA.userId,
+      selbstabholung: true,
+      versand: true,
+      kategorieId: catD.kategorieId,
+      suchfilterattribute: "pollen,blütenpollen,vitamine",
+      status: "active",
+      bildUrl: null,
+    }));
+
+    products.push(await ensureProdukt({
+      name: "Bienenpollen Bio - 500g",
+      beschreibung: "Bio-zertifizierte Bienenpollen aus kontrolliertem Anbau.",
+      preis: 28.0,
+      userId: userB.userId,
+      selbstabholung: false,
+      versand: true,
+      kategorieId: catD.kategorieId,
+      suchfilterattribute: "pollen,bio,nahrungsergänzung",
+      status: "active",
+      bildUrl: null,
+    }));
+
+    // Met products
+    products.push(await ensureProdukt({
+      name: "Klassischer Met - 0.5L",
+      beschreibung: "Traditioneller Honigwein nach altem Rezept, mild und süß.",
+      preis: 12.0,
+      userId: userA.userId,
+      selbstabholung: true,
+      versand: true,
+      kategorieId: catE.kategorieId,
+      suchfilterattribute: "met,honigwein,traditionell",
+      status: "active",
+      bildUrl: null,
+    }));
+
+    products.push(await ensureProdukt({
+      name: "Gewürz-Met - 0.75L",
+      beschreibung: "Aromatischer Met mit Gewürzen, perfekt für kalte Tage.",
+      preis: 16.5,
+      userId: userB.userId,
+      selbstabholung: false,
+      versand: true,
+      kategorieId: catE.kategorieId,
+      suchfilterattribute: "met,gewürze,winter",
       status: "active",
       bildUrl: null,
     }));

@@ -16,15 +16,20 @@ fetch for userlogin  http://localhost:3000/api/search?logininfo=ben@example.com&
 Get all categories  
 http://localhost:3000/api/search?kategorie=all  
 
-Localstorage token?   
-  -
-  -either compare to token saved in Db  
-  -Or save UserID In localstorage and add DateTime that tells when it expires.
 
-
-ToDos:
+ToDos / Next steps:
 -
-  - login Token like stated above
-  - Fix pictures. currently every time it seeds it changes produkt id --> picture paths wrong
-  - Fix Product.html --> footer is noton the bottom when no products are shown (whitespace bellow footer is ugly)
-  - add our real LOGO to all pages 
+  - login Token Tabelle in DB (Token (random wie userid) PS, UserID FS, ablaufdatum) - __**BEN**__
+  - Fix pictures. currently every time it seeds it changes produkt id --> picture paths wrong - __**Dejan**__
+  - Fix Product.html --> footer is noton the bottom when no products are shown (whitespace bellow footer is ugly)  - __**Georgi / Marcel**__
+  - add our real LOGO to all pages - __**Georgi / Marcel**__
+  - Es fehlt ein Webdesign fuer user die bereits angemeldet sind (also wo statt anmelden / registrieren) Bsp ein profillogo + einstellungen knopf oä. ist - __**Georgi / Marcel / Moritz**__
+  - change so names don't have to be unique in schema.prisma - __**Ben**__
+
+
+Done:
+-
+
+- register form now works in backend (users can be created) and saved
+- Small bug in product search fixed
+- 
