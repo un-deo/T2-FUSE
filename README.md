@@ -32,4 +32,4 @@ Done:
 
 - register form now works in backend (users can be created) and saved
 - Small bug in product search fixed
-- 
+- Render ersten 20 Produkte wenn angemeldet _**Dejan**__
