@@ -1,5 +1,5 @@
 const searchForm = document.querySelector("form");
-const productInput = document.getElementById("productDisplay");
+const productDisplay = document.getElementById("productDisplay");
 searchForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const formData = new FormData(searchForm);
@@ -18,6 +18,23 @@ searchForm.addEventListener("submit", async (e) => {
   }
 });
 
+async function loadRandomProducts() {
+  try {
+    const res = await fetch("http://localhost:3000/api/search?search=%20");
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const products = await res.json();
+    console.log("random products", products);
+    if (products.length <= 8) {
+      displayProducts(products);
+    } else {
+      displayProducts(products.slice(0, 8));
+    }
+  } catch (err) {
+    console.error("Fetch random products error:", err);
+  }
+}
+loadRandomProducts();
+
 function displayProducts(products) {
   document.getElementById("productAmountFound").innerText =
     `${products.length} Produkte gefunden`;
@@ -28,8 +45,8 @@ function displayProducts(products) {
         <a
           class="group relative bg-white rounded-2xl overflow-hidden border border-stone-200 hover:border-amber-200 transition-all duration-300 hover:shadow-xl hover:shadow-stone-200/50 hover:-translate-y-1"
           data-testid="product-card-195e1b0b-9b8d-45b7-92e0-fb5ceee469ad"
-          href="/produkte/${products[i].produktId}"
-        >
+          >
+          <!--href="/produkte/${products[i].produktId}"   this has to be one up and added as a redirect link-->
           <div
             class="aspect-square bg-stone-100 flex items-center justify-center text-stone-400 text-sm"
           >
