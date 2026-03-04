@@ -27,6 +27,7 @@ model user {
     bestellung     bestellung[]
     warenkorb      warenkorb[]
     statusanfragen verkäuferstatusanfrage[]
+    tokens         token[]
 }
 
 model produkte {
@@ -121,4 +122,13 @@ model bestellungProdukte {
     produkt    produkte   @relation(fields: [produktId], references: [produktId])
 
     @@id([bestellId, produktId])
+}
+
+model token {
+    token     String   @id @default(uuid())
+    userId    String
+    expiresAt DateTime
+
+    // Beziehungen
+    user user @relation(fields: [userId], references: [userId])
 }
