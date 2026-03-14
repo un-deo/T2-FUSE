@@ -69,6 +69,15 @@ async function addProductToWarenkorb(warenkorbId: string, produktId: string, men
   return prisma.warenkorbProdukte.create({ data: { warenkorbId, produktId, menge } });
 }
 
+async function ensureTestToken(userId: string, expiresAt: Date) {
+  const found = await prisma.token.findFirst({ where: { userId } });
+  if (found) return found;
+  // Create a new token record. Use `create` because upsert requires a `where` clause
+  // and we already checked existence above.
+  return prisma.token.create({ data: { userId, expiresAt } });
+} 
+ 
+
 export async function seed() {
   try {
     console.log("Starting seed...");
@@ -260,6 +269,10 @@ export async function seed() {
       await addProductToWarenkorb(cartA.warenkorbId, products[0].produktId, 2);
       await addProductToWarenkorb(cartB.warenkorbId, products[1].produktId, 1);
     }
+    
+    await ensureTestToken(userA.userId, new Date(Date.now() + 1000 * 60 * 60 * 24)); // expires in 24h
+    await ensureTestToken(userB.userId, new Date(Date.now() + 1000 * 60 * 60 * 24)); // expires in 24h
+
 
     console.log("Seeding finished.");
   } catch (err) {

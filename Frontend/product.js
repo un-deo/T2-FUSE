@@ -372,6 +372,57 @@ function resetRegisterForm() {
   hideRegisterError();
 }
 
+function handleLogin(event) {
+  // prevent native form submit which would reload the page
+  event.preventDefault?.();
+
+  const emailEl = document.getElementById("loginEmail");
+  const passwordEl = document.getElementById("loginPassword");
+  const email = emailEl ? emailEl.value.trim() : "";
+  const password = passwordEl ? passwordEl.value : "";
+
+  // Disable submit button while processing
+  const submitBtn = document.getElementById("loginSubmitBtn");
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Anmeldung läuft...";
+  }
+  // Send login data to backend
+  fetch("http://localhost:3000/api/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      Mail: email,
+      pw: password,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        console.log("Login erfolgreich:", data.token);
+        console.log("nurToken:", data.token.tokenId);
+        console.log("ablauf", data.token.expiresAt);
+        localStorage.setItem("authToken", JSON.stringify(data.token));
+        alert("Login erfolgreich!");
+        closeLoginModal();
+      } else {
+        alert("Ungültige E-Mail oder Passwort");
+      }
+    })
+    .catch((error) => {
+      console.error("Login Fehler:", error);
+      alert(
+        "Verbindung zum Server fehlgeschlagen. Bitte versuchen Sie es später erneut.",
+      );
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Anmelden";
+    });
+}
+
 function handleRegister(event) {
   event.preventDefault();
   hideRegisterError();
@@ -441,6 +492,9 @@ function switchToLogin(event) {
 document.addEventListener("DOMContentLoaded", () => {
   const loginModal = document.getElementById("loginModal");
   const registerModal = document.getElementById("registerModal");
+  const loginForm = document.getElementById("loginForm");
+  const loginEmail = document.getElementById("loginEmail");
+  const loginSubmitBtn = document.getElementById("loginSubmitBtn");
   const registerPassword = document.getElementById("registerPassword");
   const registerPasswordConfirm = document.getElementById(
     "registerPasswordConfirm",
@@ -471,4 +525,6 @@ document.addEventListener("DOMContentLoaded", () => {
   registerEmail?.addEventListener("input", updateSubmitButton);
 
   registerForm?.addEventListener("submit", handleRegister);
+  // attach login submit handler so the form uses fetch instead of reloading
+  loginForm?.addEventListener("submit", handleLogin);
 });

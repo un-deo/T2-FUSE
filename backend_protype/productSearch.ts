@@ -68,43 +68,73 @@ async function kategorieHandler(): Promise<Response> {
 }
 
   async function loginHandler(req: Request): Promise<Response> {
-  try {
-    const url = new URL(req.url);
-    const searchTerm = url.searchParams.get("logininfo") ?? "";
-    const pw = url.searchParams.get("pw") ?? "";
+    try {
+    
+      const body = await req.json();
+      const { Mail, pw } = body;
 
-    if (searchTerm === "" || pw === "") {
-      return new Response(JSON.stringify([false]), {
-        status: 200,
+      if (!Mail || !pw) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Email und Passwort sind erforderlich" 
+      }), {
+        status: 400,
         headers: corsHeaders(),
       });
-    }
+      }
+      
+      const results = await prisma.user.findMany({
+        where: {
+          OR: [
+            { email: Mail },
+          ],
+        },
+      });
 
-    const results = await prisma.user.findMany({
-      where: {
-        OR: [
-          { email: { contains: searchTerm } },
-        ],
-      },
-    });
+      if(results.length === 0 || results[0].passwort !== pw){
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "Ungültige E-Mail oder Passwort" 
+        }), {
+          status: 401,
+          headers: corsHeaders(),
+        });
+      } else if (results[0].email === Mail && results[0].passwort === pw) {
+        const IDofUser = results[0].userId;
+        await prisma.token.deleteMany({
+          where: {
+            userId: IDofUser,
+          },
+        });
+        const newToken = await prisma.token.create({
+          data: {
+            userId: IDofUser,
+            expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 2), // Token expires in 2 hours
+          },
+        });
 
-    if(results.length === 0 || results[0].passwort !== pw){
-      return new Response(JSON.stringify([false]), {
+        return new Response(JSON.stringify({
+          success: true,
+          token: {
+            tokenId: newToken.token,
+            expiresAt: newToken.expiresAt,
+            UserID: newToken.userId,
+          }
+        
+        }), {
         status: 200,
         headers: corsHeaders(),
-      });
-    }
-    if(results[0].email === searchTerm && results[0].passwort === pw){
-      return new Response(JSON.stringify([true]), {
-        status: 200,
-        headers: corsHeaders(),
-      });
-    } else {
-      return new Response(JSON.stringify([false]), {
-        status: 200,
-        headers: corsHeaders(),
-      });
-    }
+        });
+      } else {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "Ungültige E-Mail oder Passwort" 
+        }), {
+          status: 401,
+          headers: corsHeaders(),
+        });
+
+      }
 
   } catch (err) {
     console.error("useremailHandler error:", err);
@@ -206,17 +236,17 @@ async function router(req: Request): Promise<Response> {
     return await registerHandler(req);
   }
 
+  // POST /api/login - User login
+  if (url.pathname === "/api/login" && req.method === "POST") {
+    return await loginHandler(req);
+  }
+
   if (url.pathname.startsWith("/api/search")) {
-    if (url.searchParams.has("search") ) { 
-      return await searchHandler(req)
-    };
-    if (url.searchParams.has("logininfo"))
-    {
-      return await loginHandler(req)
+    if (url.searchParams.has("search")) {
+      return await searchHandler(req);
     }
-    if (url.searchParams.has("kategorie"))
-    {
-      return await kategorieHandler()
+    if (url.searchParams.has("kategorie")) {
+      return await kategorieHandler();
     }
   }
   return new Response(JSON.stringify({ error: "not_found" }), {
