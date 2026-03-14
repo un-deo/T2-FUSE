@@ -19,7 +19,6 @@ http://localhost:3000/api/search?kategorie=all
 
 ToDos / Next steps:
 -
-  - login Token Tabelle in DB (Token (random wie userid) PS, UserID FS, ablaufdatum) - __**BEN**__
   - Fix pictures. currently every time it seeds it changes produkt id --> picture paths wrong - __**Dejan**__
   - Fix Product.html --> footer is noton the bottom when no products are shown (whitespace bellow footer is ugly)  - __**Georgi / Marcel**__
   - add our real LOGO to all pages - __**Georgi / Marcel**__
@@ -30,6 +29,7 @@ ToDos / Next steps:
 Done:
 -
 
+- login Token Tabelle in DB (Token (random wie userid) PS, UserID FS, ablaufdatum) - __**BEN**__
 - register form now works in backend (users can be created) and saved
 - Small bug in product search fixed
 - Render ersten 20 Produkte wenn angemeldet _**Dejan**__

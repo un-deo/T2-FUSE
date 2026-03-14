@@ -302,7 +302,7 @@ function handleRegister(event) {
     .then((data) => {
       if (data.success) {
         console.log("Registrierung erfolgreich:", data.user);
-        alert("Registrierung erfolgreich! Willkommen " + data.user.name);
+        // alert("Registrierung erfolgreich! Willkommen " + data.user.name);
         closeRegisterModal();
       } else {
         showRegisterError(data.error || "Registrierung fehlgeschlagen");
@@ -317,6 +317,49 @@ function handleRegister(event) {
     .finally(() => {
       submitBtn.disabled = false;
       submitBtn.textContent = "Konto erstellen";
+    });
+}
+
+function handleLogin(event) {
+  // prevent native form submit which would reload the page
+  event.preventDefault?.();
+
+  const emailEl = document.getElementById("loginEmail");
+  const passwordEl = document.getElementById("loginPassword");
+  const email = emailEl ? emailEl.value.trim() : "";
+  const password = passwordEl ? passwordEl.value : "";
+
+  // Disable submit button while processing
+  const submitBtn = document.getElementById("loginSubmitBtn");
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Anmeldung läuft...";
+  }
+
+  fetch("http://localhost:3000/api/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ Mail: email, pw: password }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        console.log("Login erfolgreich:", data.token);
+
+        closeLoginModal();
+      } else {
+      }
+    })
+    .catch((error) => {
+      console.error("Login Fehler:", error);
+    })
+    .finally(() => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Anmelden";
+      }
     });
 }
 
@@ -365,4 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
   registerEmail?.addEventListener("input", updateSubmitButton);
 
   registerForm?.addEventListener("submit", handleRegister);
+  // attach login submit handler so the form uses fetch instead of reloading
+  const loginForm = document.getElementById("loginForm");
+  loginForm?.addEventListener("submit", handleLogin);
 });

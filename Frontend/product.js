@@ -405,17 +405,17 @@ function handleLogin(event) {
         console.log("nurToken:", data.token.tokenId);
         console.log("ablauf", data.token.expiresAt);
         localStorage.setItem("authToken", JSON.stringify(data.token));
-        alert("Login erfolgreich!");
+        // alert("Login erfolgreich!");
         closeLoginModal();
       } else {
-        alert("Ungültige E-Mail oder Passwort");
+        // alert("Ungültige E-Mail oder Passwort");
       }
     })
     .catch((error) => {
       console.error("Login Fehler:", error);
-      alert(
-        "Verbindung zum Server fehlgeschlagen. Bitte versuchen Sie es später erneut.",
-      );
+      // alert(
+      //   "Verbindung zum Server fehlgeschlagen. Bitte versuchen Sie es später erneut.",
+      // );
     })
     .finally(() => {
       submitBtn.disabled = false;
@@ -459,7 +459,7 @@ function handleRegister(event) {
     .then((data) => {
       if (data.success) {
         console.log("Registrierung erfolgreich:", data.user);
-        alert("Registrierung erfolgreich! Willkommen " + data.user.name);
+        // alert("Registrierung erfolgreich! Willkommen " + data.user.name);
         closeRegisterModal();
       } else {
         showRegisterError(data.error || "Registrierung fehlgeschlagen");
