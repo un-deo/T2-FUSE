@@ -119,7 +119,9 @@ async function kategorieHandler(): Promise<Response> {
             tokenId: newToken.token,
             expiresAt: newToken.expiresAt,
             UserID: newToken.userId,
-          }
+          },
+          statusId: results[0].statusId,
+          userId: results[0].userId
         
         }), {
         status: 200,
