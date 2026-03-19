@@ -346,10 +346,22 @@ function handleLogin(event) {
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        console.log("Login erfolgreich:", data.token);
+        // Token extrahieren (kann String oder Objekt sein)
+        const tokenStr = (data.token && typeof data.token === 'object') ? data.token.tokenId : data.token;
+        
+        // Daten im localStorage speichern
+        if (tokenStr) localStorage.setItem("userToken", tokenStr);
+        if (data.userId) localStorage.setItem("userId", data.userId);
+        if (data.statusId !== undefined) localStorage.setItem("statusId", data.statusId.toString());
 
         closeLoginModal();
+        window.location.href = "/Frontend/signin Header.html";
       } else {
+        const errorDiv = document.getElementById("loginError");
+        if (errorDiv) {
+          errorDiv.textContent = data.error || "Login fehlgeschlagen";
+          errorDiv.classList.remove("hidden");
+        }
       }
     })
     .catch((error) => {
