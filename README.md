@@ -11,7 +11,9 @@ Notizen von Dejan
 
 deno task server  
 fetch for userlogin  http://localhost:3000/api/search?logininfo=ben@example.com&pw=abc123  
---> returns true or false (can be changed in the future if needed)  
+--> returns true or false (can be changed in the future if needed) 
+
+
   
 Get all categories  
 http://localhost:3000/api/search?kategorie=all  
@@ -20,10 +22,10 @@ http://localhost:3000/api/search?kategorie=all
 ToDos / Next steps:
 -
   - Fix pictures. currently every time it seeds it changes produkt id --> picture paths wrong - __**Dejan**__
-  - Fix Product.html --> footer is noton the bottom when no products are shown (whitespace bellow footer is ugly)  - __**Georgi / Marcel**__
   - add our real LOGO to all pages - __**Georgi / Marcel**__
   - Es fehlt ein Webdesign fuer user die bereits angemeldet sind (also wo statt anmelden / registrieren) Bsp ein profillogo + einstellungen knopf oä. ist - __**Georgi / Marcel / Moritz**__
   - change so names don't have to be unique in schema.prisma - __**Ben**__
+  - Userprofiledata (fetch funktion einfach über der funktion __fetchUserProfile(userId, token)__) __**Moritz**__
 
 
 Done:
@@ -33,3 +35,5 @@ Done:
 - register form now works in backend (users can be created) and saved
 - Small bug in product search fixed
 - Render ersten 20 Produkte wenn angemeldet _**Dejan**__
+- Fix Product.html --> footer is noton the bottom when no products are shown (whitespace bellow footer is ugly)
+

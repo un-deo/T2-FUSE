@@ -285,11 +285,95 @@ async function registerHandler(req: Request): Promise<Response> {
   }
 }
 
+async function getUserData(req: Request): Promise<Response> {
+  try { 
+    const body = await req.json();
+
+    const { token, userId } = body;
+    if (!token || !userId) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Token und UserID sind erforderlich" 
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const tokenRecord = await prisma.token.findFirst({
+      where: {
+        token: token,
+        userId: userId,
+      },
+    });
+
+    if (!tokenRecord) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Ungültiger Token oder UserID" 
+      }), {
+        status: 401,
+        headers: corsHeaders(),
+      });
+    }
+
+    // Check if token is expired
+    if (tokenRecord.expiresAt < new Date()) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Token abgelaufen" 
+      }), {
+        status: 401,
+        headers: corsHeaders(),
+      });
+    }
+
+    const userData = await prisma.user.findUnique({
+      where: { userId: userId },
+      select: {
+        userId: true,
+        name: true,
+        email: true,
+        strasse: true,
+        hausnummer: true,
+        postleitzahl: true,
+        land: true,
+        telefonNr: true,
+      }
+    });
+
+    return new Response(JSON.stringify({ 
+      success: true, 
+      user: userData
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+
+  } catch (err) {
+    console.error("getUserData error:", err);
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: "Fehler beim Abrufen der Benutzerdaten" 
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+
+    
+  }
+}
+
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders() });
+  }
+
+  if (url.pathname === "/api/user-data" && req.method === "POST") {
+    return await getUserData(req);
   }
 
   // POST /api/register - User registration
