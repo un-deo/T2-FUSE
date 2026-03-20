@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="de">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>FUSE-SHOP - Adminbereich</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+	</head>
+	<body class="bg-white text-stone-900">
+		<header class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-stone-200">
+			<div class="max-w-7xl mx-auto px-6">
+				<div class="flex items-center justify-between h-16 md:h-20">
+					<a href="/Frontend/signin Header.html" class="flex items-center gap-2">
+						<img
+							src="/Frontend/pics/fuseshop-logo.svg"
+							alt="FUSE-SHOP Logo"
+							class="h-14 md:h-16 w-auto"
+						/>
+					</a>
+
+					<nav class="hidden md:flex items-center gap-8">
+						<a href="/Frontend/product.html" class="text-stone-600 hover:text-green-900 font-medium transition">
+							Produkte
+						</a>
+						<a href="/Frontend/aboutUs.html" class="text-stone-600 hover:text-green-900 font-medium transition">
+							Über Uns
+						</a>
+						<a href="/Frontend/profil.html" class="text-stone-600 hover:text-green-900 font-medium transition">
+							Mein Profil
+						</a>
+					</nav>
+
+					<span class="inline-flex items-center rounded-full bg-green-900/10 text-green-900 px-4 py-2 text-sm font-medium">
+						Adminbereich
+					</span>
+				</div>
+			</div>
+		</header>
+
+		<section class="bg-green-900 py-10 md:py-14">
+			<div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+				<span class="text-amber-400 font-medium uppercase tracking-wider text-sm">Verwaltung</span>
+				<h1 class="font-serif text-3xl md:text-5xl font-bold text-white mt-2">Nutzerverwaltung</h1>
+				<p class="text-green-100 text-base md:text-lg mt-4 max-w-3xl">
+					Admin-Übersicht zum Verwalten von Nutzern, Statusänderungen und Löschanfragen.
+					Diese Seite ist bewusst statisch aufgebaut.
+				</p>
+			</div>
+		</section>
+
+		<section class="py-12 md:py-16 bg-[#F9F9F7]">
+			<div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+					<article class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+						<p class="text-stone-500 text-sm">Gesamte Nutzer</p>
+						<p class="font-mono text-3xl font-semibold text-green-900 mt-2">1.248</p>
+					</article>
+					<article class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+						<p class="text-stone-500 text-sm">Verkäufer</p>
+						<p class="font-mono text-3xl font-semibold text-amber-600 mt-2">178</p>
+					</article>
+					<article class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+						<p class="text-stone-500 text-sm">Administratoren</p>
+						<p class="font-mono text-3xl font-semibold text-green-900 mt-2">6</p>
+					</article>
+				</div>
+			</div>
+		</section>
+
+		<section class="py-12 md:py-16 bg-white">
+			<div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+				<div class="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4">
+					<div>
+						<span class="text-amber-600 font-medium text-sm uppercase tracking-wider">Nutzerliste</span>
+						<h2 class="font-serif text-3xl md:text-4xl font-bold text-stone-900 mt-2">Alle Benutzer</h2>
+					</div>
+				</div>
+
+				<div class="overflow-x-auto rounded-2xl border border-stone-200">
+					<table class="min-w-full bg-white">
+						<thead class="bg-stone-50 border-b border-stone-200">
+							<tr>
+								<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">ID</th>
+								<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Name</th>
+								<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">E-Mail</th>
+								<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Status</th>
+								<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Aktion</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="border-b border-stone-100">
+								<td class="px-5 py-4 text-sm text-stone-600">U-1001</td>
+								<td class="px-5 py-4 font-medium">Anna Berger</td>
+								<td class="px-5 py-4 text-sm text-stone-600">anna@fuse-shop.at</td>
+								<td class="px-5 py-4">
+									<span class="inline-flex px-2.5 py-1 bg-stone-100 text-stone-700 text-xs font-medium rounded-full">Kunde</span>
+								</td>
+								<td class="px-5 py-4">
+									<div class="flex gap-2">
+										<button type="button" class="px-3 py-2 text-xs rounded-full bg-amber-100 text-amber-700 font-medium">Status ändern</button>
+										<button type="button" class="px-3 py-2 text-xs rounded-full bg-red-100 text-red-700 font-medium">Nutzer löschen</button>
+									</div>
+								</td>
+							</tr>
+
+							<tr class="border-b border-stone-100">
+								<td class="px-5 py-4 text-sm text-stone-600">U-1002</td>
+								<td class="px-5 py-4 font-medium">Lukas Steiner</td>
+								<td class="px-5 py-4 text-sm text-stone-600">lukas@fuse-shop.at</td>
+								<td class="px-5 py-4">
+									<span class="inline-flex px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">Verkäufer</span>
+								</td>
+								<td class="px-5 py-4">
+									<div class="flex gap-2">
+										<button type="button" class="px-3 py-2 text-xs rounded-full bg-amber-100 text-amber-700 font-medium">Status ändern</button>
+										<button type="button" class="px-3 py-2 text-xs rounded-full bg-red-100 text-red-700 font-medium">Nutzer löschen</button>
+									</div>
+								</td>
+							</tr>
+
+							<tr>
+								<td class="px-5 py-4 text-sm text-stone-600">U-1003</td>
+								<td class="px-5 py-4 font-medium">Moritz Maier</td>
+								<td class="px-5 py-4 text-sm text-stone-600">moritz@fuse-shop.at</td>
+								<td class="px-5 py-4">
+									<span class="inline-flex px-2.5 py-1 bg-green-900/10 text-green-900 text-xs font-medium rounded-full">Admin</span>
+								</td>
+								<td class="px-5 py-4">
+									<div class="flex gap-2">
+										<button type="button" class="px-3 py-2 text-xs rounded-full bg-amber-100 text-amber-700 font-medium">Status ändern</button>
+										<button type="button" class="px-3 py-2 text-xs rounded-full bg-red-100 text-red-700 font-medium">Nutzer löschen</button>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</section>
+
+		<section class="py-12 md:py-16 bg-[#F9F9F7]">
+			<div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-2 gap-8">
+				<article class="bg-white rounded-2xl border border-stone-200 p-6 md:p-8 shadow-sm">
+					<h3 class="font-serif text-2xl font-bold text-stone-900 mb-2">Status ändern</h3>
+					<p class="text-stone-500 text-sm mb-6">Nutzerrolle manuell auf Kunde, Verkäufer oder Admin setzen.</p>
+
+					<form class="space-y-5">
+						<div>
+							<label for="userSelect" class="block text-sm font-medium text-stone-700 mb-2">Nutzer</label>
+							<select id="userSelect" class="w-full h-12 px-4 rounded-md bg-stone-50 border border-stone-200 focus:outline-none">
+								<option>U-1001 - Anna Berger</option>
+								<option>U-1002 - Lukas Steiner</option>
+								<option>U-1003 - Moritz Maier</option>
+							</select>
+						</div>
+
+						<div>
+							<label for="statusSelect" class="block text-sm font-medium text-stone-700 mb-2">Neuer Status</label>
+							<select id="statusSelect" class="w-full h-12 px-4 rounded-md bg-stone-50 border border-stone-200 focus:outline-none">
+								<option>Kunde</option>
+								<option>Verkäufer</option>
+								<option>Admin</option>
+							</select>
+						</div>
+
+						<button type="button" class="w-full h-12 bg-amber-600 hover:bg-amber-700 text-white rounded-full font-medium shadow-lg transition">
+							Status speichern
+						</button>
+					</form>
+				</article>
+
+				<article class="bg-white rounded-2xl border border-stone-200 p-6 md:p-8 shadow-sm">
+					<h3 class="font-serif text-2xl font-bold text-stone-900 mb-2">Nutzer löschen</h3>
+					<p class="text-stone-500 text-sm mb-6">Nutzerkonto markieren und dauerhaft entfernen (nur UI-Darstellung).</p>
+
+					<form class="space-y-5">
+						<div>
+							<label for="deleteSelect" class="block text-sm font-medium text-stone-700 mb-2">Nutzer</label>
+							<select id="deleteSelect" class="w-full h-12 px-4 rounded-md bg-stone-50 border border-stone-200 focus:outline-none">
+								<option>U-1001 - Anna Berger</option>
+								<option>U-1002 - Lukas Steiner</option>
+								<option>U-1003 - Moritz Maier</option>
+							</select>
+						</div>
+
+						<div>
+							<label for="deleteReason" class="block text-sm font-medium text-stone-700 mb-2">Grund (optional)</label>
+							<textarea
+								id="deleteReason"
+								class="w-full px-4 py-3 rounded-md bg-stone-50 border border-stone-200 focus:outline-none"
+								rows="4"
+								placeholder="Interne Notiz zur Löschung"
+							></textarea>
+						</div>
+
+						<button type="button" class="w-full h-12 bg-red-600 hover:bg-red-700 text-white rounded-full font-medium shadow-lg transition">
+							Nutzer endgültig löschen
+						</button>
+					</form>
+				</article>
+			</div>
+		</section>
+
+		<footer class="bg-green-900 text-green-200">
+			<div class="max-w-7xl mx-auto px-6 py-16">
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+					<div class="lg:col-span-1">
+						<a class="flex items-center gap-2 mb-4" href="/Frontend/home.html">
+							<img
+								src="/Frontend/pics/fuseshop-logo.svg"
+								alt="FUSE-SHOP Logo"
+								class="h-16 md:h-18 w-auto"
+							/>
+						</a>
+						<p class="text-green-200 text-sm leading-relaxed">
+							Österreichs Marktplatz für regionale Honig- und Imkereiprodukte.
+							Direkt vom Imker zu Ihnen.
+						</p>
+					</div>
+
+					<div>
+						<h4 class="font-serif text-lg font-semibold mb-4">Navigation</h4>
+						<ul class="space-y-2">
+							<li>
+								<a href="/Frontend/product.html" class="text-green-200 hover:text-amber-400 text-sm">Alle Produkte</a>
+							</li>
+							<li>
+								<a href="/Frontend/aboutUs.html" class="text-green-200 hover:text-amber-400 text-sm">Über Uns</a>
+							</li>
+							<li>
+								<a href="/Frontend/profil.html" class="text-green-200 hover:text-amber-400 text-sm">Mein Profil</a>
+							</li>
+						</ul>
+					</div>
+
+					<div>
+						<h4 class="font-serif text-lg font-semibold mb-4">Admin</h4>
+						<ul class="space-y-2">
+							<li><span class="text-green-200 text-sm">Nutzer verwalten</span></li>
+							<li><span class="text-green-200 text-sm">Status ändern</span></li>
+							<li><span class="text-green-200 text-sm">Nutzer löschen</span></li>
+						</ul>
+					</div>
+
+					<div>
+						<h4 class="font-serif text-lg font-semibold mb-4">Kontakt</h4>
+						<ul class="space-y-3">
+							<li class="text-green-200 text-sm">Musterstraße 123, 1010 Wien</li>
+							<li class="text-green-200 text-sm">+43 1 234 567</li>
+							<li class="text-green-200 text-sm">info@fuse-shop.at</li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="border-t border-green-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+					<p class="text-green-300 text-sm">© 2026 FUSE-SHOP. Alle Rechte vorbehalten.</p>
+					<div class="flex items-center gap-6">
+						<a href="/Frontend/Datenschutz.html" class="text-green-300 hover:text-amber-400 text-sm">Datenschutz</a>
+						<a href="/Frontend/Impressum.html" class="text-green-300 hover:text-amber-400 text-sm">Impressum</a>
+						<a href="/Frontend/AGB.html" class="text-green-300 hover:text-amber-400 text-sm">AGB</a>
+					</div>
+				</div>
+			</div>
+		</footer>
+	</body>
+</html>

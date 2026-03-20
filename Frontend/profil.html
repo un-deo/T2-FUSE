@@ -6,64 +6,89 @@
     <title>FUSE-SHOP – Regionaler Honig direkt vom Imker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="api.js" defer></script>
+    <script src="session-menu.js" defer></script>
+    <script src="profil.js" defer></script>
   </head>
   <body class="bg-white text-stone-900">
-    <header
-      class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-stone-200"
-    >
-      <div class="max-w-7xl mx-auto px-6">
-        <div class="flex items-center justify-between h-16 md:h-20">
-          <a href="/Frontend/home.html" class="flex items-center gap-2 group">
-                       <img
-              src="/Frontend/pics/fuseshop-logo.svg"
-              alt="FUSE-SHOP Logo"
-              class="h-16 md:h-18 w-auto"
-            />
+      <header class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-stone-200">
+    <div class="max-w-7xl mx-auto px-6">
+      
+      <div class="flex items-center justify-between h-16 md:h-20">
+
+        <!-- LOGO -->
+        <a href="/Frontend/signin Header.html" class="flex items-center gap-2">
+          <img src="/Frontend/pics/fuseshop-logo.svg" 
+               alt="FUSE-SHOP Logo"
+               class="h-14 md:h-16 w-auto">
+        </a>
+
+        <!-- NAVIGATION DESKTOP -->
+        <nav class="hidden md:flex items-center gap-8">
+          <a href="/Frontend/product.html"
+             class="text-stone-600 hover:text-green-900 font-medium transition">
+             Produkte
           </a>
 
-          <nav class="hidden md:flex gap-8">
-            <a
-              href="/Frontend/product.html"
-              class="text-stone-600 hover:text-green-900 font-medium"
-              >Produkte</a
-            >
-            <a
-              href="/Frontend/aboutUs.html"
-              class="text-stone-600 hover:text-green-900 font-medium"
-              >Über Uns</a
-            >
-            <a
-              href="/Frontend/seller.html"
-              class="text-stone-600 hover:text-green-900 font-medium"
-              >Verkäufer</a
-            >
-          </nav>
+          <a href="/Frontend/aboutUs.html"
+             class="text-stone-600 hover:text-green-900 font-medium transition">
+             Über Uns
+          </a>
+        </nav>
 
-          <div class="hidden md:flex gap-2">
-            <!---
-            
-            <button
-              class="px-4 py-2 text-sm font-medium rounded-md hover:bg-stone-100"
-            >
-              Anmelden
-            </button>
-            <button
-              class="px-6 py-2 text-sm font-medium rounded-full bg-amber-600 hover:bg-amber-700 text-white"
-            >
-              Registrieren
-            </button>
-          -->
-            <button
-              class="px-6 py-2 text-sm font-medium rounded-full bg-amber-600 hover:bg-amber-700 text-white"
-              id="warenkorbBtn"
-              onclick="window.location.href = 'warenkorb.html'"
-            >
-              Warenkorb
-            </button>
-          </div>
+        <!-- MENÜ BUTTON -->
+        <div class="relative">
+          <button id="menuButton"
+            class="text-2xl p-2 rounded hover:bg-stone-100 transition">
+            ☰
+          </button>
+
+          <!-- DROPDOWN -->
+          <ul id="menu"
+            class="hidden absolute right-0 mt-2 w-44 bg-white border border-stone-200 rounded-lg shadow-lg overflow-hidden">
+            <!-- admin darf alles shen verkäufer nur verkäufer bereich und profil und warenkorb und kunde nur profil und warenkorb -->
+            <li id="seller-link" class="hidden">
+              <a href="/Frontend/seller.html"
+                class="block px-4 py-2 hover:bg-stone-100 transition">
+                Verkäufer Bereich
+              </a>
+            </li>            
+            <li id="admin-link" class="hidden">
+              <a href="/Frontend/admin.html"
+                class="block px-4 py-2 hover:bg-stone-100 transition">
+                Admin Bereich
+              </a>
+            </li>
+            <li>
+              <a href="/Frontend/warenkorb.html"
+                class="block px-4 py-2 hover:bg-stone-100 transition">
+                Warenkorb
+              </a>
+            </li>
+
+            <li>
+              <a href="/Frontend/profil.html"
+                class="block px-4 py-2 hover:bg-stone-100 transition">
+                Mein Profil
+              </a>
+            </li>
+
+            <li>
+              <button id="logoutLink"
+                onclick="clearSessionStorage()"
+                class="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600 transition">
+                Abmelden
+              </button>
+            </li>
+
+
+          </ul>
         </div>
+
       </div>
-    </header>
+
+    </div>
+  </header>
+
 
     <section class="bg-green-900 py-8">
       <div class="max-w-7xl mx-auto px-6">
@@ -96,14 +121,14 @@
             </div>
 
             <div>
-              <h2 class="font-serif text-xl font-bold text-stone-900">
+              <h2 id="profileNameDisplay" class="font-serif text-xl font-bold text-stone-900">
                 Hans Müller
               </h2>
-              <p class="text-stone-500">imker@alpenblume.at</p>
+              <p id="profileEmailDisplay" class="text-stone-500">imker@alpenblume.at</p>
             </div>
           </div>
 
-          <div class="flex items-center gap-2 p-3 bg-amber-50 rounded-xl">
+          <div id="profileStatusBox" class="flex items-center gap-2 p-3 bg-amber-50 rounded-xl">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -118,8 +143,9 @@
                 d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
               ></path>
             </svg>
-            <span class="font-medium text-amber-800">Verkäufer</span>
+            <span id="profileRoleDisplay" class="font-medium text-amber-800">Verkäufer</span>
             <span
+              id="profileVerificationDisplay"
               class="ml-auto text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"
               >Verifiziert</span
             >
@@ -471,6 +497,5 @@
           </div>
         </div>
       </div>
-    </footer>
   </body>
 </html>
