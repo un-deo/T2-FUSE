@@ -42,6 +42,9 @@ model produkte {
     suchfilterattribute String
     status              String
     bildUrl             String?
+    Gewicht             Float
+    Herkunftsland       String
+    Bestand             Int
 
     // Beziehungen
     user           user                 @relation(fields: [userId], references: [userId])
