@@ -30,10 +30,12 @@
     </style>
   </head>
   <body class="text-stone-900">
-    <header class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-stone-200">
+    <header
+      class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-stone-200"
+    >
       <div class="max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between h-16 md:h-20">
-          <a href="/Frontend/home.html" class="flex items-center gap-2">
+          <a href="/Frontend/home.html" class="flex items-center gap-2 group">
             <img
               src="/Frontend/pics/fuseshop-logo.svg"
               alt="FUSE-SHOP Logo"
@@ -41,16 +43,38 @@
             />
           </a>
 
-          <nav class="hidden md:flex items-center gap-8">
-            <a href="/Frontend/product.html" class="text-stone-600 hover:text-green-900 font-medium transition">Produkte</a>
-            <a href="/Frontend/aboutUs.html" class="text-stone-600 hover:text-green-900 font-medium transition">Über Uns</a>
-            <a href="/Frontend/FAQ.html" class="text-amber-700 font-semibold">FAQ</a>
+          <nav class="hidden md:flex gap-8">
+            <a
+              href="/Frontend/product.html"
+              class="text-stone-600 hover:text-green-900 font-medium"
+              >Produkte</a
+            >
+            <!-- Hier eine ueber uns Seite erstellen und anbinden -Dejan -->
+            <a
+              href="/Frontend/aboutUs.html"
+              class="text-stone-600 hover:text-green-900 font-medium"
+              >Über Uns</a
+            >
           </nav>
 
-          <a
-            href="/Frontend/warenkorb.html"
-            class="px-6 py-2 text-sm font-medium rounded-full bg-amber-600 hover:bg-amber-700 text-white"
-          >Warenkorb</a>
+          <div class="hidden md:flex gap-2">
+            <!-- anmelden/registrieren -->
+            <button
+              class="px-4 py-2 text-sm font-medium rounded-md hover:bg-stone-100"
+              id="anmeldenBtn"
+              onclick="openLoginModal()" 
+            > <!-- Funktion und overlay fehlen noch -->
+              Anmelden
+            </button>
+            <button
+              class="px-6 py-2 text-sm font-medium rounded-full bg-amber-600 hover:bg-amber-700 text-white"
+              id="registrierenBtn"
+              onclick="openRegisterModal()"
+            > <!-- Funktion und overlay fehlen noch -->
+              Registrieren
+            </button>
+
+          </div>
         </div>
       </div>
     </header>
@@ -96,30 +120,41 @@
                 <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
               </summary>
               <p class="text-stone-600 mt-3">
-                Wählen Sie Produkte aus, legen Sie diese in den Warenkorb und schließen Sie den Kauf über die Kasse ab.
-                Sie erhalten danach eine Bestellbestätigung per E-Mail.
+                Lege Produkte in deinen Warenkorb, prüfe deine Auswahl und schließe die Bestellung ab.
+                Du erhältst anschließend eine Bestellbestätigung, die du herunterladen kannst.
               </p>
             </details>
 
             <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
               <summary class="flex items-start justify-between gap-4 cursor-pointer">
-                <span class="font-semibold text-lg">Wie lange dauert die Lieferung?</span>
+                <span class="font-semibold text-lg">Muss ich ein Konto erstellen, um zu bestellen?</span>
                 <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
               </summary>
               <p class="text-stone-600 mt-3">
-                Die Lieferzeit beträgt in Österreich üblicherweise 2 bis 5 Werktage.
-                Bei hoher Nachfrage oder an Feiertagen kann es zu Verzögerungen kommen.
+                Ja, du musst dich registrieren und anmelden, um Produkte in den Warenkorb zu legen und Bestellungen aufzugeben.
+                Produkte ansehen und suchen ist auch ohne Konto möglich.
               </p>
             </details>
 
             <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
               <summary class="flex items-start justify-between gap-4 cursor-pointer">
-                <span class="font-semibold text-lg">Welche Zahlungsmethoden werden angeboten?</span>
+                <span class="font-semibold text-lg">Wie wird meine Bestellung geliefert?</span>
                 <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
               </summary>
               <p class="text-stone-600 mt-3">
-                Sie können je nach Verfügbarkeit mit gängigen Online-Zahlarten wie Kreditkarte, Debitkarte
-                und weiteren unterstützten Methoden bezahlen.
+                Du kannst bei der Bestellung zwischen Versand und Selbstabholung wählen.
+                Die genauen Details werden dir im Bestellprozess angezeigt.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Welche Zahlungsmethoden gibt es?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Derzeit sind keine Online-Zahlungsoptionen integriert.
+                Die Zahlungsabwicklung erfolgt direkt zwischen Käufer und Verkäufer.
               </p>
             </details>
 
@@ -129,8 +164,19 @@
                 <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
               </summary>
               <p class="text-stone-600 mt-3">
-                Über die Verkäuferseite können Sie eine Anfrage stellen. Nach Prüfung Ihrer Angaben
-                wird Ihr Verkäuferkonto freigeschaltet.
+                Melde dich an und beantrage den Verkäuferstatus über dein Profil.
+                Ein Administrator prüft deinen Antrag und schaltet dein Verkäuferkonto frei oder lehnt ihn ab.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Kann ich meine Bestellung nachträglich ändern?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Du kannst Produkte im Warenkorb bearbeiten, die Menge anpassen oder Produkte entfernen,cmd
+                bevor du die Bestellung abschickst.
               </p>
             </details>
 
@@ -140,8 +186,150 @@
                 <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
               </summary>
               <p class="text-stone-600 mt-3">
-                Alle rechtlichen Informationen finden Sie im Footer der Website unter AGB,
-                Datenschutz und Impressum.
+                Alle rechtlichen Informationen findest du im Footer der Website.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Kann ich als Gast Produkte ansehen?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Ja, du kannst den Shop und alle Produkte auch ohne Konto durchsuchen und ansehen.
+                Zum Bestellen musst du dich jedoch registrieren und anmelden.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Wie erstelle ich ein Konto?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Klicke auf "Registrieren", gib deine E-Mail-Adresse, einen Benutzernamen und ein Passwort ein
+                und bestätige dein Passwort. Dein Konto wird sofort erstellt.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Ich habe mein Passwort vergessen - was kann ich tun?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Kontaktiere unseren Support unter
+                <a href="mailto:support@fuse-shop.at" class="text-amber-700 hover:text-amber-800">support@fuse-shop.at</a>,
+                damit wir dir weiterhelfen können.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Kann ich mein Profil nachträglich bearbeiten?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Ja, du kannst in deinem Profil jederzeit E-Mail-Adresse, Passwort, Name, Adresse und Telefonnummer aktualisieren.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Wie suche ich nach einem bestimmten Produkt?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Nutze die Suchfunktion und gib einen Suchbegriff ein.
+                Du kannst die Ergebnisse zusätzlich mit verschiedenen Filtern eingrenzen.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Was passiert, wenn ein Produkt im Warenkorb nicht mehr verfügbar ist?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Das System zeigt dir an, wenn ein Produkt nicht mehr verfügbar ist.
+                Du kannst es dann aus dem Warenkorb entfernen und nach einer Alternative suchen.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Wie viele Produkte kann ich gleichzeitig in den Warenkorb legen?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Es gibt keine feste Begrenzung.
+                Du kannst mehrere verschiedene Produkte in den Warenkorb legen und die Menge für jedes Produkt individuell anpassen.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Woher stammen die Produkte auf FUSE-SHOP?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Alle Produkte stammen ausschließlich von geprüften Imkern aus Österreich.
+                Unser Fokus liegt auf Regionalität, Qualität und Transparenz.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Wie erkenne ich, ob ein Produkt noch auf Lager ist?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Die Verfügbarkeit jedes Produkts wird direkt auf der Produktseite angezeigt.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Kann ich als Verkäufer meine Produkte nachträglich bearbeiten?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Ja, als Verkäufer kannst du deine gelisteten Produkte jederzeit bearbeiten,
+                zum Beispiel Preis, Beschreibung, Kategorie oder Verfügbarkeit anpassen.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Wie sehe ich meine eingegangenen Bestellungen als Verkäufer?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Im Verkäuferbereich findest du eine Übersicht all deiner Bestellungen mit Details zu Produkten,
+                Menge, Preis, Status und Datum.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Kann ich die Kontaktdaten eines Käufers einsehen?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Ja, als Verkäufer kannst du die Kontaktdaten eines Käufers über die jeweilige Bestellung einsehen,
+                um bei Fragen direkt Kontakt aufzunehmen.
+              </p>
+            </details>
+
+            <details class="faq-item bg-white rounded-2xl border border-stone-200 p-5">
+              <summary class="flex items-start justify-between gap-4 cursor-pointer">
+                <span class="font-semibold text-lg">Was passiert, wenn mein Verkäuferstatus entzogen wird?</span>
+                <span class="faq-icon text-2xl text-amber-700 leading-none">+</span>
+              </summary>
+              <p class="text-stone-600 mt-3">
+                Du verlierst den Zugriff auf alle Verkäuferfunktionen und deine Verkaufsanzeigen werden entfernt.
+                Bei Fragen wende dich bitte an
+                <a href="mailto:support@fuse-shop.at" class="text-amber-700 hover:text-amber-800">support@fuse-shop.at</a>.
               </p>
             </details>
           </div>
@@ -185,6 +373,9 @@
                 <a href="/Frontend/aboutUs.html" class="text-green-200 hover:text-amber-400 text-sm">Über Uns</a>
               </li>
               <li>
+                <a href="/Frontend/seller.html" class="text-green-200 hover:text-amber-400 text-sm">Verkäufer werden</a>
+              </li>
+              <li>
                 <a href="/Frontend/FAQ.html" class="text-green-200 hover:text-amber-400 text-sm">FAQ</a>
               </li>
             </ul>
@@ -193,9 +384,11 @@
           <div>
             <h4 class="font-serif text-lg font-semibold mb-4">Kategorien</h4>
             <ul class="space-y-2">
-              <li><a href="/produkte?category=Honig" class="text-green-200 hover:text-amber-400 text-sm">Honig</a></li>
-              <li><a href="/produkte?category=Propolis" class="text-green-200 hover:text-amber-400 text-sm">Propolis</a></li>
-              <li><a href="/produkte?category=Bienenwachs" class="text-green-200 hover:text-amber-400 text-sm">Bienenwachs</a></li>
+              <li><a href="/Frontend/product.html?category=Honig" class="text-green-200 hover:text-amber-400 text-sm">Honig</a></li>
+              <li><a href="/Frontend/product.html?category=Propolis" class="text-green-200 hover:text-amber-400 text-sm">Propolis</a></li>
+              <li><a href="/Frontend/product.html?category=Bienenwachs" class="text-green-200 hover:text-amber-400 text-sm">Bienenwachs</a></li>
+              <li><a href="/Frontend/product.html?category=Pollen" class="text-green-200 hover:text-amber-400 text-sm">Pollen</a></li>
+              <li><a href="/Frontend/product.html?category=Met" class="text-green-200 hover:text-amber-400 text-sm">Met</a></li>
             </ul>
           </div>
 
@@ -203,14 +396,14 @@
             <h4 class="font-serif text-lg font-semibold mb-4">Kontakt</h4>
             <ul class="space-y-3">
               <li class="text-green-200 text-sm">Musterstraße 123, 1010 Wien</li>
-              <li class="text-green-200 text-sm">+43 1 234 567</li>
-              <li class="text-green-200 text-sm">info@fuse-shop.at</li>
+              <li><a href="tel:+431234567" class="text-green-200 hover:text-amber-400 text-sm">+43 1 234 567</a></li>
+              <li><a href="mailto:info@fuse-shop.at" class="text-green-200 hover:text-amber-400 text-sm">info@fuse-shop.at</a></li>
             </ul>
           </div>
         </div>
 
         <div class="border-t border-green-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p class="text-green-300 text-sm">© 2026 FUSE-SHOP. Alle Rechte vorbehalten.</p>
+          <p class="text-green-300 text-sm">© 2026 FUSE-SHOP – Schulprojekt. Alle Rechte vorbehalten.</p>
           <div class="flex items-center gap-6">
             <a href="/Frontend/Datenschutz.html" class="text-green-300 hover:text-amber-400 text-sm">Datenschutz</a>
             <a href="/Frontend/Impressum.html" class="text-green-300 hover:text-amber-400 text-sm">Impressum</a>

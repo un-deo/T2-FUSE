@@ -15,11 +15,11 @@ model user {
     name         String
     email        String @unique
     passwort     String
-    strasse      String
-    hausnummer   String
-    postleitzahl String
-    land         String
-    telefonNr    String
+    strasse      String?
+    hausnummer   String?
+    postleitzahl String?
+    land         String?
+    telefonNr    String?
 
     // Beziehungen
     produkte       produkte[]
@@ -43,7 +43,7 @@ model produkte {
     status              String
     bildUrl             String?
     Gewicht             Float
-    Herkunftsland       String
+    Bundesland          String
     Bestand             Int
 
     // Beziehungen
