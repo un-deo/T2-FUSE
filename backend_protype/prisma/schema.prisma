@@ -12,7 +12,7 @@ generator client {
 model user {
     userId       String @id @default(uuid())
     statusId     Int
-    name         String @unique
+    name         String
     email        String @unique
     passwort     String
     strasse      String
