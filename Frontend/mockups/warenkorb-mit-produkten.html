@@ -1,17 +1,17 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="de">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FUSE-SHOP - Warenkorb (leer)</title>
+  <title>FUSE-SHOP - Warenkorb (mit Produkten)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="header.js" defer></script>
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 </head>
 
 <body class="bg-white text-stone-900">
-<!-- HEADER -->
+  <!-- HEADER -->
   <header class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-stone-200">
     <div class="max-w-7xl mx-auto px-6">
       
@@ -116,25 +116,98 @@
 
     </div>
   </header>
+
   <main>
-    <div class="min-h-screen pt-20 flex items-center justify-center px-4" style="background-color: #F9F9F7;">
-      <div class="bg-white rounded-3xl p-10 text-center max-w-md w-full shadow-xl">
-        <div class="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10 text-stone-400" aria-hidden="true">
-            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
-            <path d="M3 6h18"></path>
-            <path d="M16 10a4 4 0 0 1-8 0"></path>
-          </svg>
+    <div class="min-h-screen pt-20" style="background-color: #F9F9F7;">
+      <div class="max-w-6xl mx-auto px-6 md:px-12 py-12">
+        <div class="flex items-center gap-3 mb-8">
+          <a class="flex items-center gap-1 text-stone-500 hover:text-stone-900 transition-colors" href="/Frontend/product.html">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+            <span class="text-sm">Zurück</span>
+          </a>
+          <h1 class="font-serif text-2xl md:text-3xl font-bold text-stone-900">Warenkorb</h1>
+          <span class="bg-amber-100 text-amber-700 text-sm px-2.5 py-0.5 rounded-full font-medium">1 Artikel</span>
         </div>
-        <h2 class="font-serif text-2xl font-bold text-stone-900 mb-3">Ihr Warenkorb ist leer</h2>
-        <p class="text-stone-500 mb-8">Fügen Sie Produkte aus unserem Shop hinzu.</p>
-        <a class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white rounded-full px-8 py-3 font-medium transition-colors" href="/Frontend/product.html">
-          Produkte entdecken
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true">
-            <path d="M5 12h14"></path>
-            <path d="m12 5 7 7-7 7"></path>
-          </svg>
-        </a>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-2 space-y-4">
+            <div class="bg-white rounded-2xl p-4 md:p-6 flex gap-4 border border-stone-100 hover:border-amber-200 transition-colors">
+              <div class="w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0">
+                <img alt="Waldhonig Steiermark" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1645871317023-00ca188755de?w=600&amp;q=80">
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    <span class="text-xs text-green-700 font-medium">Honig</span>
+                    <h3 class="font-serif font-semibold text-stone-900 text-sm md:text-base mt-0.5">Waldhonig Steiermark</h3>
+                    <p class="text-stone-500 text-xs mt-0.5">Steiermark, Österreich</p>
+                  </div>
+                  <button class="text-stone-400 hover:text-red-500 transition-colors flex-shrink-0 p-1" aria-label="Artikel entfernen">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
+                  </button>
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                  <div class="flex items-center gap-2 border border-stone-200 rounded-full">
+                    <button class="w-8 h-8 flex items-center justify-center text-stone-500 hover:text-stone-900 transition-colors" aria-label="Menge verringern">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5" aria-hidden="true"><path d="M5 12h14"></path></svg>
+                    </button>
+                    <span class="w-8 text-center text-sm font-medium">1</span>
+                    <button class="w-8 h-8 flex items-center justify-center text-stone-500 hover:text-stone-900 transition-colors" aria-label="Menge erhöhen">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                    </button>
+                  </div>
+                  <span class="font-mono font-semibold text-amber-600">€15,90</span>
+                </div>
+              </div>
+            </div>
+
+            <button class="text-sm text-stone-500 hover:text-red-500 transition-colors flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
+              Warenkorb leeren
+            </button>
+          </div>
+
+          <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl p-6 border border-stone-100 sticky top-24">
+              <h2 class="font-serif text-xl font-bold text-stone-900 mb-6">Bestellzusammenfassung</h2>
+
+              <div class="space-y-3 mb-6">
+                <div class="flex justify-between text-sm">
+                  <span class="text-stone-600 truncate mr-2">Waldhonig Steiermark x1</span>
+                  <span class="text-stone-900 font-medium flex-shrink-0">€15,90</span>
+                </div>
+              </div>
+
+              <div class="border-t border-stone-100 pt-4 mb-6">
+                <div class="flex justify-between">
+                  <span class="font-semibold text-stone-900">Gesamt</span>
+                  <span class="font-mono font-bold text-xl text-amber-600">€20,80</span>
+                </div>
+              </div>
+
+              <div class="mb-6">
+                <p class="text-sm font-medium text-stone-700 mb-3">Lieferoption</p>
+                <div class="space-y-2">
+                  <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors border-amber-400 bg-amber-50">
+                    <input class="accent-amber-600" type="radio" name="delivery" value="lieferung" checked>
+                    <span class="text-sm font-medium text-stone-700">Lieferung nach Hause</span>
+                  </label>
+                  <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors border-stone-200 hover:border-stone-300">
+                    <input class="accent-amber-600" type="radio" name="delivery" value="abholung">
+                    <span class="text-sm font-medium text-stone-700">Selbstabholung</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="mb-6">
+                <input placeholder="Lieferadresse eingeben" class="w-full h-11 px-4 rounded-xl border border-stone-200 bg-stone-50 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" type="text" value="">
+              </div>
+
+              <button class="w-full h-12 bg-amber-600 hover:bg-amber-700 text-white rounded-full font-medium shadow-md transition-colors">Jetzt bestellen</button>
+              <p class="text-xs text-stone-400 text-center mt-3">Keine Zahlung erforderlich</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </main>

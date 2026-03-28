@@ -20,10 +20,21 @@ searchForm.addEventListener("submit", async (e) => {
 
 async function loadRandomProducts() {
   try {
-    const res = await fetch("http://localhost:3000/api/search?search=%20");
+    const category = new URLSearchParams(window.location.search).get("category");
+    const initialSearch = category && category.trim() ? category.trim() : " ";
+    const res = await fetch(
+      `http://localhost:3000/api/search?search=${encodeURIComponent(initialSearch)}`
+    );
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const products = await res.json();
     console.log("random products", products);
+    if (category) {
+      const searchInput = searchForm.querySelector('input[name="search"]');
+      if (searchInput) searchInput.value = category;
+      displayProducts(products);
+      return;
+    }
+
     if (products.length <= 8) {
       displayProducts(products);
     } else {

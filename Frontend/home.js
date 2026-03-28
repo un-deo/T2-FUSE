@@ -353,9 +353,10 @@ function handleLogin(event) {
         if (tokenStr) localStorage.setItem("userToken", tokenStr);
         if (data.userId) localStorage.setItem("userId", data.userId);
         if (data.statusId !== undefined) localStorage.setItem("statusId", data.statusId.toString());
+        if (data?.user?.name) localStorage.setItem("userName", data.user.name);
 
         closeLoginModal();
-        window.location.href = "/Frontend/signin Header.html";
+        window.location.href = "/Frontend/signin-header.html";
       } else {
         const errorDiv = document.getElementById("loginError");
         if (errorDiv) {
