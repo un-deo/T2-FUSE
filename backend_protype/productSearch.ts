@@ -472,6 +472,78 @@ async function getMyProducts(req: Request): Promise<Response> {
 
 }
 
+async function updatePassword(req: Request): Promise<Response> {
+  try { 
+    const body = await req.json();
+
+    const { userId, oldPassword, newPassword } = body;
+    if (!userId || !oldPassword || !newPassword) {
+      return new Response(JSON.stringify({ 
+        success: false,
+        error: "UserID, altes und neues Passwort sind erforderlich" 
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const userRecord = await prisma.user.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!userRecord) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Ungültige UserID" 
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    if (userRecord.passwort !== oldPassword) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Ungültiges altes Passwort" 
+      }), {
+        status: 401,
+        headers: corsHeaders(),
+      });
+    }
+
+    await prisma.user.update({
+      where: {
+        userId: userId,
+      },
+      data: {
+        passwort: newPassword,
+      },
+    });
+
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: "Passwort erfolgreich aktualisiert" 
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+
+  } catch (err) {
+    console.error("updatePassword error:", err);
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: "Fehler beim Aktualisieren des Passworts" 
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+
+    
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -511,6 +583,10 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/my-products" && req.method === "POST") {
     return await getMyProducts(req);
+  }
+
+  if (url.pathname === "/api/update-password" && req.method === "POST") {
+    return await updatePassword(req);
   }
 
   return new Response(JSON.stringify({ error: "not_found" }), {

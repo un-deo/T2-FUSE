@@ -93,3 +93,23 @@ async function fetchMyProducts(userId) {
   console.log(data);
 }
 //fetchMyProducts("c4cd7d0d-5432-45f0-96d3-619d3f09668e");
+
+async function updatePassword(userId, oldPassword, newPassword) {
+  const url = "http://localhost:3000/api/update-password";
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId: userId,
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    }),
+  });
+
+  const data = await response.json();
+
+  console.log(data);
+}
