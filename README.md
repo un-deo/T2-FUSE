@@ -38,3 +38,4 @@ Done:
 - Fix Product.html --> footer is noton the bottom when no products are shown (whitespace bellow footer is ugly)
 - validatePW function in api.js --> delivers bool as JSON
 - getMyProducts function im api.js zu finden --> liefert alle produkte eines bestimmten nutzers (fürs verkäufer dashboard gemeint)
+- updatepassword function in api.js um einem nutzer zu ermöglichen das passwort zu ändern. (es wird userID, oldPW, newPW erfordert)
