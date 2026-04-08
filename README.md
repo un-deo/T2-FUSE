@@ -21,7 +21,7 @@ http://localhost:3000/api/search?kategorie=all
 
 ToDos / Next steps:
 -
-  - Fix pictures. currently every time it seeds it changes produkt id --> picture paths wrong - __**Dejan**__
+  - Fix pictures. currently every time it seeds it changes produkt id --> picture paths wrong - __**Dejan/Moritz**__
   - add our real LOGO to all pages - __**Georgi / Marcel**__
   - Es fehlt ein Webdesign fuer user die bereits angemeldet sind (also wo statt anmelden / registrieren) Bsp ein profillogo + einstellungen knopf oä. ist - __**Georgi / Marcel / Moritz**__
   - change so names don't have to be unique in schema.prisma - __**Ben**__
@@ -36,4 +36,5 @@ Done:
 - Small bug in product search fixed
 - Render ersten 20 Produkte wenn angemeldet _**Dejan**__
 - Fix Product.html --> footer is noton the bottom when no products are shown (whitespace bellow footer is ugly)
+- validatePW function in api.js --> delivers bool as JSON
 

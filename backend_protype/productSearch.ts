@@ -366,6 +366,69 @@ async function getUserData(req: Request): Promise<Response> {
   }
 }
 
+async function validatePassword(req: Request): Promise<Response> {
+  try { 
+    const body = await req.json();
+
+    const { userId, passwort } = body;
+    if (!userId || !passwort) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "UserID und Passwort sind erforderlich" 
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const userRecord = await prisma.user.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!userRecord) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Ungültige UserID" 
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    if (userRecord.passwort !== passwort) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Ungültiges Passwort" 
+      }), {
+        status: 401,
+        headers: corsHeaders(),
+      });
+    } else {
+      return new Response(JSON.stringify({ 
+        success: true, 
+        userId: userRecord.userId
+      }), {
+        status: 200,
+        headers: corsHeaders(),
+      });
+    }
+
+  } catch (err) {
+    console.error("validatePassword error:", err);
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: "Fehler beim Überprüfen des Passworts" 
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+
+    
+  }
+
+}
 
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
@@ -399,6 +462,11 @@ async function router(req: Request): Promise<Response> {
       return await kategorieHandler();
     }
   }
+
+  if (url.pathname === "/api/validate-password" && req.method === "POST") {
+    return await validatePassword(req);
+  }
+  
   return new Response(JSON.stringify({ error: "not_found" }), {
     status: 404,
     headers: corsHeaders(),

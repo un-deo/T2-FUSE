@@ -54,3 +54,23 @@ async function validateSession(token, userId) {
     return false;
   }
 }
+
+async function ValidatePassword(userId, password) {
+  const url = "http://localhost:3000/api/validate-password";
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId: userId,
+      passwort: password,
+    }),
+  });
+
+  const result = await response.json();
+
+  console.log(result);
+}
+ValidatePassword(`3adcacff-511a-4c90-96a6-84f7f50b1b0a`, `d3j"nAabaa`);

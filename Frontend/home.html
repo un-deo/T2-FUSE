@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="session-menu.js" defer></script>
     <script src="home.js" defer></script>
+    <script src="api.js" defer></script>
     <script>
       // Auto-redirect if already logged in
       if (localStorage.getItem("userToken")) {
@@ -208,7 +209,7 @@
           <div class="mt-8 text-center text-sm text-stone-500">
             Noch kein Konto?
             <a
-              href="#"  
+              href="#"
               onclick="switchToRegister(event)"
               class="text-amber-600 hover:text-amber-700 font-medium"
             >
@@ -907,11 +908,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div class="lg:col-span-1">
             <a class="flex items-center gap-2 mb-4" href="/Frontend/home.html">
-            <img
-              src="/Frontend/pics/fuseshop-logo.svg"
-              alt="FUSE-SHOP Logo"
-              class="h-16 md:h-18 w-auto"
-            />
+              <img
+                src="/Frontend/pics/fuseshop-logo.svg"
+                alt="FUSE-SHOP Logo"
+                class="h-16 md:h-18 w-auto"
+              />
             </a>
             <p class="text-green-200 text-sm leading-relaxed">
               Österreichs Marktplatz für regionale Honig- und Imkereiprodukte.
@@ -1094,4 +1095,3 @@
     <script src="api.js" defer></script>
   </body>
 </html>
-
