@@ -73,4 +73,23 @@ async function ValidatePassword(userId, password) {
 
   console.log(result);
 }
-ValidatePassword(`3adcacff-511a-4c90-96a6-84f7f50b1b0a`, `d3j"nAabaa`);
+//ValidatePassword(`3adcacff-511a-4c90-96a6-84f7f50b1b0a`, `d3j"nAabaa`);
+
+async function fetchMyProducts(userId) {
+  const url = "http://localhost:3000/api/my-products";
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId: userId,
+    }),
+  });
+
+  const data = await response.json();
+
+  console.log(data);
+}
+//fetchMyProducts("c4cd7d0d-5432-45f0-96d3-619d3f09668e");

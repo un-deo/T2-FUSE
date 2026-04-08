@@ -430,6 +430,48 @@ async function validatePassword(req: Request): Promise<Response> {
 
 }
 
+async function getMyProducts(req: Request): Promise<Response> {
+  try { 
+    const body = await req.json();
+
+    const { userId } = body;
+    if (!userId) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "UserID ist erforderlich" 
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const products = await prisma.produkte.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+
+    return new Response(JSON.stringify({ 
+      success: true, 
+      products: products
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+
+  } catch (err) {
+    console.error("getMyProducts error:", err);
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: "Fehler beim Abrufen der Produkte" 
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -466,7 +508,11 @@ async function router(req: Request): Promise<Response> {
   if (url.pathname === "/api/validate-password" && req.method === "POST") {
     return await validatePassword(req);
   }
-  
+
+  if (url.pathname === "/api/my-products" && req.method === "POST") {
+    return await getMyProducts(req);
+  }
+
   return new Response(JSON.stringify({ error: "not_found" }), {
     status: 404,
     headers: corsHeaders(),
