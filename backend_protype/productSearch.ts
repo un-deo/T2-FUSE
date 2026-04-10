@@ -544,6 +544,76 @@ async function updatePassword(req: Request): Promise<Response> {
   }
 }
 
+async function updateMyProduct(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId, productId, name, kategorieId, beschreibung, preis, bildUrl } = body;
+
+    if (!userId || !productId || !name || !kategorieId || !beschreibung || preis === undefined) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "UserID, ProduktID und Produktdaten sind erforderlich",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const parsedPreis = Number(preis);
+
+    if (Number.isNaN(parsedPreis)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Ungültige Produktdaten",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const updated = await prisma.produkte.updateMany({
+      where: {
+        produktId: String(productId),
+        userId: String(userId),
+      },
+      data: {
+        name: String(name).trim(),
+        beschreibung: String(beschreibung).trim(),
+        preis: parsedPreis,
+        kategorieId: String(kategorieId),
+        bildUrl: String(bildUrl ?? "").trim() || null,
+      },
+    });
+
+    if (updated.count === 0) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Produkt nicht gefunden oder keine Berechtigung",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      productId: String(productId),
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("updateMyProduct error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Aktualisieren des Produkts",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -587,6 +657,10 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/update-password" && req.method === "POST") {
     return await updatePassword(req);
+  }
+
+  if (url.pathname === "/api/update-my-product" && req.method === "POST") {
+    return await updateMyProduct(req);
   }
 
   return new Response(JSON.stringify({ error: "not_found" }), {
