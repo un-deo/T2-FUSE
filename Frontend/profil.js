@@ -23,7 +23,93 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   fillProfileForm(user);
+  setupFormHandlers();
 });
+
+function setupFormHandlers() {
+  const profileForm = document.getElementById("profileForm");
+  const passwordForm = document.getElementById("passwordChangeForm");
+
+  profileForm?.addEventListener("submit", handleProfileSubmit);
+  passwordForm?.addEventListener("submit", handlePasswordChange);
+}
+
+function handleProfileSubmit(event) {
+  event.preventDefault();
+}
+
+async function handlePasswordChange(event) {
+  event.preventDefault();
+
+  const userId = localStorage.getItem("userId");
+  const oldPassword = (document.getElementById("oldPassword")?.value || "").trim();
+  const newPassword = (document.getElementById("newPassword")?.value || "").trim();
+  const confirmNewPassword = (document.getElementById("confirmNewPassword")?.value || "").trim();
+
+  if (!userId) {
+    showPasswordMessage("Benutzersitzung fehlt. Bitte neu anmelden.", "error");
+    return;
+  }
+
+  if (!oldPassword || !newPassword || !confirmNewPassword) {
+    showPasswordMessage("Bitte alle Passwortfelder ausfuellen.", "error");
+    return;
+  }
+
+  if (newPassword !== confirmNewPassword) {
+    showPasswordMessage("Das neue Passwort stimmt nicht mit der Bestaetigung ueberein.", "error");
+    return;
+  }
+
+  if (oldPassword === newPassword) {
+    showPasswordMessage("Das neue Passwort muss sich vom alten unterscheiden.", "error");
+    return;
+  }
+
+  showPasswordMessage("Passwort wird aktualisiert...", "info");
+  const result = await updatePassword(userId, oldPassword, newPassword);
+
+  if (result?.success === true || result?.updated === true) {
+    document.getElementById("passwordChangeForm")?.reset();
+    showPasswordMessage(result?.message || "Passwort erfolgreich aktualisiert.", "success");
+    return;
+  }
+
+  showPasswordMessage(result?.error || "Passwort konnte nicht aktualisiert werden.", "error");
+}
+
+function showPasswordMessage(message, type = "info") {
+  const messageElement = document.getElementById("passwordChangeMessage");
+  if (!messageElement) {
+    return;
+  }
+
+  messageElement.textContent = message;
+  messageElement.className = "text-sm";
+
+  if (type === "success") {
+    messageElement.classList.add("text-green-700");
+    return;
+  }
+
+  if (type === "error") {
+    messageElement.classList.add("text-red-600");
+    return;
+  }
+
+  messageElement.classList.add("text-stone-600");
+}
+
+function togglePasswordVisibility(inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) {
+    return;
+  }
+
+  input.type = input.type === "password" ? "text" : "password";
+}
+
+window.togglePasswordVisibility = togglePasswordVisibility;
 
 function setupRoleBasedMenu() {
   const statusId = localStorage.getItem("statusId");

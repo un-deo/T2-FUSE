@@ -58,20 +58,26 @@ async function validateSession(token, userId) {
 async function ValidatePassword(userId, password) {
   const url = "http://localhost:3000/api/validate-password";
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      userId: userId,
-      passwort: password,
-    }),
-  });
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+        passwort: password ? password.trim() : "",
+      }),
+    });
 
-  const result = await response.json();
+    const result = await response.json();
 
-  console.log(result);
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.error("Validate password request failed:", error);
+    return { success: false, error: "Netzwerkfehler bei der Passwortpruefung" };
+  }
 }
 //ValidatePassword(`3adcacff-511a-4c90-96a6-84f7f50b1b0a`, `d3j"nAabaa`);
 
@@ -97,19 +103,25 @@ async function fetchMyProducts(userId) {
 async function updatePassword(userId, oldPassword, newPassword) {
   const url = "http://localhost:3000/api/update-password";
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      userId: userId,
-      oldPassword: oldPassword,
-      newPassword: newPassword,
-    }),
-  });
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+        oldPassword: oldPassword ? oldPassword.trim() : "",
+        newPassword: newPassword ? newPassword.trim() : "",
+      }),
+    });
 
-  const data = await response.json();
+    const data = await response.json();
 
-  console.log(data);
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error("Update password request failed:", error);
+    return { success: false, error: "Netzwerkfehler beim Passwort-Update" };
+  }
 }
