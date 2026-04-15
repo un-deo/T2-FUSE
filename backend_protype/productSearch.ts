@@ -614,6 +614,65 @@ async function updateMyProduct(req: Request): Promise<Response> {
   }
 }
 
+async function updateUserData(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId, name, email, strasse, hausnummer, postleitzahl, land, telefonNr } = body;
+
+    if (!userId || !name || !email) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "UserID, Name und Email sind erforderlich",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const updated = await prisma.user.update({
+      where: {
+        userId: String(userId),
+      },
+      data: {
+        name: String(name).trim(),
+        email: String(email).trim(),
+        strasse: String(strasse ?? "").trim(),
+        hausnummer: String(hausnummer ?? "").trim(),
+        postleitzahl: String(postleitzahl ?? "").trim(),
+        land: String(land ?? "").trim(),
+        telefonNr: String(telefonNr ?? "").trim(),
+      },
+    });
+
+    if (!updated) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Benutzer nicht gefunden oder keine Berechtigung",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      userId: String(userId),
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("updateUserData error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Aktualisieren der Benutzerdaten",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -661,6 +720,10 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/update-my-product" && req.method === "POST") {
     return await updateMyProduct(req);
+  }
+
+  if (url.pathname === "/api/update-user-data" && req.method === "POST") {
+    return await updateUserData(req);
   }
 
   return new Response(JSON.stringify({ error: "not_found" }), {

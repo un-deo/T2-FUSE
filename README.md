@@ -68,3 +68,9 @@ SICHERHEIT / BETRIEB -- Am Projektende:
 - [ ] Token-/Session-Handling überprüfen (Ablauf, ungültige Tokens, Logout-Fälle)
 - [ ] Berechtigungen für Admin/Verkäufer/Käufer zentral testen (kein Zugriff ohne Rolle)
 
+
+
+
+ISSUES welche beim nutzen & testen der Seite auftreten
+- wenn die webseite (getestet bei home.html) weniger als eine halbe Bildschirmlaenge lang ist verschwindet das header komplett (alles ausser Logo).
+- man kann nicht auf profukte.html zugreifen. man wird direkt auf home.html verwiesen.

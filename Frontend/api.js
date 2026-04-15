@@ -125,3 +125,47 @@ async function updatePassword(userId, oldPassword, newPassword) {
     return { success: false, error: "Netzwerkfehler beim Passwort-Update" };
   }
 }
+
+async function updateUserData(
+  userId,
+  name,
+  email,
+  strasse,
+  hausnummer,
+  postleitzahl,
+  land,
+  telefonNr,
+) {
+  const url = "http://localhost:3000/api/update-user-data";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // Ensure all required fields (userId, name, email) are in the object
+      body: JSON.stringify({
+        userId: userId,
+        name: name ? name.trim() : "",
+        email: email ? email.trim() : "",
+        strasse: strasse ? strasse.trim() : "",
+        hausnummer: hausnummer ? hausnummer.trim() : "",
+        postleitzahl: postleitzahl ? postleitzahl.trim() : "",
+        land: land ? land.trim() : "",
+        telefonNr: telefonNr ? telefonNr.trim() : "",
+      }),
+    });
+
+    const result = await response.json();
+    console.log(result);
+    if (!response.ok) {
+      throw new Error(result.error || "Update failed in backend");
+    }
+
+    console.log("Update successful:", result.userId);
+    return result;
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+    throw error;
+  }
+}
