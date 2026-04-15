@@ -208,7 +208,6 @@ async function validateTokenForUser(req: Request): Promise<Response> {
   }
 }
 
-// Register a new user
 async function registerHandler(req: Request): Promise<Response> {
   try {
     // Parse JSON body from request
@@ -547,9 +546,9 @@ async function updatePassword(req: Request): Promise<Response> {
 async function updateMyProduct(req: Request): Promise<Response> {
   try {
     const body = await req.json();
-    const { userId, productId, name, kategorieId, beschreibung, preis, bildUrl } = body;
+    const { userId, productId, name, kategorieId, beschreibung, preis, bildUrl, bestand, bundesland, gewicht } = body;
 
-    if (!userId || !productId || !name || !kategorieId || !beschreibung || preis === undefined) {
+    if (!userId || !productId || !name || !kategorieId || !beschreibung || preis === undefined || bestand === undefined || bundesland === undefined || gewicht === undefined) {
       return new Response(JSON.stringify({
         success: false,
         error: "UserID, ProduktID und Produktdaten sind erforderlich",
@@ -560,8 +559,10 @@ async function updateMyProduct(req: Request): Promise<Response> {
     }
 
     const parsedPreis = Number(preis);
+    const parsedBestand = Number(bestand);
+    const parsedGewicht = Number(gewicht);
 
-    if (Number.isNaN(parsedPreis)) {
+    if (Number.isNaN(parsedPreis) || Number.isNaN(parsedBestand) || Number.isNaN(parsedGewicht)) {
       return new Response(JSON.stringify({
         success: false,
         error: "Ungültige Produktdaten",
@@ -582,6 +583,9 @@ async function updateMyProduct(req: Request): Promise<Response> {
         preis: parsedPreis,
         kategorieId: String(kategorieId),
         bildUrl: String(bildUrl ?? "").trim() || null,
+        Bestand: parsedBestand,
+        Bundesland: String(bundesland ?? "").trim() || null,
+        Gewicht: parsedGewicht,
       },
     });
 

@@ -10,10 +10,10 @@ generator client {
 }
 
 model user {
-    userId       String @id @default(uuid())
+    userId       String  @id @default(uuid())
     statusId     Int
     name         String
-    email        String @unique
+    email        String  @unique
     passwort     String
     strasse      String?
     hausnummer   String?
@@ -42,9 +42,9 @@ model produkte {
     suchfilterattribute String
     status              String
     bildUrl             String?
-    Gewicht             Float
-    Bundesland          String
-    Bestand             Int
+    Gewicht             Float?
+    Bundesland          String?
+    Bestand             Int?
 
     // Beziehungen
     user           user                 @relation(fields: [userId], references: [userId])
