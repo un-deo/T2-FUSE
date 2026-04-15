@@ -169,3 +169,28 @@ async function updateUserData(
     throw error;
   }
 }
+
+async function deleteMyProduct(productId, userID) {
+  const url = "http://localhost:3000/api/delete-product";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userID,
+        productId: productId,
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error("Delete product request failed:", error);
+    return {
+      success: false,
+      error: "Netzwerkfehler beim Löschen des Produkts",
+    };
+  }
+}

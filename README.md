@@ -32,6 +32,8 @@ Done:
 - validatePW function in api.js --> delivers bool as JSON
 - getMyProducts function im api.js --> liefert alle Produkte eines bestimmten Nutzers
 - updatePassword function in api.js --> ermöglicht Passwortänderung mit userID, oldPW, newPW
+- updateUserData funtion has been addedn in api.js --> ermöglicht bearbeitung der userdaten
+- deleteProduct has been added to api.js --> ermöglicht das löschen von Produkten aus der DB (requires productID, userID of Product owner)
 
 Offene Aufgaben:
 -
