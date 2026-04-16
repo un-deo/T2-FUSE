@@ -67,7 +67,7 @@ async function kategorieHandler(): Promise<Response> {
   }
 }
 
-  async function loginHandler(req: Request): Promise<Response> {
+async function loginHandler(req: Request): Promise<Response> {
     try {
     
       const body = await req.json();
@@ -720,6 +720,208 @@ async function deleteProduct(req: Request): Promise<Response> {
   }
 }
 
+async function addToCart(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId, productId, amount } = body;
+
+    // Implementation for adding product to cart
+    // in modell warenkorbProdukte create a new entry. generate a warenkorbID, add ProductID and amount
+    //then link the warenkorb id to the useID in the modell called warenkorb
+    
+    if (!userId || !productId || amount === undefined) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "UserID, ProductID und Menge sind erforderlich",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    //chck if user has a cart already
+    let cart = await prisma.warenkorb.findFirst({
+      where: {
+        userId: String(userId),
+      },
+    });
+
+    //check if the product is already in the cart if so change amount, if so adda a new entry to warenkorbProdukte
+    if (cart) {
+      const cartProduct = await prisma.warenkorbProdukte.findFirst({
+        where: {
+          warenkorbId: cart.warenkorbId,
+          produktId: String(productId),
+        },
+      })
+      if (cartProduct) {
+        await prisma.warenkorbProdukte.update({
+          where: {
+            warenkorbId_produktId: {
+              warenkorbId: cart.warenkorbId,
+              produktId: cartProduct.produktId,
+            },
+          },
+          data: {
+            menge: cartProduct.menge + amount,
+          },
+        });
+      } else if (!cartProduct) {
+        await prisma.warenkorbProdukte.create({
+          data: {
+            warenkorbId: cart.warenkorbId,
+            produktId: String(productId),
+            menge: amount,
+          },
+        });
+      } else {
+        return new Response(JSON.stringify({
+          success: false,
+          error: "Fehler beim Hinzufügen zum Warenkorb",
+        }), {
+          status: 500,
+          headers: corsHeaders(),
+        });
+      }
+    } else if (!cart) {
+      //if user has no cart create one and add the product to it
+      cart = await prisma.warenkorb.create({
+        data: {
+          userId: String(userId),
+          erstellungsdatum: new Date(),
+        },
+      });
+      await prisma.warenkorbProdukte.create({
+        data: {
+          warenkorbId: cart.warenkorbId,
+          produktId: String(productId),
+          menge: amount,
+        },
+      });
+    }
+    
+    return new Response(JSON.stringify({
+      success: true,
+      message: "Produkt erfolgreich zum Warenkorb hinzugefügt",
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+
+  } catch (err) {
+    console.error("addToCart error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Hinzufügen zum Warenkorb",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
+async function removeFromCart(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId, productId, amount } = body;
+
+    // Implementation for removing product from cart
+    // in modell warenkorbProdukte remove the entry. or decrease by amount. if amount is 0 remove the entry
+    //then remove the link the warenkorb    in the modell called warenkorb    
+    if (!userId || !productId || amount === undefined) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "UserID, ProductID und Menge sind erforderlich",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+    
+    const cart = await prisma.warenkorb.findFirst({
+      where: {
+        userId: String(userId),
+      },
+    });
+
+    if (!cart) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Warenkorb nicht gefunden",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    } else if (cart) {
+      const cartProduct = await prisma.warenkorbProdukte.findFirst({
+        where: {
+          warenkorbId: cart.warenkorbId,
+          produktId: String(productId),
+        },
+      });
+
+      if (!cartProduct) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: "Produkt nicht im Warenkorb gefunden",
+        }), {
+          status: 404,
+          headers: corsHeaders(),
+        });
+      } else if (cartProduct) {
+        if (cartProduct.menge > amount) {
+          await prisma.warenkorbProdukte.update({
+            where: {
+              warenkorbId_produktId: {
+                warenkorbId: cart.warenkorbId,
+                produktId: cartProduct.produktId,
+              },
+            },
+            data: {
+              menge: cartProduct.menge - amount,
+            },
+          });
+        } else {
+          await prisma.warenkorbProdukte.delete({
+            where: {
+              warenkorbId_produktId: {
+                warenkorbId: cart.warenkorbId,
+                produktId: cartProduct.produktId,
+              },
+            },
+          });
+        }
+      } else {
+        return new Response(JSON.stringify({
+          success: false,
+          error: "Fehler beim Entfernen aus dem Warenkorb",
+        }), {
+          status: 500,
+          headers: corsHeaders(),
+        });
+      }
+    }
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: "Produkt erfolgreich aus dem Warenkorb entfernt",
+      }), {
+        status: 200,
+        headers: corsHeaders(),
+      });
+
+  } catch (err) {
+    console.error("addToCart error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Hinzufügen zum Warenkorb",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -775,6 +977,14 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/delete-product" && req.method === "POST") {
     return await deleteProduct(req);
+  }
+
+  if (url.pathname === "/api/add-to-cart" && req.method === "POST") {
+    return await addToCart(req);
+  }
+
+  if (url.pathname === "/api/remove-from-cart" && req.method === "POST") {
+    return await removeFromCart(req);
   }
 
   return new Response(JSON.stringify({ error: "not_found" }), {

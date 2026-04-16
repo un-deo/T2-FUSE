@@ -34,6 +34,8 @@ Done:
 - updatePassword function in api.js --> ermöglicht Passwortänderung mit userID, oldPW, newPW
 - updateUserData funtion has been addedn in api.js --> ermöglicht bearbeitung der userdaten
 - deleteProduct has been added to api.js --> ermöglicht das löschen von Produkten aus der DB (requires productID, userID of Product owner)
+- addtocart has been added but not tested
+- removefromcart has been addedbut not tested
 
 Offene Aufgaben:
 -
