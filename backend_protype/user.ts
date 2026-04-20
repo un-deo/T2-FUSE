@@ -1,6 +1,22 @@
 import { PrismaClient } from "./prisma/client/client.ts";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
+
+const BCRYPT_ROUNDS = 10;
+const BCRYPT_MAX_BYTES = 72;
+
+function isBcryptPasswordLengthValid(password: string): boolean {
+  return new TextEncoder().encode(password).length <= BCRYPT_MAX_BYTES;
+}
+
+async function hashPassword(password: string) {
+  if (!isBcryptPasswordLengthValid(password)) {
+    throw new Error("Password exceeds bcrypt limit of 72 bytes");
+  }
+
+  return await bcrypt.hash(password, BCRYPT_ROUNDS);
+}
 
 // Type definition for creating a new user
 interface CreateUserInput {
@@ -21,6 +37,7 @@ export async function createUser(userData: CreateUserInput) {
     const user = await prisma.user.create({
       data: {
         ...userData,
+        passwort: await hashPassword(userData.passwort),
         statusId: userData.statusId ?? 1, // Default status
       },
     });

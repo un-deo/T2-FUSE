@@ -42,9 +42,15 @@ async function handlePasswordChange(event) {
   event.preventDefault();
 
   const userId = localStorage.getItem("userId");
-  const oldPassword = (document.getElementById("oldPassword")?.value || "").trim();
-  const newPassword = (document.getElementById("newPassword")?.value || "").trim();
-  const confirmNewPassword = (document.getElementById("confirmNewPassword")?.value || "").trim();
+  const oldPassword = (
+    document.getElementById("oldPassword")?.value || ""
+  ).trim();
+  const newPassword = (
+    document.getElementById("newPassword")?.value || ""
+  ).trim();
+  const confirmNewPassword = (
+    document.getElementById("confirmNewPassword")?.value || ""
+  ).trim();
 
   if (!userId) {
     showPasswordMessage("Benutzersitzung fehlt. Bitte neu anmelden.", "error");
@@ -57,12 +63,18 @@ async function handlePasswordChange(event) {
   }
 
   if (newPassword !== confirmNewPassword) {
-    showPasswordMessage("Das neue Passwort stimmt nicht mit der Bestaetigung ueberein.", "error");
+    showPasswordMessage(
+      "Das neue Passwort stimmt nicht mit der Bestaetigung ueberein.",
+      "error",
+    );
     return;
   }
 
   if (oldPassword === newPassword) {
-    showPasswordMessage("Das neue Passwort muss sich vom alten unterscheiden.", "error");
+    showPasswordMessage(
+      "Das neue Passwort muss sich vom alten unterscheiden.",
+      "error",
+    );
     return;
   }
 
@@ -71,11 +83,17 @@ async function handlePasswordChange(event) {
 
   if (result?.success === true || result?.updated === true) {
     document.getElementById("passwordChangeForm")?.reset();
-    showPasswordMessage(result?.message || "Passwort erfolgreich aktualisiert.", "success");
+    showPasswordMessage(
+      result?.message || "Passwort erfolgreich aktualisiert.",
+      "success",
+    );
     return;
   }
 
-  showPasswordMessage(result?.error || "Passwort konnte nicht aktualisiert werden.", "error");
+  showPasswordMessage(
+    result?.error || "Passwort konnte nicht aktualisiert werden.",
+    "error",
+  );
 }
 
 function showPasswordMessage(message, type = "info") {
@@ -121,7 +139,7 @@ function setupRoleBasedMenu() {
     document.getElementById("admin-link")?.classList.remove("hidden");
   }
 }
-    
+
 function setupDropdownMenu() {
   const menuButton = document.getElementById("menuButton");
   const menu = document.getElementById("menu");
@@ -133,7 +151,6 @@ function setupDropdownMenu() {
   menuButton.addEventListener("click", () => {
     menu.classList.toggle("hidden");
   });
-
 
   document.addEventListener("click", (event) => {
     if (!menuButton.contains(event.target) && !menu.contains(event.target)) {
@@ -155,7 +172,12 @@ function fillProfileForm(user) {
   const email = user?.email || "";
   const phone = user?.telefonNr || "";
 
-  const addressParts = [user?.strasse, user?.hausnummer, user?.postleitzahl, user?.land]
+  const addressParts = [
+    user?.strasse,
+    user?.hausnummer,
+    user?.postleitzahl,
+    user?.land,
+  ]
     .filter((part) => part && String(part).trim() !== "")
     .map((part) => String(part).trim());
   const address = addressParts.join(", ");
@@ -180,13 +202,15 @@ function fillProfileForm(user) {
     emailDisplay.textContent = email || "Keine E-Mail";
   }
 }
- 
+
 function updateProfileStatusBadge() {
   const statusId = localStorage.getItem("statusId");
 
   const statusBox = document.getElementById("profileStatusBox");
   const roleDisplay = document.getElementById("profileRoleDisplay");
-  const verificationDisplay = document.getElementById("profileVerificationDisplay");
+  const verificationDisplay = document.getElementById(
+    "profileVerificationDisplay",
+  );
 
   if (!statusBox || !roleDisplay || !verificationDisplay) {
     return;
