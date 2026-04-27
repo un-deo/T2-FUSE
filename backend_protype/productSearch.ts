@@ -24,15 +24,44 @@ async function hashPassword(password: string) {
 }
 
 async function verifyPassword(storedPassword: string, plainPassword: string) {
-  if (isBcryptHash(storedPassword)) {
-    if (!isBcryptPasswordLengthValid(plainPassword)) {
-      return false;
-    }
-
-    return await bcrypt.compare(plainPassword, storedPassword);
+  if (!isBcryptHash(storedPassword)) {
+    return false;
   }
 
-  return storedPassword === plainPassword;
+  if (!isBcryptPasswordLengthValid(plainPassword)) {
+    return false;
+  }
+
+  return await bcrypt.compare(plainPassword, storedPassword);
+}
+
+async function verifyPasswordWithLegacyUpgrade(
+  userId: string,
+  storedPassword: string,
+  plainPassword: string,
+) {
+  if (isBcryptHash(storedPassword)) {
+    return await verifyPassword(storedPassword, plainPassword);
+  }
+
+  // Legacy fallback for old plaintext rows: compare once and migrate to bcrypt.
+  if (storedPassword !== plainPassword) {
+    return false;
+  }
+
+  if (!isBcryptPasswordLengthValid(plainPassword)) {
+    console.warn(
+      `Password migration skipped for user ${userId}: plaintext exceeds bcrypt 72-byte limit.`,
+    );
+    return true;
+  }
+
+  await prisma.user.update({
+    where: { userId },
+    data: { passwort: await hashPassword(plainPassword) },
+  });
+
+  return true;
 }
 
 function corsHeaders() {
@@ -139,7 +168,11 @@ async function loginHandler(req: Request): Promise<Response> {
 
     if (
       results.length === 0 ||
-      !(await verifyPassword(results[0].passwort, pw))
+      !(await verifyPasswordWithLegacyUpgrade(
+        results[0].userId,
+        results[0].passwort,
+        pw,
+      ))
     ) {
       return new Response(
         JSON.stringify({
@@ -153,12 +186,6 @@ async function loginHandler(req: Request): Promise<Response> {
       );
     } else if (results[0].email === Mail) {
       const IDofUser = results[0].userId;
-      if (!results[0].passwort.startsWith("$2")) {
-        await prisma.user.update({
-          where: { userId: IDofUser },
-          data: { passwort: await hashPassword(pw) },
-        });
-      }
 
       await prisma.token.deleteMany({
         where: {
@@ -531,7 +558,13 @@ async function validatePassword(req: Request): Promise<Response> {
       );
     }
 
-    if (!(await verifyPassword(userRecord.passwort, passwort))) {
+    if (
+      !(await verifyPasswordWithLegacyUpgrade(
+        userRecord.userId,
+        userRecord.passwort,
+        passwort,
+      ))
+    ) {
       return new Response(
         JSON.stringify({
           success: false,
@@ -668,7 +701,13 @@ async function updatePassword(req: Request): Promise<Response> {
       );
     }
 
-    if (!(await verifyPassword(userRecord.passwort, oldPassword))) {
+    if (
+      !(await verifyPasswordWithLegacyUpgrade(
+        userRecord.userId,
+        userRecord.passwort,
+        oldPassword,
+      ))
+    ) {
       return new Response(
         JSON.stringify({
           success: false,

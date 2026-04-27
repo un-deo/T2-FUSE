@@ -57,6 +57,7 @@ MUSS (Abnahme-relevant laut Lastenheft):
 - [ ] Start Seite: Vier beliebtesten Produkte anzeigen (mit Bild, Name, Preis) + es gibt schon platzhalter
 - [ ] Sollte man auch auf die Produktseite und die Über Uns Seite zugreifen könenn ohne eingeloggt zu sein
 - [ ] Produkteseite es sollt eine Button geben um weiter Produkte anzuzeigen wenn ich alle von einer Suche / Standardsuche angezeigt werden
+- [ ] Fehlermeldung anzeigen wenn beim Registriren ein Error auftritt
 
 
 WICHTIG (aus Projektantrag/README):
