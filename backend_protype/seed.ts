@@ -1,8 +1,24 @@
 import { PrismaClient } from "./prisma/client/client.ts";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-function ensureUser(u: {
+const BCRYPT_ROUNDS = 10;
+const BCRYPT_MAX_BYTES = 72;
+
+function isBcryptPasswordLengthValid(password: string): boolean {
+  return new TextEncoder().encode(password).length <= BCRYPT_MAX_BYTES;
+}
+
+async function hashPassword(password: string) {
+  if (!isBcryptPasswordLengthValid(password)) {
+    throw new Error("Password exceeds bcrypt limit of 72 bytes");
+  }
+
+  return await bcrypt.hash(password, BCRYPT_ROUNDS);
+}
+
+async function ensureUser(u: {
   name: string;
   email: string;
   passwort: string;
@@ -13,10 +29,15 @@ function ensureUser(u: {
   land: string;
   telefonNr: string;
 }) {
+  const hashedUser = {
+    ...u,
+    passwort: await hashPassword(u.passwort),
+  };
+
   return prisma.user.upsert({
     where: { name: u.name },
-    update: u,
-    create: u,
+    update: hashedUser,
+    create: hashedUser,
   });
 }
 
@@ -46,27 +67,39 @@ async function ensureProdukt(p: {
 async function ensureEinstellungenFor(userId: string) {
   const found = await prisma.einstellungen.findFirst({ where: { userId } });
   if (found) return found;
-  return prisma.einstellungen.create({ data: { userId, lightDark: false, schriftgröße: 12 } });
+  return prisma.einstellungen.create({
+    data: { userId, lightDark: false, schriftgröße: 12 },
+  });
 }
 
 async function ensureWarenkorbFor(userId: string) {
   const found = await prisma.warenkorb.findFirst({ where: { userId } });
   if (found) return found;
-  return prisma.warenkorb.create({ data: { userId, erstellungsdatum: new Date() } });
+  return prisma.warenkorb.create({
+    data: { userId, erstellungsdatum: new Date() },
+  });
 }
 
-async function addProductToWarenkorb(warenkorbId: string, produktId: string, menge = 1) {
+async function addProductToWarenkorb(
+  warenkorbId: string,
+  produktId: string,
+  menge = 1,
+) {
   // composite PK: warenkorbId + produktId
-  const exists = await prisma.warenkorbProdukte.findUnique({
-    where: { warenkorbId_produktId: { warenkorbId, produktId } },
-  }).catch(() => null);
+  const exists = await prisma.warenkorbProdukte
+    .findUnique({
+      where: { warenkorbId_produktId: { warenkorbId, produktId } },
+    })
+    .catch(() => null);
   if (exists) {
     return prisma.warenkorbProdukte.update({
       where: { warenkorbId_produktId: { warenkorbId, produktId } },
       data: { menge: exists.menge + menge },
     });
   }
-  return prisma.warenkorbProdukte.create({ data: { warenkorbId, produktId, menge } });
+  return prisma.warenkorbProdukte.create({
+    data: { warenkorbId, produktId, menge },
+  });
 }
 
 async function ensureTestToken(userId: string, expiresAt: Date) {
@@ -75,8 +108,7 @@ async function ensureTestToken(userId: string, expiresAt: Date) {
   // Create a new token record. Use `create` because upsert requires a `where` clause
   // and we already checked existence above.
   return prisma.token.create({ data: { userId, expiresAt } });
-} 
- 
+}
 
 export async function seed() {
   try {
@@ -110,152 +142,189 @@ export async function seed() {
     });
 
     // Categories (datagroups)
-    const catA = await ensureKategorie("Honig", "Rohhonig, Sortenhonig und Honigspezialitäten");
-    const catB = await ensureKategorie("Propolis", "Propolisprodukte, Tinkturen und Naturheilmittel aus dem Bienenstock");
-    const catC = await ensureKategorie("Bienenwachs", "Bienenwachsprodukte, Kerzen, Kosmetik und Rohwachs");
-    const catD = await ensureKategorie("Pollen", "Bienenpollen, Blütenpollen und Nahrungsergänzungen");
-    const catE = await ensureKategorie("Met", "Honigwein (Met) und honigbasierte alkoholische Getränke");   
-
-
-
-    
-
-
+    const catA = await ensureKategorie(
+      "Honig",
+      "Rohhonig, Sortenhonig und Honigspezialitäten",
+    );
+    const catB = await ensureKategorie(
+      "Propolis",
+      "Propolisprodukte, Tinkturen und Naturheilmittel aus dem Bienenstock",
+    );
+    const catC = await ensureKategorie(
+      "Bienenwachs",
+      "Bienenwachsprodukte, Kerzen, Kosmetik und Rohwachs",
+    );
+    const catD = await ensureKategorie(
+      "Pollen",
+      "Bienenpollen, Blütenpollen und Nahrungsergänzungen",
+    );
+    const catE = await ensureKategorie(
+      "Met",
+      "Honigwein (Met) und honigbasierte alkoholische Getränke",
+    );
 
     // Products (at least 2 per category)
     const products = [];
-    products.push(await ensureProdukt({
-      name: "Wildflower Honey - 500g",
-      beschreibung: "Aromatischer, naturbelassener Wildblütenhonig aus regionaler Imkerei.",
-      preis: 12.5,
-      userId: userA.userId,
-      selbstabholung: true,
-      versand: true,
-      kategorieId: catA.kategorieId,
-      suchfilterattribute: "honig,wildblüten,regional",
-      status: "active",
-      bildUrl: null,
-    }));
+    products.push(
+      await ensureProdukt({
+        name: "Wildflower Honey - 500g",
+        beschreibung:
+          "Aromatischer, naturbelassener Wildblütenhonig aus regionaler Imkerei.",
+        preis: 12.5,
+        userId: userA.userId,
+        selbstabholung: true,
+        versand: true,
+        kategorieId: catA.kategorieId,
+        suchfilterattribute: "honig,wildblüten,regional",
+        status: "active",
+        bildUrl: null,
+      }),
+    );
 
-    products.push(await ensureProdukt({
-      name: "Lavender Honey - 250g",
-      beschreibung: "Feiner Lavendelhonig mit blumigem Aroma, ideal als Brotaufstrich oder in Tee.",
-      preis: 9.0,
-      userId: userB.userId,
-      selbstabholung: false,
-      versand: true,
-      kategorieId: catA.kategorieId,
-      suchfilterattribute: "honig,lavendel,tee",
-      status: "active",
-      bildUrl: null,
-    }));
+    products.push(
+      await ensureProdukt({
+        name: "Lavender Honey - 250g",
+        beschreibung:
+          "Feiner Lavendelhonig mit blumigem Aroma, ideal als Brotaufstrich oder in Tee.",
+        preis: 9.0,
+        userId: userB.userId,
+        selbstabholung: false,
+        versand: true,
+        kategorieId: catA.kategorieId,
+        suchfilterattribute: "honig,lavendel,tee",
+        status: "active",
+        bildUrl: null,
+      }),
+    );
 
-    products.push(await ensureProdukt({
-      name: "Beeswax Candles (2 pack)",
-      beschreibung: "Handgegossene Bienenwachskerzen, natürliches Aroma, sauberer Abbrand.",
-      preis: 14.99,
-      userId: userA.userId,
-      selbstabholung: false,
-      versand: true,
-      kategorieId: catC.kategorieId,
-      suchfilterattribute: "bienenwachs,kerzen,nachhaltig",
-      status: "active",
-      bildUrl: null,
-    }));
+    products.push(
+      await ensureProdukt({
+        name: "Beeswax Candles (2 pack)",
+        beschreibung:
+          "Handgegossene Bienenwachskerzen, natürliches Aroma, sauberer Abbrand.",
+        preis: 14.99,
+        userId: userA.userId,
+        selbstabholung: false,
+        versand: true,
+        kategorieId: catC.kategorieId,
+        suchfilterattribute: "bienenwachs,kerzen,nachhaltig",
+        status: "active",
+        bildUrl: null,
+      }),
+    );
 
-    products.push(await ensureProdukt({
-      name: "Beeswax Wrap - Medium",
-      beschreibung: "Wiederverwendbare Bienenwachstücher zur Lebensmittelaufbewahrung.",
-      preis: 7.5,
-      userId: userB.userId,
-      selbstabholung: false,
-      versand: true,
-      kategorieId: catC.kategorieId,
-      suchfilterattribute: "bienenwachs,wrap,verpackung",
-      status: "active",
-      bildUrl: null,
-    }));
+    products.push(
+      await ensureProdukt({
+        name: "Beeswax Wrap - Medium",
+        beschreibung:
+          "Wiederverwendbare Bienenwachstücher zur Lebensmittelaufbewahrung.",
+        preis: 7.5,
+        userId: userB.userId,
+        selbstabholung: false,
+        versand: true,
+        kategorieId: catC.kategorieId,
+        suchfilterattribute: "bienenwachs,wrap,verpackung",
+        status: "active",
+        bildUrl: null,
+      }),
+    );
 
     // Propolis products
-    products.push(await ensureProdukt({
-      name: "Propolis Tinktur 30ml",
-      beschreibung: "Natürliche Propolis-Tinktur zur Stärkung des Immunsystems.",
-      preis: 18.0,
-      userId: userA.userId,
-      selbstabholung: true,
-      versand: true,
-      kategorieId: catB.kategorieId,
-      suchfilterattribute: "propolis,tinktur,naturheilmittel",
-      status: "active",
-      bildUrl: null,
-    }));
+    products.push(
+      await ensureProdukt({
+        name: "Propolis Tinktur 30ml",
+        beschreibung:
+          "Natürliche Propolis-Tinktur zur Stärkung des Immunsystems.",
+        preis: 18.0,
+        userId: userA.userId,
+        selbstabholung: true,
+        versand: true,
+        kategorieId: catB.kategorieId,
+        suchfilterattribute: "propolis,tinktur,naturheilmittel",
+        status: "active",
+        bildUrl: null,
+      }),
+    );
 
-    products.push(await ensureProdukt({
-      name: "Propolis Kapseln (60 Stück)",
-      beschreibung: "Propolis-Kapseln als Nahrungsergänzung für das tägliche Wohlbefinden.",
-      preis: 24.5,
-      userId: userB.userId,
-      selbstabholung: false,
-      versand: true,
-      kategorieId: catB.kategorieId,
-      suchfilterattribute: "propolis,kapseln,gesundheit",
-      status: "active",
-      bildUrl: null,
-    }));
+    products.push(
+      await ensureProdukt({
+        name: "Propolis Kapseln (60 Stück)",
+        beschreibung:
+          "Propolis-Kapseln als Nahrungsergänzung für das tägliche Wohlbefinden.",
+        preis: 24.5,
+        userId: userB.userId,
+        selbstabholung: false,
+        versand: true,
+        kategorieId: catB.kategorieId,
+        suchfilterattribute: "propolis,kapseln,gesundheit",
+        status: "active",
+        bildUrl: null,
+      }),
+    );
 
     // Pollen products
-    products.push(await ensureProdukt({
-      name: "Blütenpollen - 250g",
-      beschreibung: "Frische Blütenpollen, reich an Vitaminen und Proteinen.",
-      preis: 15.0,
-      userId: userA.userId,
-      selbstabholung: true,
-      versand: true,
-      kategorieId: catD.kategorieId,
-      suchfilterattribute: "pollen,blütenpollen,vitamine",
-      status: "active",
-      bildUrl: null,
-    }));
+    products.push(
+      await ensureProdukt({
+        name: "Blütenpollen - 250g",
+        beschreibung: "Frische Blütenpollen, reich an Vitaminen und Proteinen.",
+        preis: 15.0,
+        userId: userA.userId,
+        selbstabholung: true,
+        versand: true,
+        kategorieId: catD.kategorieId,
+        suchfilterattribute: "pollen,blütenpollen,vitamine",
+        status: "active",
+        bildUrl: null,
+      }),
+    );
 
-    products.push(await ensureProdukt({
-      name: "Bienenpollen Bio - 500g",
-      beschreibung: "Bio-zertifizierte Bienenpollen aus kontrolliertem Anbau.",
-      preis: 28.0,
-      userId: userB.userId,
-      selbstabholung: false,
-      versand: true,
-      kategorieId: catD.kategorieId,
-      suchfilterattribute: "pollen,bio,nahrungsergänzung",
-      status: "active",
-      bildUrl: null,
-    }));
+    products.push(
+      await ensureProdukt({
+        name: "Bienenpollen Bio - 500g",
+        beschreibung:
+          "Bio-zertifizierte Bienenpollen aus kontrolliertem Anbau.",
+        preis: 28.0,
+        userId: userB.userId,
+        selbstabholung: false,
+        versand: true,
+        kategorieId: catD.kategorieId,
+        suchfilterattribute: "pollen,bio,nahrungsergänzung",
+        status: "active",
+        bildUrl: null,
+      }),
+    );
 
     // Met products
-    products.push(await ensureProdukt({
-      name: "Klassischer Met - 0.5L",
-      beschreibung: "Traditioneller Honigwein nach altem Rezept, mild und süß.",
-      preis: 12.0,
-      userId: userA.userId,
-      selbstabholung: true,
-      versand: true,
-      kategorieId: catE.kategorieId,
-      suchfilterattribute: "met,honigwein,traditionell",
-      status: "active",
-      bildUrl: null,
-    }));
+    products.push(
+      await ensureProdukt({
+        name: "Klassischer Met - 0.5L",
+        beschreibung:
+          "Traditioneller Honigwein nach altem Rezept, mild und süß.",
+        preis: 12.0,
+        userId: userA.userId,
+        selbstabholung: true,
+        versand: true,
+        kategorieId: catE.kategorieId,
+        suchfilterattribute: "met,honigwein,traditionell",
+        status: "active",
+        bildUrl: null,
+      }),
+    );
 
-    products.push(await ensureProdukt({
-      name: "Gewürz-Met - 0.75L",
-      beschreibung: "Aromatischer Met mit Gewürzen, perfekt für kalte Tage.",
-      preis: 16.5,
-      userId: userB.userId,
-      selbstabholung: false,
-      versand: true,
-      kategorieId: catE.kategorieId,
-      suchfilterattribute: "met,gewürze,winter",
-      status: "active",
-      bildUrl: null,
-    }));
+    products.push(
+      await ensureProdukt({
+        name: "Gewürz-Met - 0.75L",
+        beschreibung: "Aromatischer Met mit Gewürzen, perfekt für kalte Tage.",
+        preis: 16.5,
+        userId: userB.userId,
+        selbstabholung: false,
+        versand: true,
+        kategorieId: catE.kategorieId,
+        suchfilterattribute: "met,gewürze,winter",
+        status: "active",
+        bildUrl: null,
+      }),
+    );
 
     // Settings for users
     await ensureEinstellungenFor(userA.userId);
@@ -269,10 +338,15 @@ export async function seed() {
       await addProductToWarenkorb(cartA.warenkorbId, products[0].produktId, 2);
       await addProductToWarenkorb(cartB.warenkorbId, products[1].produktId, 1);
     }
-    
-    await ensureTestToken(userA.userId, new Date(Date.now() + 1000 * 60 * 60 * 24)); // expires in 24h
-    await ensureTestToken(userB.userId, new Date(Date.now() + 1000 * 60 * 60 * 24)); // expires in 24h
 
+    await ensureTestToken(
+      userA.userId,
+      new Date(Date.now() + 1000 * 60 * 60 * 24),
+    ); // expires in 24h
+    await ensureTestToken(
+      userB.userId,
+      new Date(Date.now() + 1000 * 60 * 60 * 24),
+    ); // expires in 24h
 
     console.log("Seeding finished.");
   } catch (err) {

@@ -36,6 +36,7 @@ Done:
 - deleteProduct has been added to api.js --> ermöglicht das löschen von Produkten aus der DB (requires productID, userID of Product owner)
 - addtocart has been added but not tested
 - removefromcart has been addedbut not tested
+- Passwörter hashen (inkl. Login/Validierung/Update anpassen) __**BEN**__
 
 Offene Aufgaben:
 -
@@ -53,7 +54,6 @@ MUSS (Abnahme-relevant laut Lastenheft):
 - [ ] Admin-Funktionen vollständig: Produkte verwalten/löschen und Verkäuferanträge annehmen/ablehnen (mit Begründung)
 - [ ] Profil bearbeiten vollständig speichern (Name, Telefon, Adresse) + valides Feedback bei Fehler/Erfolg
 - [ ] Rollen- und Rechteprüfung serverseitig für alle geschützten Endpunkte erzwingen
-- [ ] Passwörter hashen (inkl. Login/Validierung/Update anpassen)
 - [ ] Start Seite: Vier beliebtesten Produkte anzeigen (mit Bild, Name, Preis) + es gibt schon platzhalter
 - [ ] Sollte man auch auf die Produktseite und die Über Uns Seite zugreifen könenn ohne eingeloggt zu sein
 - [ ] Produkteseite es sollt eine Button geben um weiter Produkte anzuzeigen wenn ich alle von einer Suche / Standardsuche angezeigt werden
