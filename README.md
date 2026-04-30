@@ -42,23 +42,22 @@ Offene Aufgaben:
 -
 
 MUSS (Abnahme-relevant laut Lastenheft):
-- [ ] Warenkorb vollständig implementieren: add to cart, Menge ändern, remove from cart, cart anzeigen, checkout
-- [ ] Bestellung aufgeben Ende-zu-Ende: Bestellung speichern, Status setzen, Bestellübersicht anzeigen
-- [ ] Bestellbestätigung für Nutzer anzeigen
-- [ ] Verkäuferbereich: eigene Produkte anzeigen, erstellen und bearbeiten (Name, Beschreibung, Preis, Kategorie, Bilder)
-- [ ] Verkäuferbereich: Bestellungen des Verkäufers anzeigen
-- [ ] Verkäuferbereich: Kontaktdaten des Käufers zur Bestellung anzeigen
-- [ ] Verkäuferstatus beantragen (Formular + Speicherung + Admin-Entscheidung)
-- [ ] Admin-Funktionen vollständig: Nutzer suchen, Profil anzeigen, Profil bearbeiten, Profil löschen
-- [ ] Admin-Funktionen vollständig: Verkäuferstatus zuweisen und entziehen
-- [ ] Admin-Funktionen vollständig: Produkte verwalten/löschen und Verkäuferanträge annehmen/ablehnen (mit Begründung)
+- [ ] Warenkorb vollständig implementieren: add to cart, Menge ändern, remove from cart, cart anzeigen, checkout __**GEORGI**__
+- [ ] Bestellung aufgeben Ende-zu-Ende: Bestellung speichern, Status setzen, Bestellübersicht anzeigen __**GEORGI**__
+- [ ] Bestellbestätigung für Nutzer anzeigen __**GEORGI**__
+- [ ] Verkäuferbereich: eigene Produkte anzeigen, erstellen und bearbeiten (Name, Beschreibung, Preis, Kategorie, Bilder) __**MARCEL**__
+- [ ] Verkäuferbereich: Bestellungen des Verkäufers anzeigen __**MARCEL**__
+- [ ] Verkäuferbereich: Kontaktdaten des Käufers zur Bestellung anzeigen __**MARCEL**__
+- [ ] Verkäuferstatus beantragen (Formular + Speicherung + Admin-Entscheidung) __**MARCEL**__
+- [ ] Admin-Funktionen vollständig: Nutzer suchen, Profil anzeigen, Profil bearbeiten, Profil löschen __**MORITZ**__
+- [ ] Admin-Funktionen vollständig: Verkäuferstatus zuweisen und entziehen __**MORITZ**__
+- [ ] Admin-Funktionen vollständig: Produkte verwalten/löschen und Verkäuferanträge annehmen/ablehnen (mit Begründung) __**MORITZ**__
 - [ ] Profil bearbeiten vollständig speichern (Name, Telefon, Adresse) + valides Feedback bei Fehler/Erfolg
 - [ ] Rollen- und Rechteprüfung serverseitig für alle geschützten Endpunkte erzwingen
 - [ ] Start Seite: Vier beliebtesten Produkte anzeigen (mit Bild, Name, Preis) + es gibt schon platzhalter
 - [ ] Sollte man auch auf die Produktseite und die Über Uns Seite zugreifen könenn ohne eingeloggt zu sein
 - [ ] Produkteseite es sollt eine Button geben um weiter Produkte anzuzeigen wenn ich alle von einer Suche / Standardsuche angezeigt werden
 - [ ] Fehlermeldung anzeigen wenn beim Registriren ein Error auftritt
-- [ ] bei passwort ändern auch noch checken ob strong
 
 
 WICHTIG (aus Projektantrag/README):
