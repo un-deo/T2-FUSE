@@ -194,3 +194,55 @@ async function deleteMyProduct(productId, userID) {
     };
   }
 }
+
+async function updateMyProduct(
+  userId,
+  productId,
+  name,
+  kategorieId,
+  beschreibung,
+  preis,
+  bildUrl,
+  bestand,
+  bundesland,
+  gewicht,
+) {
+  const url = "http://localhost:3000/api/update-my-product";
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+        productId: productId,
+        name: name ? name.trim() : "",
+        kategorieId: kategorieId,
+        beschreibung: beschreibung ? beschreibung.trim() : "",
+        preis: Number(preis),
+        bildUrl: bildUrl ? bildUrl.trim() : "",
+        bestand: Number(bestand),
+        bundesland: bundesland ? bundesland.trim() : "",
+        gewicht: Number(gewicht),
+      }),
+    });
+
+    const result = await response.json();
+    console.log(result);
+
+    if (!response.ok) {
+      throw new Error(result.error || "Update failed in backend");
+    }
+
+    console.log("Product update successful:", result.productId);
+    return result;
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+    return {
+      success: false,
+      error: error.message || "Netzwerkfehler beim Aktualisieren des Produkts",
+    };
+  }
+}
