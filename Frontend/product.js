@@ -412,12 +412,19 @@ function handleLogin(event) {
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        console.log("Login erfolgreich:", data.token);
-        console.log("nurToken:", data.token.tokenId);
-        console.log("ablauf", data.token.expiresAt);
-        localStorage.setItem("authToken", JSON.stringify(data.token));
-        // alert("Login erfolgreich!");
+        const tokenStr =
+          data.token && typeof data.token === "object"
+            ? data.token.tokenId
+            : data.token;
+
+        if (tokenStr) localStorage.setItem("userToken", tokenStr);
+        if (data.userId) localStorage.setItem("userId", data.userId);
+        if (data.statusId !== undefined)
+          localStorage.setItem("statusId", data.statusId.toString());
+        if (data?.user?.name) localStorage.setItem("userName", data.user.name);
+
         closeLoginModal();
+        window.location.href = "/Frontend/signin-header.html";
       } else {
         // alert("Ungültige E-Mail oder Passwort");
       }

@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   setupRoleBasedMenu();
   setupDropdownMenu();
+  syncMenuUserName();
   updateProfileStatusBadge();
 
   const isValidSession = await validateSession(token, userId);
@@ -22,9 +23,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  if (user?.name) {
+    localStorage.setItem("userName", user.name);
+    syncMenuUserName();
+  }
+
   fillProfileForm(user);
   setupFormHandlers();
 });
+
+function syncMenuUserName() {
+  const nameEl = document.getElementById("menu-user-name");
+  if (!nameEl) {
+    return;
+  }
+
+  nameEl.textContent = localStorage.getItem("userName") || "Nutzer";
+}
 
 function setupFormHandlers() {
   const profileForm = document.getElementById("profileForm");

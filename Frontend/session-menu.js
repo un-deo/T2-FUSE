@@ -21,5 +21,7 @@ function setAuthMenuState() {
 function clearSessionStorage() {
   localStorage.removeItem("userToken");
   localStorage.removeItem("userId");
+  localStorage.removeItem("statusId");
+  localStorage.removeItem("userName");
   window.location.href = "/Frontend/home.html";
 }

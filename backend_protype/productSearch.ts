@@ -202,6 +202,10 @@ async function loginHandler(req: Request): Promise<Response> {
       return new Response(
         JSON.stringify({
           success: true,
+          // Von Georgi hinzugefuegt/geaendert: Nutzername wird fuer Frontend-Dropdown mitgeliefert
+          user: {
+            name: results[0].name,
+          },
           token: {
             tokenId: newToken.token,
             expiresAt: newToken.expiresAt,
