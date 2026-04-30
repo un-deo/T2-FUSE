@@ -58,6 +58,7 @@ MUSS (Abnahme-relevant laut Lastenheft):
 - [ ] Sollte man auch auf die Produktseite und die Über Uns Seite zugreifen könenn ohne eingeloggt zu sein
 - [ ] Produkteseite es sollt eine Button geben um weiter Produkte anzuzeigen wenn ich alle von einer Suche / Standardsuche angezeigt werden
 - [ ] Fehlermeldung anzeigen wenn beim Registriren ein Error auftritt
+- [ ] bei passwort ändern auch noch checken ob strong
 
 
 WICHTIG (aus Projektantrag/README):
