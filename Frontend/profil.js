@@ -1,3 +1,5 @@
+let cachedProfile = null;
+
 document.addEventListener("DOMContentLoaded", async () => {
   const token = localStorage.getItem("userToken");
   const userId = localStorage.getItem("userId");
@@ -22,6 +24,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!user) {
     return;
   }
+
+  cachedProfile = user;
 
   if (user?.name) {
     localStorage.setItem("userName", user.name);
@@ -49,8 +53,109 @@ function setupFormHandlers() {
   passwordForm?.addEventListener("submit", handlePasswordChange);
 }
 
-function handleProfileSubmit(event) {
+async function handleProfileSubmit(event) {
   event.preventDefault();
+
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    showProfileMessage("Benutzersitzung fehlt. Bitte neu anmelden.", "error");
+    return;
+  }
+
+  const name = (document.getElementById("name")?.value || "").trim();
+  const email = (document.getElementById("email")?.value || "").trim();
+  const phone = (document.getElementById("phone")?.value || "").trim();
+  const street = (document.getElementById("street")?.value || "").trim();
+  const houseNumber =
+    (document.getElementById("houseNumber")?.value || "").trim();
+  const postalCode =
+    (document.getElementById("postalCode")?.value || "").trim();
+  const country = (document.getElementById("country")?.value || "").trim();
+
+  if (!name || !email) {
+    showProfileMessage("Name und E-Mail sind erforderlich.", "error");
+    return;
+  }
+
+  showProfileMessage("Profil wird gespeichert...", "info");
+  try {
+    const result = await updateUserData(
+      userId,
+      name,
+      email,
+      street,
+      houseNumber,
+      postalCode,
+      country,
+      phone,
+    );
+
+    if (result?.success) {
+      cachedProfile = {
+        ...(cachedProfile || {}),
+        name,
+        email,
+        telefonNr: phone,
+        strasse: street,
+        hausnummer: houseNumber,
+        postleitzahl: postalCode,
+        land: country,
+      };
+
+      localStorage.setItem("userName", name);
+      syncMenuUserName();
+
+      const nameDisplay = document.getElementById("profileNameDisplay");
+      const emailDisplay = document.getElementById("profileEmailDisplay");
+      if (nameDisplay) nameDisplay.textContent = name;
+      if (emailDisplay) emailDisplay.textContent = email;
+
+      showProfileMessage("Profil erfolgreich aktualisiert.", "success");
+      return;
+    }
+
+    showProfileMessage(
+      result?.error || "Profil konnte nicht aktualisiert werden.",
+      "error",
+    );
+  } catch (error) {
+    showProfileMessage(
+      error?.message || "Profil konnte nicht aktualisiert werden.",
+      "error",
+    );
+  }
+}
+
+function showProfileMessage(message, type = "info") {
+  let messageElement = document.getElementById("profileUpdateMessage");
+  if (!messageElement) {
+    const form = document.getElementById("profileForm");
+    if (form) {
+      messageElement = document.createElement("p");
+      messageElement.id = "profileUpdateMessage";
+      messageElement.className = "text-sm mt-4";
+      form.appendChild(messageElement);
+    }
+  }
+
+  if (!messageElement) {
+    return;
+  }
+
+  messageElement.textContent = message;
+  messageElement.className = "text-sm mt-4";
+
+  if (type === "success") {
+    messageElement.classList.add("text-green-700");
+    return;
+  }
+
+  if (type === "error") {
+    messageElement.classList.add("text-red-600");
+    return;
+  }
+
+  messageElement.classList.add("text-stone-600");
 }
 
 async function handlePasswordChange(event) {
@@ -178,7 +283,10 @@ function fillProfileForm(user) {
   const nameInput = document.getElementById("name");
   const emailInput = document.getElementById("email");
   const phoneInput = document.getElementById("phone");
-  const addressInput = document.getElementById("address");
+  const streetInput = document.getElementById("street");
+  const houseNumberInput = document.getElementById("houseNumber");
+  const postalCodeInput = document.getElementById("postalCode");
+  const countryInput = document.getElementById("country");
 
   const nameDisplay = document.getElementById("profileNameDisplay");
   const emailDisplay = document.getElementById("profileEmailDisplay");
@@ -186,16 +294,10 @@ function fillProfileForm(user) {
   const name = user?.name || "";
   const email = user?.email || "";
   const phone = user?.telefonNr || "";
-
-  const addressParts = [
-    user?.strasse,
-    user?.hausnummer,
-    user?.postleitzahl,
-    user?.land,
-  ]
-    .filter((part) => part && String(part).trim() !== "")
-    .map((part) => String(part).trim());
-  const address = addressParts.join(", ");
+  const street = user?.strasse || "";
+  const houseNumber = user?.hausnummer || "";
+  const postalCode = user?.postleitzahl || "";
+  const country = user?.land || "";
 
   if (nameInput) {
     nameInput.value = name;
@@ -206,8 +308,17 @@ function fillProfileForm(user) {
   if (phoneInput) {
     phoneInput.value = phone;
   }
-  if (addressInput) {
-    addressInput.value = address;
+  if (streetInput) {
+    streetInput.value = street;
+  }
+  if (houseNumberInput) {
+    houseNumberInput.value = houseNumber;
+  }
+  if (postalCodeInput) {
+    postalCodeInput.value = postalCode;
+  }
+  if (countryInput) {
+    countryInput.value = country;
   }
 
   if (nameDisplay) {

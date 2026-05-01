@@ -52,10 +52,10 @@ MUSS (Abnahme-relevant laut Lastenheft):
 - [ ] Admin-Funktionen vollständig: Nutzer suchen, Profil anzeigen, Profil bearbeiten, Profil löschen __**MORITZ**__
 - [ ] Admin-Funktionen vollständig: Verkäuferstatus zuweisen und entziehen __**MORITZ**__
 - [ ] Admin-Funktionen vollständig: Produkte verwalten/löschen und Verkäuferanträge annehmen/ablehnen (mit Begründung) __**MORITZ**__
-- [ ] Profil bearbeiten vollständig speichern (Name, Telefon, Adresse) + valides Feedback bei Fehler/Erfolg
+- [X] Profil bearbeiten vollständig speichern (Name, Telefon, Adresse) + valides Feedback bei Fehler/Erfolg
 - [ ] Rollen- und Rechteprüfung serverseitig für alle geschützten Endpunkte erzwingen
 - [ ] Start Seite: Vier beliebtesten Produkte anzeigen (mit Bild, Name, Preis) + es gibt schon platzhalter
-- [ ] Sollte man auch auf die Produktseite und die Über Uns Seite zugreifen könenn ohne eingeloggt zu sein
+- [X] Sollte man auch auf die Produktseite und die Über Uns Seite zugreifen könenn ohne eingeloggt zu sein
 - [ ] Produkteseite es sollt eine Button geben um weiter Produkte anzuzeigen wenn ich alle von einer Suche / Standardsuche angezeigt werden
 - [ ] Fehlermeldung anzeigen wenn beim Registriren ein Error auftritt
 
