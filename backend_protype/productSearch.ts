@@ -1173,6 +1173,63 @@ async function removeFromCart(req: Request): Promise<Response> {
   }
 }
 
+async function deleteUser(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId } = body;
+
+    if (!userId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "UserID is required",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        userId: String(userId),
+      },
+    });
+
+    if (!user) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "User not found",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    await prisma.user.delete({
+      where: {
+        userId: String(userId),
+      },
+    });
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: "User successfully deleted",
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+
+  } catch (err) {
+    console.error("deleteUser error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Löschen des Benutzers",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -1236,6 +1293,10 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/remove-from-cart" && req.method === "POST") {
     return await removeFromCart(req);
+  }
+
+  if (url.pathname === "/api/delete-user" && req.method === "POST") {
+    return await deleteUser(req);
   }
 
   return new Response(JSON.stringify({ error: "not_found" }), {

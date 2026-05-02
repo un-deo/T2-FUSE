@@ -246,3 +246,27 @@ async function updateMyProduct(
     };
   }
 }
+
+async function deleteUser(userId) {
+  const url = "http://localhost:3000/api/delete-user";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error("Delete user request failed:", error);
+    return {
+      success: false,
+      error: "Netzwerkfehler beim Löschen des Benutzers",
+    };
+  }
+}
