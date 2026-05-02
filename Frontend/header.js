@@ -1,7 +1,31 @@
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (!localStorage.getItem("userToken")) {
+  const token = localStorage.getItem("userToken");
+  const allowGuestByAttr = document.body?.dataset.allowGuest === "true";
+  const isProductPage =
+    window.location.pathname.endsWith("/product.html") ||
+    window.location.pathname.endsWith("product.html");
+  const allowGuest = allowGuestByAttr || isProductPage;
+
+  const loggedInHeader = document.getElementById("header-logged-in");
+  const loggedOutHeader = document.getElementById("header-logged-out");
+
+  if (loggedInHeader && loggedOutHeader) {
+    if (token) {
+      loggedInHeader.classList.remove("hidden");
+      loggedOutHeader.classList.add("hidden");
+    } else {
+      loggedOutHeader.classList.remove("hidden");
+      loggedInHeader.classList.add("hidden");
+    }
+  }
+
+  if (!token && !allowGuest) {
     window.location.replace("/Frontend/home.html");
+    return;
+  }
+
+  if (!token) {
     return;
   }
 
@@ -23,7 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const roleEl = document.getElementById("menu-user-role");
   if (roleEl) {
-    roleEl.textContent = statusId === "3" ? "admin" : statusId === "2" ? "verkäufer" : "kunde";
+    roleEl.textContent =
+      statusId === "3" ? "admin" : statusId === "2" ? "verkäufer" : "kunde";
   }
 
   const nameEl = document.getElementById("menu-user-name");
@@ -49,5 +74,6 @@ function clearSessionStorage() {
   localStorage.removeItem("userToken");
   localStorage.removeItem("userId");
   localStorage.removeItem("statusId");
+  localStorage.removeItem("userName");
   window.location.href = "/Frontend/home.html";
 }

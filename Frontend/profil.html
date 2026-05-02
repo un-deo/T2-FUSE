@@ -269,30 +269,44 @@
                 </div>
               </div>
 
-              <div class="space-y-2">
-                <label for="address" class="text-sm font-medium">Adresse</label>
-                <div class="relative">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="absolute left-3 top-3 w-5 h-5 text-stone-400"
-                  >
-                    <path
-                      d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
-                    ></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <label for="street" class="text-sm font-medium">Straße</label>
                   <input
                     type="text"
-                    id="address"
-                    placeholder="Straße, PLZ, Ort"
-                    value="Salzburg, Österreich"
-                    class="flex w-full rounded-md border px-3 py-1 pl-10 h-12 bg-stone-50 border-stone-200 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    id="street"
+                    placeholder="Straße"
+                    class="flex w-full rounded-md border px-3 py-1 h-12 bg-stone-50 border-stone-200 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                </div>
+
+                <div class="space-y-2">
+                  <label for="houseNumber" class="text-sm font-medium">Hausnummer</label>
+                  <input
+                    type="text"
+                    id="houseNumber"
+                    placeholder="Hausnummer"
+                    class="flex w-full rounded-md border px-3 py-1 h-12 bg-stone-50 border-stone-200 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                </div>
+
+                <div class="space-y-2">
+                  <label for="postalCode" class="text-sm font-medium">Postleitzahl</label>
+                  <input
+                    type="text"
+                    id="postalCode"
+                    placeholder="PLZ"
+                    class="flex w-full rounded-md border px-3 py-1 h-12 bg-stone-50 border-stone-200 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                </div>
+
+                <div class="space-y-2">
+                  <label for="country" class="text-sm font-medium">Land</label>
+                  <input
+                    type="text"
+                    id="country"
+                    placeholder="AT"
+                    class="flex w-full rounded-md border px-3 py-1 h-12 bg-stone-50 border-stone-200 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
                   />
                 </div>
               </div>
@@ -582,16 +596,16 @@
           </p>
           <div class="flex items-center gap-6">
             <a
-              href="/datenschutz"
+              href="/Frontend/datenschutz.html"
               class="text-green-300 hover:text-amber-400 text-sm"
               >Datenschutz</a
             >
             <a
-              href="/impressum"
+              href="/Frontend/impressum.html"
               class="text-green-300 hover:text-amber-400 text-sm"
               >Impressum</a
             >
-            <a href="/agb" class="text-green-300 hover:text-amber-400 text-sm"
+            <a href="/Frontend/agb.html" class="text-green-300 hover:text-amber-400 text-sm"
               >AGB</a
             >
           </div>

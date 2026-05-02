@@ -24,9 +24,58 @@
       }
     </style>
   </head>
-  <body class="bg-white text-stone-900">
+  <body class="bg-white text-stone-900" data-allow-guest="true">
     <!-- HEADER -->
-  <header class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-stone-200">
+    <section id="header-logged-out">
+      <header
+        class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-stone-200"
+      >
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="flex items-center justify-between h-16 md:h-20">
+            <a href="/Frontend/home.html" class="flex items-center gap-2 group">
+              <img
+                src="/Frontend/pics/fuseshop-logo.svg"
+                alt="FUSE-SHOP Logo"
+                class="h-16 md:h-18 w-auto"
+              />
+            </a>
+
+            <nav class="hidden md:flex gap-8">
+              <a
+                href="/Frontend/product.html"
+                class="text-stone-600 hover:text-green-900 font-medium"
+                >Produkte</a
+              >
+              <a
+                href="/Frontend/about-us.html"
+                class="text-stone-600 hover:text-green-900 font-medium"
+                >Über Uns</a
+              >
+            </nav>
+
+            <div class="hidden md:flex gap-2">
+              <button
+                class="px-4 py-2 text-sm font-medium rounded-md hover:bg-stone-100"
+                id="anmeldenBtn"
+                onclick="openLoginModal()"
+              >
+                Anmelden
+              </button>
+              <button
+                class="px-6 py-2 text-sm font-medium rounded-full bg-amber-600 hover:bg-amber-700 text-white"
+                id="registrierenBtn"
+                onclick="openRegisterModal()"
+              >
+                Registrieren
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+    </section>
+
+    <section id="header-logged-in" class="hidden">
+      <header class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-stone-200">
     <div class="max-w-7xl mx-auto px-6">
       
       <div class="flex items-center justify-between h-16 md:h-20">
@@ -129,7 +178,8 @@
       </div>
 
     </div>
-  </header>
+      </header>
+    </section>
 
     <section class="bg-green-900 py-12 md:py-16">
       <div class="max-w-7xl mx-auto px-6">
