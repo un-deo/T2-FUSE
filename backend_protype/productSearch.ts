@@ -421,49 +421,15 @@ async function getUserData(req: Request): Promise<Response> {
   try {
     const body = await req.json();
 
-    const { token, userId } = body;
-    if (!token || !userId) {
+    const { userId } = body;
+    if (!userId) {
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Token und UserID sind erforderlich",
+          error: "UserID ist erforderlich",
         }),
         {
           status: 400,
-          headers: corsHeaders(),
-        },
-      );
-    }
-
-    const tokenRecord = await prisma.token.findFirst({
-      where: {
-        token: token,
-        userId: userId,
-      },
-    });
-
-    if (!tokenRecord) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "Ungültiger Token oder UserID",
-        }),
-        {
-          status: 401,
-          headers: corsHeaders(),
-        },
-      );
-    }
-
-    // Check if token is expired
-    if (tokenRecord.expiresAt < new Date()) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "Token abgelaufen",
-        }),
-        {
-          status: 401,
           headers: corsHeaders(),
         },
       );
@@ -473,6 +439,7 @@ async function getUserData(req: Request): Promise<Response> {
       where: { userId: userId },
       select: {
         userId: true,
+        statusId: true,
         name: true,
         email: true,
         strasse: true,

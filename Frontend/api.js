@@ -1,4 +1,4 @@
-async function fetchUserProfile(userId, token) {
+async function fetchUserProfile(userId) {
   try {
     const response = await fetch("http://localhost:3000/api/user-data", {
       // Replace with your actual endpoint URL
@@ -8,7 +8,6 @@ async function fetchUserProfile(userId, token) {
       },
       body: JSON.stringify({
         userId: userId,
-        token: token,
       }),
     });
 

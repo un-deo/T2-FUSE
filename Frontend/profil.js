@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  const user = await fetchUserProfile(userId, token);
+  const user = await fetchUserProfile(userId);
   if (!user) {
     return;
   }
