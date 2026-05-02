@@ -1362,6 +1362,98 @@ async function editUser(req: Request): Promise<Response> {
   }
 }
 
+async function getAllProductsForAdminDashboard(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId } = body; //userID of Admin who is accessing the dashboard
+
+    // 1. Validation: Ensure userId exists
+    if (!userId) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "UserID is required",
+        }),
+        {
+          status: 400,
+          headers: corsHeaders(),
+        }
+      );
+    }
+
+    const admin = await prisma.user.findUnique({
+      where: {
+        userId: String(userId),
+      },
+    });
+    if (!admin) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Admin not found",
+        }),
+        {
+          status: 404,
+          headers: corsHeaders(),
+        }
+      );
+    }
+    if (admin.statusId !== 3) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Access denied: insufficient permissions",
+        }),
+        {
+          status: 403,
+          headers: corsHeaders(),
+        }
+      );
+    }
+    // 2. Fetch all products
+    const products = await prisma.produkte.findMany({
+      select: {
+        produktId: true,
+        status: true,
+        name: true,
+        beschreibung: true,
+        preis: true,
+        userId: true,
+        selbstabholung: true,
+        versand: true,
+        suchfilterattribute: true,
+        kategorieId: true,
+        bildUrl: true,
+        Bestand: true,
+        Bundesland: true,
+        Gewicht: true,
+      },
+    });
+
+    // 3. Success Response
+    return new Response(
+      JSON.stringify({
+        success: true,
+        products,
+      }),
+      {
+        status: 200,
+        headers: corsHeaders(),
+      }
+    );
+
+  } catch (err) {
+    console.error("getAllProductsForAdminDashboard error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Abrufen der Produkte für das Admin-Dashboard",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -1437,6 +1529,10 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/edit-user" && req.method === "POST") {
     return await editUser(req);
+  }
+
+  if (url.pathname === "/api/admin/products" && req.method === "POST") {
+    return await getAllProductsForAdminDashboard(req);
   }
 
   return new Response(JSON.stringify({ error: "not_found" }), {

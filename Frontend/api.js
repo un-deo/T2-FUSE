@@ -328,3 +328,27 @@ async function updateUserData(userId, dataToUpdate) {
     throw error;
   }
 }
+
+async function getAllProductsForAdminDashboard(userId) {
+  const url = "http://localhost:3000/api/admin/products";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+    return {
+      success: false,
+      error: error.message || "Netzwerkfehler beim Abrufen der Produktdaten",
+    };
+  }
+}
