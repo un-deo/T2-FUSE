@@ -270,3 +270,27 @@ async function deleteUser(userId) {
     };
   }
 }
+
+async function getAllUserDashboardData(userId) {
+  const url = "http://localhost:3000/api/dashboard-data";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId, //userid of Admin who is acceesing the dashboard
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+    return {
+      success: false,
+      error: error.message || "Netzwerkfehler beim Abrufen der Dashboard-Daten",
+    };
+  }
+}

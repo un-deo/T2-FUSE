@@ -1230,6 +1230,89 @@ async function deleteUser(req: Request): Promise<Response> {
   }
 }
 
+async function getAllUserDashboardData(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId } = body; //userID of Admin who is accessing the dashboard
+
+    if (!userId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "UserID is required",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        userId: String(userId),
+      },
+    });
+
+    if (!user) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "User not found",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    if (user.statusId !== 3) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Access denied: insufficient permissions",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    } else if (user.statusId === 3) { 
+      const users = await prisma.user.findMany({
+        where: {
+          OR: [{ statusId: 1 }, { statusId: 2 }],
+        },
+        select: {
+          userId: true,
+          name: true,
+          email: true,
+          statusId: true,
+        },
+      });
+
+      return new Response(JSON.stringify({
+        success: true,
+        users,
+      }), {
+        status: 200,
+        headers: corsHeaders(),
+      });
+    } else {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Access denied: insufficient permissions",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+ 
+
+  } catch (err) {
+    console.error("getAllUserDashboardData error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Abrufen der Benutzer-Dashboard-Daten",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -1297,6 +1380,10 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/delete-user" && req.method === "POST") {
     return await deleteUser(req);
+  }
+
+  if (url.pathname === "/api/dashboard-data" && req.method === "POST") {
+    return await getAllUserDashboardData(req);
   }
 
   return new Response(JSON.stringify({ error: "not_found" }), {
