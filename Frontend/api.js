@@ -293,3 +293,38 @@ async function getAllUserDashboardData(userId) {
     };
   }
 }
+
+async function updateUserData(userId, dataToUpdate) {
+  //datatoupdate has to be an object with the fields you want to update, e.g. { name: "New Name", email: "newemail@example.com" }
+  // Example usage of updateUserData:
+  // updateUserData("3adcacff-511a-4c90-96a6-84f7f50b1b0a", {
+  //   strasse: "Banana",
+  //   hausnummer: "20/2",
+  //   postleitzahl: "FML",
+  // });
+  try {
+    const response = await fetch("http://localhost:3000/api/edit-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // We combine the required userId with whatever fields you want to change
+      body: JSON.stringify({
+        userId,
+        ...dataToUpdate,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Failed to update user");
+    }
+
+    console.log("Update successful:", result.user);
+    return result.user;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
+}

@@ -1280,6 +1280,84 @@ async function getAllUserDashboardData(req: Request): Promise<Response> {
   }
 }
 
+async function editUser(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    
+    /**
+     * We extract userId and group the remaining fields into 'updateData'.
+     * If 'body' contains { userId: "1", name: "Alex" }, 
+     * then userId is "1" and updateData is { name: "Alex" }.
+     */
+    const { userId, ...updateData } = body;
+
+    // 1. Validation: Ensure userId exists
+    if (!userId) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "UserID is required",
+        }),
+        {
+          status: 400,
+          headers: corsHeaders(),
+        }
+      );
+    }
+
+    // 2. Update Database
+    // Prisma .update() only updates the fields present in the object.
+    // Fields that are 'undefined' (not in the JSON body) are ignored by Prisma.
+    const updatedUser = await prisma.user.update({
+      where: {
+        userId: String(userId),
+      },
+      data: updateData,
+    });
+
+    // 3. Success Response
+    return new Response(
+      JSON.stringify({
+        success: true,
+        user: updatedUser,
+      }),
+      {
+        status: 200,
+        headers: corsHeaders(),
+      }
+    );
+
+  } catch (err: any) {
+    console.error("editUser error:", err);
+
+    // Handle Prisma-specific error: Record to update not found (P2025)
+    if (err.code === 'P2025') {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "User not found",
+        }),
+        {
+          status: 404,
+          headers: corsHeaders(),
+        }
+      );
+    }
+
+    // General server error
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "Internal server error while updating user",
+      }),
+      {
+        status: 500,
+        headers: corsHeaders(),
+      }
+    );
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -1351,6 +1429,10 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/dashboard-data" && req.method === "POST") {
     return await getAllUserDashboardData(req);
+  }
+
+  if (url.pathname === "/api/edit-user" && req.method === "POST") {
+    return await editUser(req);
   }
 
   return new Response(JSON.stringify({ error: "not_found" }), {
