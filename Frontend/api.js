@@ -145,6 +145,20 @@ async function createProduct(userId, name, kategorieId, beschreibung, preis, bil
   }
 }
 
+async function uploadImage(file) {
+  const form = new FormData();
+  form.append('image', file);
+  try {
+    const resp = await fetch('http://localhost:3000/api/upload-image', { method: 'POST', body: form });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Upload failed');
+    return data;
+  } catch (err) {
+    console.error('Image upload failed:', err.message);
+    throw err;
+  }
+}
+
 async function updatePassword(userId, oldPassword, newPassword) {
   const url = "http://localhost:3000/api/update-password";
 

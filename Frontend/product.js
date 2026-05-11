@@ -58,11 +58,11 @@ function displayProducts(products) {
           data-testid="product-card-195e1b0b-9b8d-45b7-92e0-fb5ceee469ad"
           >
           <!--href="/produkte/${products[i].produktId}"   this has to be one up and added as a redirect link-->
-          <div
-            class="aspect-square bg-stone-100 flex items-center justify-center text-stone-400 text-sm"
-          >
-            <img src="pics/${products[i].produktId}.jpg" alt="${products[i].name}">
-          </div>
+            <div
+              class="aspect-square bg-stone-100 flex items-center justify-center text-stone-400 text-sm"
+            >
+              <img src="${products[i].bildUrl ? products[i].bildUrl : `pics/${products[i].produktId}.jpg`}" alt="${products[i].name}" class="w-full h-full object-cover" />
+            </div>
 
           <div class="p-4 md:p-5">
             <!-- <span

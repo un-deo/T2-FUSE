@@ -173,19 +173,33 @@ document.getElementById("produktForm").addEventListener("submit", async function
   const bestand = document.getElementById("bestand").value;
   const gewicht = document.getElementById("gewicht").value;
   const herkunft = document.getElementById("herkunft").value;
-  const bildUrl = document.getElementById("bildUrl").value;
+  // image file input (file upload replaces previous bildUrl text input)
+  const imageInput = document.getElementById("imageFile");
+  const bildUrl = null; // will be replaced if an upload occurs
   const productId = document.getElementById("productId").value;
 
   let result;
+  // If user selected an image file, upload it first and use returned URL
+  let bildUrlToSend = null;
+  if (imageInput && imageInput.files && imageInput.files.length > 0) {
+    try {
+      const uploadResult = await uploadImageFile(imageInput.files[0]);
+      bildUrlToSend = uploadResult.url;
+    } catch (err) {
+      alert("Bild-Upload fehlgeschlagen: " + err.message);
+      return;
+    }
+  }
+
   if (productId) {
     result = await updateMyProduct(
       userId, productId, name, kategorieId, beschreibung,
-      preis, bildUrl, bestand, herkunft, gewicht
+      preis, bildUrlToSend, bestand, herkunft, gewicht
     );
   } else {
     result = await createProduct(
       userId, name, kategorieId, beschreibung,
-      preis, bildUrl, bestand, herkunft, gewicht
+      preis, bildUrlToSend, bestand, herkunft, gewicht
     );
   }
 
@@ -267,4 +281,34 @@ function escapeHtml(str) {
   const div = document.createElement("div");
   div.textContent = str;
   return div.innerHTML;
+}
+
+// ---------- IMAGE PREVIEW & UPLOAD HELPER ----------
+// show preview when selecting a file
+const imageFileInput = document.getElementById('imageFile');
+if (imageFileInput) {
+  imageFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const preview = document.getElementById('imagePreview');
+    if (!preview) return;
+    preview.innerHTML = '';
+    if (file) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.className = 'w-24 h-24 object-cover rounded';
+      preview.appendChild(img);
+    }
+  });
+}
+
+async function uploadImageFile(file) {
+  const form = new FormData();
+  form.append('image', file);
+  const res = await fetch('http://localhost:3000/api/upload-image', {
+    method: 'POST',
+    body: form,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Upload failed');
+  return data; // expected { success: true, url }
 }

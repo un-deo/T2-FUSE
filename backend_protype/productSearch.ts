@@ -1017,6 +1017,48 @@ async function createProduct(req: Request): Promise<Response> {
   }
 }
 
+async function uploadImage(req: Request): Promise<Response> {
+  try {
+    const form = await req.formData();
+    const file = form.get('image') as File | null;
+    if (!file) {
+      return new Response(JSON.stringify({ success: false, error: 'No file uploaded' }), { status: 400, headers: corsHeaders() });
+    }
+
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowed.includes(file.type)) {
+      return new Response(JSON.stringify({ success: false, error: 'Invalid file type' }), { status: 400, headers: corsHeaders() });
+    }
+
+    const MAX_BYTES = 5 * 1024 * 1024; // 5MB
+    const buffer = await file.arrayBuffer();
+    if (buffer.byteLength > MAX_BYTES) {
+      return new Response(JSON.stringify({ success: false, error: 'File too large' }), { status: 413, headers: corsHeaders() });
+    }
+
+    let ext = 'jpg';
+    if (file.type === 'image/png') ext = 'png';
+    else if (file.type === 'image/webp') ext = 'webp';
+    else if (file.type === 'image/gif') ext = 'gif';
+    else if (file.type === 'image/jpeg') ext = 'jpg';
+
+    const filename = `${crypto.randomUUID()}.${ext}`;
+    const uploadDir = './productpics';
+    await Deno.mkdir(uploadDir, { recursive: true });
+    const outPath = `${uploadDir}/${filename}`;
+    await Deno.writeFile(outPath, new Uint8Array(buffer));
+
+    const urlObj = new URL(req.url);
+    const origin = `${urlObj.protocol}//${urlObj.host}`;
+    const publicUrl = `${origin}/productpics/${filename}`;
+
+    return new Response(JSON.stringify({ success: true, url: publicUrl }), { status: 201, headers: corsHeaders() });
+  } catch (err) {
+    console.error('uploadImage error', err);
+    return new Response(JSON.stringify({ success: false, error: 'Upload failed' }), { status: 500, headers: corsHeaders() });
+  }
+}
+
 async function addToCart(req: Request): Promise<Response> {
   try {
     const body = await req.json();
@@ -1532,6 +1574,22 @@ async function getAllProductsForAdminDashboard(req: Request): Promise<Response> 
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
+  // Serve files from ./productpics at /productpics/*
+  if (url.pathname.startsWith('/productpics/')) {
+    try {
+      const fsPath = '.' + url.pathname; // map /productpics/foo.jpg -> ./productpics/foo.jpg
+      const data = await Deno.readFile(fsPath);
+      let contentType = 'application/octet-stream';
+      if (fsPath.endsWith('.png')) contentType = 'image/png';
+      else if (fsPath.endsWith('.jpg') || fsPath.endsWith('.jpeg')) contentType = 'image/jpeg';
+      else if (fsPath.endsWith('.webp')) contentType = 'image/webp';
+      else if (fsPath.endsWith('.gif')) contentType = 'image/gif';
+      return new Response(data, { status: 200, headers: { 'Content-Type': contentType, 'Access-Control-Allow-Origin': '*' } });
+    } catch (e) {
+      return new Response('Not found', { status: 404, headers: corsHeaders() });
+    }
+  }
+
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders() });
   }
@@ -1588,6 +1646,10 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/create-product" && req.method === "POST") {
     return await createProduct(req);
+  }
+
+  if (url.pathname === '/api/upload-image' && req.method === 'POST') {
+    return await uploadImage(req);
   }
 
   if (url.pathname === "/api/add-to-cart" && req.method === "POST") {
