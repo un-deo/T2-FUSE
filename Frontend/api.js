@@ -83,21 +83,67 @@ async function ValidatePassword(userId, password) {
 async function fetchMyProducts(userId) {
   const url = "http://localhost:3000/api/my-products";
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      userId: userId,
-    }),
-  });
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+      }),
+    });
 
-  const data = await response.json();
+    const data = await response.json();
 
-  console.log(data);
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error("Fetch my products request failed:", error);
+    return { success: false, error: "Netzwerkfehler beim Abrufen der Produkte" };
+  }
 }
 //fetchMyProducts("c4cd7d0d-5432-45f0-96d3-619d3f09668e");
+
+async function createProduct(userId, name, kategorieId, beschreibung, preis, bildUrl, bestand, bundesland, gewicht) {
+  const url = "http://localhost:3000/api/create-product";
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+        name: name ? name.trim() : "",
+        kategorieId: kategorieId,
+        beschreibung: beschreibung ? beschreibung.trim() : "",
+        preis: Number(preis),
+        bildUrl: bildUrl ? bildUrl.trim() : "",
+        bestand: bestand !== "" ? Number(bestand) : undefined,
+        bundesland: bundesland ? bundesland.trim() : "",
+        gewicht: gewicht !== "" ? Number(gewicht) : undefined,
+      }),
+    });
+
+    const result = await response.json();
+    console.log(result);
+
+    if (!response.ok) {
+      throw new Error(result.error || "Create failed in backend");
+    }
+
+    console.log("Product created successfully:", result.product?.produktId);
+    return result;
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+    return {
+      success: false,
+      error: error.message || "Netzwerkfehler beim Erstellen des Produkts",
+    };
+  }
+}
 
 async function updatePassword(userId, oldPassword, newPassword) {
   const url = "http://localhost:3000/api/update-password";

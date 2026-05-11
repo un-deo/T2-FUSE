@@ -747,15 +747,12 @@ async function updateMyProduct(req: Request): Promise<Response> {
       !name ||
       !kategorieId ||
       !beschreibung ||
-      preis === undefined ||
-      bestand === undefined ||
-      bundesland === undefined ||
-      gewicht === undefined
+      preis === undefined
     ) {
       return new Response(
         JSON.stringify({
           success: false,
-          error: "UserID, ProduktID und Produktdaten sind erforderlich",
+          error: "UserID, ProduktID, Name, Kategorie, Beschreibung und Preis sind erforderlich",
         }),
         {
           status: 400,
@@ -939,6 +936,84 @@ async function deleteProduct(req: Request): Promise<Response> {
       status: 500,
       headers: corsHeaders(),
     });
+  }
+}
+
+async function createProduct(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId, name, kategorieId, beschreibung, preis, bildUrl, bestand, bundesland, gewicht } = body;
+
+    if (!userId || !name || !kategorieId || !beschreibung || preis === undefined) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "UserID, Name, Kategorie, Beschreibung und Preis sind erforderlich",
+        }),
+        {
+          status: 400,
+          headers: corsHeaders(),
+        },
+      );
+    }
+
+    const parsedPreis = Number(preis);
+    if (Number.isNaN(parsedPreis)) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Ungültiger Preis",
+        }),
+        {
+          status: 400,
+          headers: corsHeaders(),
+        },
+      );
+    }
+
+    const parsedBestand = bestand !== undefined ? Number(bestand) : null;
+    const parsedGewicht = gewicht !== undefined ? Number(gewicht) : null;
+
+    const product = await prisma.produkte.create({
+      data: {
+        name: String(name).trim(),
+        beschreibung: String(beschreibung).trim(),
+        preis: parsedPreis,
+        userId: String(userId),
+        kategorieId: String(kategorieId),
+        status: "active",
+        selbstabholung: true,
+        versand: true,
+        suchfilterattribute: "",
+        bildUrl: bildUrl ? String(bildUrl).trim() : null,
+        Bestand: (parsedBestand !== null && !Number.isNaN(parsedBestand)) ? parsedBestand : null,
+        Bundesland: bundesland ? String(bundesland).trim() : null,
+        Gewicht: (parsedGewicht !== null && !Number.isNaN(parsedGewicht)) ? parsedGewicht : null,
+      },
+    });
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        product: product,
+      }),
+      {
+        status: 201,
+        headers: corsHeaders(),
+      },
+    );
+  } catch (err) {
+    console.error("createProduct error:", err);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "Fehler beim Erstellen des Produkts",
+      }),
+      {
+        status: 500,
+        headers: corsHeaders(),
+      },
+    );
   }
 }
 
@@ -1509,6 +1584,10 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/delete-product" && req.method === "POST") {
     return await deleteProduct(req);
+  }
+
+  if (url.pathname === "/api/create-product" && req.method === "POST") {
+    return await createProduct(req);
   }
 
   if (url.pathname === "/api/add-to-cart" && req.method === "POST") {
