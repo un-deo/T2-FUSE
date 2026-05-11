@@ -105,7 +105,7 @@ async function fetchMyProducts(userId) {
 }
 //fetchMyProducts("c4cd7d0d-5432-45f0-96d3-619d3f09668e");
 
-async function createProduct(userId, name, kategorieId, beschreibung, preis, bildUrl, bestand, bundesland, gewicht) {
+async function createProduct(userId, name, kategorieId, beschreibung, preis, bildUrl, bestand, bundesland, gewicht, status) {
   const url = "http://localhost:3000/api/create-product";
 
   try {
@@ -124,8 +124,8 @@ async function createProduct(userId, name, kategorieId, beschreibung, preis, bil
         bestand: bestand !== "" ? Number(bestand) : undefined,
         bundesland: bundesland ? bundesland.trim() : "",
         gewicht: gewicht !== "" ? Number(gewicht) : undefined,
-        // status intentionally optional; default handled server-side
-        status: undefined,
+        // include status if provided
+        status: status ? status : undefined,
       }),
     });
 

@@ -942,7 +942,7 @@ async function deleteProduct(req: Request): Promise<Response> {
 async function createProduct(req: Request): Promise<Response> {
   try {
     const body = await req.json();
-    const { userId, name, kategorieId, beschreibung, preis, bildUrl, bestand, bundesland, gewicht } = body;
+    const { userId, name, kategorieId, beschreibung, preis, bildUrl, bestand, bundesland, gewicht, status } = body;
 
     if (!userId || !name || !kategorieId || !beschreibung || preis === undefined) {
       return new Response(
@@ -981,7 +981,8 @@ async function createProduct(req: Request): Promise<Response> {
         preis: parsedPreis,
         userId: String(userId),
         kategorieId: String(kategorieId),
-        status: "active",
+        // allow client to set status; default to active
+        status: status ? String(status).trim() : "active",
         selbstabholung: true,
         versand: true,
         suchfilterattribute: "",

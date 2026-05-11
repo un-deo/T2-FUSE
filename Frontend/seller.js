@@ -150,6 +150,9 @@ function openEditModal(product) {
       preview.appendChild(img);
     }
   }
+  // set status select
+  const statusEl = document.getElementById('status');
+  if (statusEl) statusEl.value = product.status || 'active';
   currentProductId = product.produktId;
   document.getElementById("editModal").classList.remove("hidden");
 }
@@ -170,6 +173,8 @@ function openCreateModal() {
   if (imageInput) imageInput.value = '';
   const preview = document.getElementById('imagePreview');
   if (preview) preview.innerHTML = '';
+  const statusEl = document.getElementById('status');
+  if (statusEl) statusEl.value = 'active';
   currentProductId = null;
   document.getElementById("editModal").classList.remove("hidden");
 }
