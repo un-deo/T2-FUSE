@@ -739,6 +739,7 @@ async function updateMyProduct(req: Request): Promise<Response> {
       bestand,
       bundesland,
       gewicht,
+      status,
     } = body;
 
     if (
@@ -782,21 +783,27 @@ async function updateMyProduct(req: Request): Promise<Response> {
       );
     }
 
+    // build update data and include status only when provided
+    const updateData: any = {
+      name: String(name).trim(),
+      beschreibung: String(beschreibung).trim(),
+      preis: parsedPreis,
+      kategorieId: String(kategorieId),
+      bildUrl: String(bildUrl ?? "").trim() || null,
+      Bestand: parsedBestand,
+      Bundesland: String(bundesland ?? "").trim() || null,
+      Gewicht: parsedGewicht,
+    };
+    if (status !== undefined) {
+      updateData.status = String(status).trim();
+    }
+
     const updated = await prisma.produkte.updateMany({
       where: {
         produktId: String(productId),
         userId: String(userId),
       },
-      data: {
-        name: String(name).trim(),
-        beschreibung: String(beschreibung).trim(),
-        preis: parsedPreis,
-        kategorieId: String(kategorieId),
-        bildUrl: String(bildUrl ?? "").trim() || null,
-        Bestand: parsedBestand,
-        Bundesland: String(bundesland ?? "").trim() || null,
-        Gewicht: parsedGewicht,
-      },
+      data: updateData,
     });
 
     if (updated.count === 0) {
