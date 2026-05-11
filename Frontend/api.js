@@ -124,6 +124,8 @@ async function createProduct(userId, name, kategorieId, beschreibung, preis, bil
         bestand: bestand !== "" ? Number(bestand) : undefined,
         bundesland: bundesland ? bundesland.trim() : "",
         gewicht: gewicht !== "" ? Number(gewicht) : undefined,
+        // status intentionally optional; default handled server-side
+        status: undefined,
       }),
     });
 
@@ -265,6 +267,7 @@ async function updateMyProduct(
   bestand,
   bundesland,
   gewicht,
+  status,
 ) {
   const url = "http://localhost:3000/api/update-my-product";
 
@@ -285,6 +288,7 @@ async function updateMyProduct(
         bestand: Number(bestand),
         bundesland: bundesland ? bundesland.trim() : "",
         gewicht: Number(gewicht),
+        status: status ? status : 'active',
       }),
     });
 

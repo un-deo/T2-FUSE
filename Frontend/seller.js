@@ -191,6 +191,7 @@ document.getElementById("produktForm").addEventListener("submit", async function
   const herkunft = document.getElementById("herkunft").value;
   // image file input (file upload replaces previous bildUrl text input)
   const imageInput = document.getElementById("imageFile");
+  const status = document.getElementById("status") ? document.getElementById("status").value : 'active';
   const bildUrl = null; // will be replaced if an upload occurs
   const productId = document.getElementById("productId").value;
 
@@ -210,12 +211,12 @@ document.getElementById("produktForm").addEventListener("submit", async function
   if (productId) {
     result = await updateMyProduct(
       userId, productId, name, kategorieId, beschreibung,
-      preis, bildUrlToSend, bestand, herkunft, gewicht
+      preis, bildUrlToSend, bestand, herkunft, gewicht, status
     );
   } else {
     result = await createProduct(
       userId, name, kategorieId, beschreibung,
-      preis, bildUrlToSend, bestand, herkunft, gewicht
+      preis, bildUrlToSend, bestand, herkunft, gewicht, status
     );
   }
 
