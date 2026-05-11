@@ -1701,7 +1701,7 @@ async function router(req: Request): Promise<Response> {
   }
 
   // Cleanup endpoint: delete files in ./productpics not referenced by any product
-  if (url.pathname === '/api/cleanup-productpics' && req.method === 'POST') {
+  if (url.pathname === '/api/cleanup-productpics') {
     try {
       // optional auth could be added here
       const dir = './productpics';
