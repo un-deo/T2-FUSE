@@ -381,15 +381,15 @@ async function updateUserData(userId, dataToUpdate) {
 
     const result = await response.json();
 
+    // Return full API response so callers can check success flag
     if (!response.ok) {
-      throw new Error(result.error || "Failed to update user");
+      return result;
     }
 
-    console.log("Update successful:", result.user);
-    return result.user;
+    return result;
   } catch (error) {
     console.error("Error updating user:", error);
-    throw error;
+    return { success: false, error: error.message };
   }
 }
 

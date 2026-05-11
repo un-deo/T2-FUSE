@@ -1452,36 +1452,35 @@ async function getAllUserDashboardData(req: Request): Promise<Response> {
 async function editUser(req: Request): Promise<Response> {
   try {
     const body = await req.json();
-    
-    /**
-     * We extract userId and group the remaining fields into 'updateData'.
-     * If 'body' contains { userId: "1", name: "Alex" }, 
-     * then userId is "1" and updateData is { name: "Alex" }.
-     */
-    const { userId, ...updateData } = body;
 
-    // 1. Validation: Ensure userId exists
+    if (!body || typeof body !== 'object') {
+      return new Response(JSON.stringify({ success: false, error: 'Invalid request body' }), { status: 400, headers: corsHeaders() });
+    }
+
+    // Extract and validate userId
+    const { userId } = body as { userId?: string };
     if (!userId) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "UserID is required",
-        }),
-        {
-          status: 400,
-          headers: corsHeaders(),
-        }
-      );
+      return new Response(JSON.stringify({ success: false, error: 'UserID is required' }), { status: 400, headers: corsHeaders() });
+    }
+
+    // Whitelist fields to avoid accidental array/indexed payloads
+    const allowedFields = ['name', 'email', 'passwort', 'strasse', 'hausnummer', 'postleitzahl', 'land', 'telefonNr', 'statusId'];
+    const updateData: Record<string, unknown> = {};
+    for (const key of allowedFields) {
+      if (Object.prototype.hasOwnProperty.call(body, key)) {
+        updateData[key] = (body as any)[key];
+      }
+    }
+
+    // Hash password if present
+    if (updateData.passwort && typeof updateData.passwort === 'string') {
+      updateData.passwort = await hashPassword(updateData.passwort as string);
     }
 
     // 2. Update Database
-    // Prisma .update() only updates the fields present in the object.
-    // Fields that are 'undefined' (not in the JSON body) are ignored by Prisma.
     const updatedUser = await prisma.user.update({
-      where: {
-        userId: String(userId),
-      },
-      data: updateData,
+      where: { userId: String(userId) },
+      data: updateData as any,
     });
 
     // 3. Success Response

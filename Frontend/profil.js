@@ -79,16 +79,17 @@ async function handleProfileSubmit(event) {
 
   showProfileMessage("Profil wird gespeichert...", "info");
   try {
-    const result = await updateUserData(
-      userId,
+    // Pass an object with fields to update. Previously positional args were spread
+    // into an object which caused string -> numeric-index keys to be sent.
+    const result = await updateUserData(userId, {
       name,
       email,
-      street,
-      houseNumber,
-      postalCode,
-      country,
-      phone,
-    );
+      strasse: street,
+      hausnummer: houseNumber,
+      postleitzahl: postalCode,
+      land: country,
+      telefonNr: phone,
+    });
 
     if (result?.success) {
       cachedProfile = {
