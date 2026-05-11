@@ -798,6 +798,19 @@ async function updateMyProduct(req: Request): Promise<Response> {
       updateData.status = String(status).trim();
     }
 
+    // BEFORE updating, check for an existing product image and delete it if it's
+    // being replaced and no other product references it.
+    const existingProduct = await prisma.produkte.findUnique({ where: { produktId: String(productId) } });
+    if (!existingProduct) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Produkt nicht gefunden" }),
+        { status: 404, headers: corsHeaders() },
+      );
+    }
+
+    const oldBildUrl = existingProduct.bildUrl ?? null;
+    const newBildUrl = updateData.bildUrl ?? null;
+
     const updated = await prisma.produkte.updateMany({
       where: {
         produktId: String(productId),
@@ -805,6 +818,33 @@ async function updateMyProduct(req: Request): Promise<Response> {
       },
       data: updateData,
     });
+
+    // If we replaced the image (old exists, new different), attempt to remove the old file
+    if (oldBildUrl && oldBildUrl !== newBildUrl) {
+      try {
+        // Only delete if no other product references the same URL
+        const refs = await prisma.produkte.findMany({ where: { bildUrl: oldBildUrl } });
+        if (!refs || refs.length <= 1) {
+          // extract filename and delete from ./productpics if it looks like a local upload
+          const idx = oldBildUrl.lastIndexOf('/');
+          const filename = idx !== -1 ? oldBildUrl.slice(idx + 1) : null;
+          if (filename) {
+            const filePath = `./productpics/${filename}`;
+            try {
+              // only remove if file exists
+              const stat = await Deno.lstat(filePath).catch(() => null);
+              if (stat && stat.isFile) {
+                await Deno.remove(filePath).catch(() => null);
+              }
+            } catch (_e) {
+              // ignore deletion errors
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error while cleaning up old image:', err);
+      }
+    }
 
     if (updated.count === 0) {
       return new Response(
@@ -1658,6 +1698,45 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === '/api/upload-image' && req.method === 'POST') {
     return await uploadImage(req);
+  }
+
+  // Cleanup endpoint: delete files in ./productpics not referenced by any product
+  if (url.pathname === '/api/cleanup-productpics' && req.method === 'POST') {
+    try {
+      // optional auth could be added here
+      const dir = './productpics';
+      const entries: string[] = [];
+      for await (const file of Deno.readDir(dir)) {
+        if (file.isFile) entries.push(file.name);
+      }
+
+      // collect all bildUrl filenames referenced in DB
+      const products = await prisma.produkte.findMany({ select: { bildUrl: true } });
+      const referenced = new Set<string>();
+      for (const p of products) {
+        if (p.bildUrl) {
+          const idx = p.bildUrl.lastIndexOf('/');
+          if (idx !== -1) referenced.add(p.bildUrl.slice(idx + 1));
+        }
+      }
+
+      const deleted: string[] = [];
+      for (const f of entries) {
+        if (!referenced.has(f)) {
+          try {
+            await Deno.remove(`${dir}/${f}`);
+            deleted.push(f);
+          } catch (err) {
+            console.error('Failed to delete', f, err);
+          }
+        }
+      }
+
+      return new Response(JSON.stringify({ success: true, deleted }), { status: 200, headers: corsHeaders() });
+    } catch (err) {
+      console.error('cleanup error', err);
+      return new Response(JSON.stringify({ success: false, error: 'Cleanup failed' }), { status: 500, headers: corsHeaders() });
+    }
   }
 
   if (url.pathname === "/api/add-to-cart" && req.method === "POST") {

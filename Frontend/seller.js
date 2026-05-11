@@ -140,6 +140,9 @@ function openEditModal(product) {
   // clear file input and show preview of existing image (if any)
   const imageInput = document.getElementById('imageFile');
   if (imageInput) imageInput.value = '';
+  // store current bildUrl so updates without new upload keep it
+  const currentBildUrlInput = document.getElementById('currentBildUrl');
+  if (currentBildUrlInput) currentBildUrlInput.value = product.bildUrl || '';
   const preview = document.getElementById('imagePreview');
   if (preview) {
     preview.innerHTML = '';
@@ -173,6 +176,8 @@ function openCreateModal() {
   if (imageInput) imageInput.value = '';
   const preview = document.getElementById('imagePreview');
   if (preview) preview.innerHTML = '';
+  const currentBildUrlInput = document.getElementById('currentBildUrl');
+  if (currentBildUrlInput) currentBildUrlInput.value = '';
   const statusEl = document.getElementById('status');
   if (statusEl) statusEl.value = 'active';
   currentProductId = null;
@@ -210,6 +215,13 @@ document.getElementById("produktForm").addEventListener("submit", async function
     } catch (err) {
       alert("Bild-Upload fehlgeschlagen: " + err.message);
       return;
+    }
+  }
+  // if no new file uploaded and we're editing, preserve existing bildUrl
+  if (!bildUrlToSend && productId) {
+    const currentBildUrlInput = document.getElementById('currentBildUrl');
+    if (currentBildUrlInput && currentBildUrlInput.value) {
+      bildUrlToSend = currentBildUrlInput.value;
     }
   }
 
