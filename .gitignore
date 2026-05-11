@@ -1,4 +1,3 @@
-**/.DS_Store
-/test/
-**/.env
-.env
+# ignore uploaded product pictures
+productpics/
+backend_protype/productpics/
