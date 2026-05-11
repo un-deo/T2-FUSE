@@ -137,7 +137,19 @@ function openEditModal(product) {
   document.getElementById("bestand").value = product.Bestand || "";
   document.getElementById("gewicht").value = product.Gewicht || "";
   document.getElementById("herkunft").value = product.Bundesland || "";
-  document.getElementById("bildUrl").value = product.bildUrl || "";
+  // clear file input and show preview of existing image (if any)
+  const imageInput = document.getElementById('imageFile');
+  if (imageInput) imageInput.value = '';
+  const preview = document.getElementById('imagePreview');
+  if (preview) {
+    preview.innerHTML = '';
+    if (product.bildUrl) {
+      const img = document.createElement('img');
+      img.src = product.bildUrl;
+      img.className = 'w-24 h-24 object-cover rounded';
+      preview.appendChild(img);
+    }
+  }
   currentProductId = product.produktId;
   document.getElementById("editModal").classList.remove("hidden");
 }
@@ -153,7 +165,11 @@ function openCreateModal() {
   document.getElementById("bestand").value = "";
   document.getElementById("gewicht").value = "";
   document.getElementById("herkunft").value = "";
-  document.getElementById("bildUrl").value = "";
+  // clear file input and preview for new product
+  const imageInput = document.getElementById('imageFile');
+  if (imageInput) imageInput.value = '';
+  const preview = document.getElementById('imagePreview');
+  if (preview) preview.innerHTML = '';
   currentProductId = null;
   document.getElementById("editModal").classList.remove("hidden");
 }
