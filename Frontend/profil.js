@@ -79,17 +79,16 @@ async function handleProfileSubmit(event) {
 
   showProfileMessage("Profil wird gespeichert...", "info");
   try {
-    // Pass an object with fields to update. Previously positional args were spread
-    // into an object which caused string -> numeric-index keys to be sent.
-    const result = await updateUserData(userId, {
+    const result = await updateUserData(
+      userId,
       name,
       email,
-      strasse: street,
-      hausnummer: houseNumber,
-      postleitzahl: postalCode,
-      land: country,
-      telefonNr: phone,
-    });
+      street,
+      houseNumber,
+      postalCode,
+      country,
+      phone,
+    );
 
     if (result?.success) {
       cachedProfile = {
@@ -239,13 +238,26 @@ function showPasswordMessage(message, type = "info") {
   messageElement.classList.add("text-stone-600");
 }
 
-function togglePasswordVisibility(inputId) {
+function togglePasswordVisibility(inputId, iconId) {
   const input = document.getElementById(inputId);
-  if (!input) {
-    return;
-  }
+  const icon = document.getElementById(iconId);
 
-  input.type = input.type === "password" ? "text" : "password";
+  if (input.type === "password") {
+    input.type = "text";
+
+    icon.innerHTML = `
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+      <line x1="2" y1="2" x2="22" y2="22"></line>
+    `;
+  } else {
+    input.type = "password";
+
+    icon.innerHTML = `
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    `;
+  }
 }
 
 window.togglePasswordVisibility = togglePasswordVisibility;
@@ -344,7 +356,7 @@ function updateProfileStatusBadge() {
   }
 
   statusBox.className = "flex items-center gap-2 p-3 rounded-xl";
-  verificationDisplay.className = "ml-auto text-xs px-2 py-1 rounded-full";
+  verificationDisplay.className = "ml-auto text-xs px-2 py-1 roundsed-full";
 
   if (statusId === "3") {
     roleDisplay.textContent = "Admin";

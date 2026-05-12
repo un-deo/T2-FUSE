@@ -353,9 +353,9 @@
                   class="flex w-full rounded-md border px-3 py-1 h-12 bg-stone-50 border-stone-200 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
                   required
                 />
-                <button type="button" onclick="togglePasswordVisibility('oldPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600" aria-label="Passwort anzeigen oder ausblenden">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
-                    <path d="M2.06 12.35a1 1 0 0 1 0-.7C3.54 7.61 7.39 5 12 5s8.46 2.61 9.94 6.65a1 1 0 0 1 0 .7C20.46 16.39 16.61 19 12 19s-8.46-2.61-9.94-6.65z"></path>
+                <button type="button" onclick="togglePasswordVisibility('oldPassword', 'oldPasswordIcon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600" aria-label="Passwort anzeigen oder ausblenden">
+                  <svg id="oldPasswordIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
                   </svg>
                 </button>
@@ -372,9 +372,9 @@
                   class="flex w-full rounded-md border px-3 py-1 h-12 bg-stone-50 border-stone-200 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
                   required
                 />
-                <button type="button" onclick="togglePasswordVisibility('newPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600" aria-label="Passwort anzeigen oder ausblenden">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
-                    <path d="M2.06 12.35a1 1 0 0 1 0-.7C3.54 7.61 7.39 5 12 5s8.46 2.61 9.94 6.65a1 1 0 0 1 0 .7C20.46 16.39 16.61 19 12 19s-8.46-2.61-9.94-6.65z"></path>
+                <button type="button" onclick="togglePasswordVisibility('newPassword', 'newPasswordIcon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600" aria-label="Passwort anzeigen oder ausblenden">
+                  <svg id="newPasswordIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
                   </svg>
                 </button>
@@ -391,9 +391,9 @@
                   class="flex w-full rounded-md border px-3 py-1 h-12 bg-stone-50 border-stone-200 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
                   required
                 />
-                <button type="button" onclick="togglePasswordVisibility('confirmNewPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600" aria-label="Passwort anzeigen oder ausblenden">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
-                    <path d="M2.06 12.35a1 1 0 0 1 0-.7C3.54 7.61 7.39 5 12 5s8.46 2.61 9.94 6.65a1 1 0 0 1 0 .7C20.46 16.39 16.61 19 12 19s-8.46-2.61-9.94-6.65z"></path>
+                <button type="button" onclick="togglePasswordVisibility('confirmNewPassword', 'confirmNewPasswordIcon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600" aria-label="Passwort anzeigen oder ausblenden">
+                  <svg id="confirmNewPasswordIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
                   </svg>
                 </button>

@@ -5,7 +5,45 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>FUSE-SHOP - Adminbereich</title>
 		<script src="https://cdn.tailwindcss.com"></script>
+		<style>
+			.toggle-icon {
+				position: relative;
+				width: 20px;
+				height: 20px;
+			}
+
+			.toggle-icon::before,
+			.toggle-icon::after {
+				content: "";
+				position: absolute;
+				background: #404040;
+				border-radius: 1px;
+				transition: 0.3s ease;
+			}
+
+			.toggle-icon::before {
+				width: 20px;
+				height: 1.5px;
+				top: 50%;
+				left: 0;
+				transform: translateY(-50%);
+			}
+
+			.toggle-icon::after {
+				width: 1.5px;
+				height: 20px;
+				top: 0;
+				left: 50%;
+				transform: translateX(-50%);
+			}
+
+			.toggle-icon.open::after {
+				opacity: 0;
+				transform: translateX(-50%) scaleY(0);
+			}
+		</style>
 		<script src="header.js" defer></script>
+		<script src="admin.js" defer></script>
 	</head>
 	<body class="bg-white text-stone-900">
 <!-- HEADER -->
@@ -130,151 +168,95 @@
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 					<article class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
 						<p class="text-stone-500 text-sm">Gesamte Nutzer</p>
-						<p class="font-mono text-3xl font-semibold text-green-900 mt-2">1.248</p>
+						<p id="admin-total-users" class="font-mono text-3xl font-semibold text-green-900 mt-2" aria-live="polite">--</p>
 					</article>
 					<article class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
 						<p class="text-stone-500 text-sm">Verkäufer</p>
-						<p class="font-mono text-3xl font-semibold text-amber-600 mt-2">178</p>
+						<p id="admin-seller-users" class="font-mono text-3xl font-semibold text-amber-600 mt-2" aria-live="polite">--</p>
 					</article>
 					<article class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
 						<p class="text-stone-500 text-sm">Administratoren</p>
-						<p class="font-mono text-3xl font-semibold text-green-900 mt-2">6</p>
+						<p id="admin-admin-users" class="font-mono text-3xl font-semibold text-green-900 mt-2" aria-live="polite">--</p>
 					</article>
 				</div>
 			</div>
 		</section>
 
-		<section class="py-12 md:py-16 bg-white">
+		<section class="pt-12 md:pt-16 pb-4 md:pb-6 bg-white">
 			<div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
 				<div class="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4">
 					<div>
 						<span class="text-amber-600 font-medium text-sm uppercase tracking-wider">Nutzerliste</span>
-						<h2 class="font-serif text-3xl md:text-4xl font-bold text-stone-900 mt-2">Alle Benutzer</h2>
+						
 					</div>
 				</div>
 
-				<div class="overflow-x-auto rounded-2xl border border-stone-200">
-					<table class="min-w-full bg-white">
-						<thead class="bg-stone-50 border-b border-stone-200">
-							<tr>
-								<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">ID</th>
-								<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Name</th>
-								<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">E-Mail</th>
-								<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Status</th>
-								<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Aktion</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr class="border-b border-stone-100">
-								<td class="px-5 py-4 text-sm text-stone-600">U-1001</td>
-								<td class="px-5 py-4 font-medium">Anna Berger</td>
-								<td class="px-5 py-4 text-sm text-stone-600">anna@fuse-shop.at</td>
-								<td class="px-5 py-4">
-									<span class="inline-flex px-2.5 py-1 bg-stone-100 text-stone-700 text-xs font-medium rounded-full">Kunde</span>
-								</td>
-								<td class="px-5 py-4">
-									<div class="flex gap-2">
-										<button type="button" class="px-3 py-2 text-xs rounded-full bg-amber-100 text-amber-700 font-medium">Status ändern</button>
-										<button type="button" class="px-3 py-2 text-xs rounded-full bg-red-100 text-red-700 font-medium">Nutzer löschen</button>
-									</div>
-								</td>
-							</tr>
-
-							<tr class="border-b border-stone-100">
-								<td class="px-5 py-4 text-sm text-stone-600">U-1002</td>
-								<td class="px-5 py-4 font-medium">Lukas Steiner</td>
-								<td class="px-5 py-4 text-sm text-stone-600">lukas@fuse-shop.at</td>
-								<td class="px-5 py-4">
-									<span class="inline-flex px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">Verkäufer</span>
-								</td>
-								<td class="px-5 py-4">
-									<div class="flex gap-2">
-										<button type="button" class="px-3 py-2 text-xs rounded-full bg-amber-100 text-amber-700 font-medium">Status ändern</button>
-										<button type="button" class="px-3 py-2 text-xs rounded-full bg-red-100 text-red-700 font-medium">Nutzer löschen</button>
-									</div>
-								</td>
-							</tr>
-
-							<tr>
-								<td class="px-5 py-4 text-sm text-stone-600">U-1003</td>
-								<td class="px-5 py-4 font-medium">Moritz Maier</td>
-								<td class="px-5 py-4 text-sm text-stone-600">moritz@fuse-shop.at</td>
-								<td class="px-5 py-4">
-									<span class="inline-flex px-2.5 py-1 bg-green-900/10 text-green-900 text-xs font-medium rounded-full">Admin</span>
-								</td>
-								<td class="px-5 py-4">
-									<div class="flex gap-2">
-										<button type="button" class="px-3 py-2 text-xs rounded-full bg-amber-100 text-amber-700 font-medium">Status ändern</button>
-										<button type="button" class="px-3 py-2 text-xs rounded-full bg-red-100 text-red-700 font-medium">Nutzer löschen</button>
-									</div>
-								</td>
-							</tr>
-						</tbody>
-					</table>
+			<div class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+				<button id="allUsersToggle" class="w-full px-6 py-4 flex items-center justify-between hover:bg-stone-50 transition-colors duration-200">
+					<div class="flex items-center gap-3">
+						<div class="toggle-icon"></div>
+						<h2 class="font-serif text-2xl font-bold text-stone-900">Alle Benutzer</h2>
+					</div>
+				</button>
+				
+				<div id="usersContainer" class="max-h-0 overflow-hidden transition-all duration-300">
+					<div class="overflow-x-auto">
+						<table class="min-w-full bg-white">
+							<thead class="bg-stone-50 border-t border-b border-stone-200">
+								<tr>
+									<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">ID</th>
+									<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Name</th>
+									<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">E-Mail</th>
+									<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Status</th>
+									<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Aktion</th>
+								</tr>
+							</thead>
+							<tbody id="user-table-body">
+								<!-- Wird dynamisch gefüllt -->
+							</tbody>
+						</table>
+					</div>
+				</div>
 				</div>
 			</div>
 		</section>
 
-		<section class="py-12 md:py-16 bg-[#F9F9F7]">
-			<div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-2 gap-8">
-				<article class="bg-white rounded-2xl border border-stone-200 p-6 md:p-8 shadow-sm">
-					<h3 class="font-serif text-2xl font-bold text-stone-900 mb-2">Status ändern</h3>
-					<p class="text-stone-500 text-sm mb-6">Nutzerrolle manuell auf Kunde, Verkäufer oder Admin setzen.</p>
+		<section class="pt-4 md:pt-6 pb-12 md:pb-16 bg-white">
+			<div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+				<div class="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4">
+					<div>
+						<span class="text-amber-600 font-medium text-sm uppercase tracking-wider">Produktliste</span>
+						
+					</div>
+				</div>
 
-					<form class="space-y-5">
-						<div>
-							<label for="userSelect" class="block text-sm font-medium text-stone-700 mb-2">Nutzer</label>
-							<select id="userSelect" class="w-full h-12 px-4 rounded-md bg-stone-50 border border-stone-200 focus:outline-none">
-								<option>U-1001 - Anna Berger</option>
-								<option>U-1002 - Lukas Steiner</option>
-								<option>U-1003 - Moritz Maier</option>
-							</select>
-						</div>
-
-						<div>
-							<label for="statusSelect" class="block text-sm font-medium text-stone-700 mb-2">Neuer Status</label>
-							<select id="statusSelect" class="w-full h-12 px-4 rounded-md bg-stone-50 border border-stone-200 focus:outline-none">
-								<option>Kunde</option>
-								<option>Verkäufer</option>
-								<option>Admin</option>
-							</select>
-						</div>
-
-						<button type="button" class="w-full h-12 bg-amber-600 hover:bg-amber-700 text-white rounded-full font-medium shadow-lg transition">
-							Status speichern
-						</button>
-					</form>
-				</article>
-
-				<article class="bg-white rounded-2xl border border-stone-200 p-6 md:p-8 shadow-sm">
-					<h3 class="font-serif text-2xl font-bold text-stone-900 mb-2">Nutzer löschen</h3>
-					<p class="text-stone-500 text-sm mb-6">Nutzerkonto markieren und dauerhaft entfernen (nur UI-Darstellung).</p>
-
-					<form class="space-y-5">
-						<div>
-							<label for="deleteSelect" class="block text-sm font-medium text-stone-700 mb-2">Nutzer</label>
-							<select id="deleteSelect" class="w-full h-12 px-4 rounded-md bg-stone-50 border border-stone-200 focus:outline-none">
-								<option>U-1001 - Anna Berger</option>
-								<option>U-1002 - Lukas Steiner</option>
-								<option>U-1003 - Moritz Maier</option>
-							</select>
-						</div>
-
-						<div>
-							<label for="deleteReason" class="block text-sm font-medium text-stone-700 mb-2">Grund (optional)</label>
-							<textarea
-								id="deleteReason"
-								class="w-full px-4 py-3 rounded-md bg-stone-50 border border-stone-200 focus:outline-none"
-								rows="4"
-								placeholder="Interne Notiz zur Löschung"
-							></textarea>
-						</div>
-
-						<button type="button" class="w-full h-12 bg-red-600 hover:bg-red-700 text-white rounded-full font-medium shadow-lg transition">
-							Nutzer endgültig löschen
-						</button>
-					</form>
-				</article>
+			<div class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+				<button id="allProductsToggle" class="w-full px-6 py-4 flex items-center justify-between hover:bg-stone-50 transition-colors duration-200">
+					<div class="flex items-center gap-3">
+						<div class="toggle-icon"></div>
+						<h2 class="font-serif text-2xl font-bold text-stone-900">Alle Produkte</h2>
+					</div>
+				</button>
+				
+				<div id="productsContainer" class="max-h-0 overflow-hidden transition-all duration-300">
+					<div class="overflow-x-auto">
+						<table class="min-w-full bg-white">
+							<thead class="bg-stone-50 border-t border-b border-stone-200">
+								<tr>
+									<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">ID</th>
+									<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Name</th>
+									<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Verkäufer</th>
+									<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Preis</th>
+									<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Aktion</th>
+								</tr>
+							</thead>
+							<tbody id="product-table-body">
+								<!-- Wird dynamisch gefüllt -->
+							</tbody>
+						</table>
+					</div>
+				</div>
+				</div>
 			</div>
 		</section>
 
@@ -339,6 +321,161 @@
 				</div>
 			</div>
 		</footer>
+
+		<!-- EDIT USER MODAL -->
+		<div id="editUserModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+			<div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+				<div class="bg-green-900 px-6 py-4 rounded-t-2xl sticky top-0">
+					<h3 class="text-white font-serif text-xl font-bold">Benutzer bearbeiten</h3>
+				</div>
+				<div class="p-6 space-y-4">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Name</label>
+							<input type="text" id="editUserName" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">E-Mail</label>
+							<input type="email" id="editUserEmail" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Telefon</label>
+							<input type="tel" id="editUserTelefon" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Status</label>
+							<select id="editUserStatus" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900">
+								<option value="1">Kunde</option>
+								<option value="2">Verkäufer</option>
+							</select>
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Straße</label>
+							<input type="text" id="editUserStrasse" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Hausnummer</label>
+							<input type="text" id="editUserHausnummer" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Postleitzahl</label>
+							<input type="text" id="editUserPostleitzahl" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Land</label>
+							<input type="text" id="editUserLand" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						</div>
+					</div>
+					<div>
+						<label class="block text-sm font-semibold text-stone-700 mb-1">Neues Passwort (optional)</label>
+						<input type="password" id="editUserPassword" placeholder="Leer lassen um nicht zu ändern" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						<p class="text-xs text-stone-500 mt-1">Lassen Sie dieses Feld leer, um das Passwort nicht zu ändern.</p>
+					</div>
+				</div>
+				<div class="flex gap-3 px-6 py-4 border-t border-stone-200 sticky bottom-0 bg-white">
+					<button id="editUserCancel" class="flex-1 px-4 py-2 text-stone-700 border border-stone-300 rounded-lg font-medium hover:bg-stone-50 transition">Abbrechen</button>
+					<button id="editUserSave" class="flex-1 px-4 py-2 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition">Speichern</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- DELETE USER MODAL -->
+		<div id="deleteUserModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+			<div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
+				<div class="bg-red-600 px-6 py-4 rounded-t-2xl">
+					<h3 class="text-white font-serif text-xl font-bold">Benutzer löschen?</h3>
+				</div>
+				<div class="p-6">
+					<p class="text-stone-600 mb-2">Sind Sie sicher, dass Sie diesen Benutzer löschen möchten?</p>
+					<p class="text-sm text-stone-500"><strong>Benutzer:</strong> <span id="deleteUserName"></span></p>
+					<p class="text-sm text-stone-500"><strong>E-Mail:</strong> <span id="deleteUserEmail"></span></p>
+					<p class="text-red-600 text-sm mt-4 font-semibold">Diese Aktion kann nicht rückgängig gemacht werden!</p>
+				</div>
+				<div class="flex gap-3 px-6 py-4 border-t border-stone-200">
+					<button id="deleteUserCancel" class="flex-1 px-4 py-2 text-stone-700 border border-stone-300 rounded-lg font-medium hover:bg-stone-50 transition">Abbrechen</button>
+					<button id="deleteUserConfirm" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition">Löschen</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- EDIT PRODUCT MODAL -->
+		<div id="editProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+			<div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+				<div class="bg-green-900 px-6 py-4 rounded-t-2xl sticky top-0">
+					<h3 class="text-white font-serif text-xl font-bold">Produkt bearbeiten</h3>
+				</div>
+				<div class="p-6 space-y-4">
+					<input type="hidden" id="editProductCurrentBildUrl" />
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Name</label>
+							<input type="text" id="editProductName" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Kategorie</label>
+							<select id="editProductCategory" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900">
+								<option value="">Kategorie wählen...</option>
+							</select>
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Preis</label>
+							<input type="number" id="editProductPrice" step="0.01" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Bestand</label>
+							<input type="number" id="editProductStock" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Gewicht/Menge</label>
+							<input type="number" id="editProductWeight" step="0.01" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Herkunft</label>
+							<input type="text" id="editProductOrigin" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+						</div>
+						<div class="md:col-span-2">
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Beschreibung</label>
+							<textarea id="editProductDescription" rows="4" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900"></textarea>
+						</div>
+						<div>
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Status</label>
+							<select id="editProductStatus" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900">
+								<option value="active">Aktiv</option>
+								<option value="inactive">Inaktiv</option>
+							</select>
+						</div>
+						<div class="md:col-span-2">
+							<label class="block text-sm font-semibold text-stone-700 mb-1">Produktbild</label>
+							<input type="file" id="editProductImage" accept="image/*" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-green-900" />
+							<div id="editProductImagePreview" class="mt-2"></div>
+						</div>
+					</div>
+				</div>
+				<div class="flex gap-3 px-6 py-4 border-t border-stone-200 sticky bottom-0 bg-white">
+					<button id="editProductCancel" class="flex-1 px-4 py-2 text-stone-700 border border-stone-300 rounded-lg font-medium hover:bg-stone-50 transition">Abbrechen</button>
+					<button id="editProductSave" class="flex-1 px-4 py-2 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition">Speichern</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- DELETE PRODUCT MODAL -->
+		<div id="deleteProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+			<div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
+				<div class="bg-red-600 px-6 py-4 rounded-t-2xl">
+					<h3 class="text-white font-serif text-xl font-bold">Produkt löschen?</h3>
+				</div>
+				<div class="p-6">
+					<p class="text-stone-600 mb-2">Sind Sie sicher, dass Sie dieses Produkt löschen möchten?</p>
+					<p class="text-sm text-stone-500"><strong>Produkt:</strong> <span id="deleteProductName"></span></p>
+					<p class="text-sm text-stone-500"><strong>Preis:</strong> <span id="deleteProductPrice"></span></p>
+					<p class="text-red-600 text-sm mt-4 font-semibold">Diese Aktion kann nicht rückgängig gemacht werden!</p>
+				</div>
+				<div class="flex gap-3 px-6 py-4 border-t border-stone-200">
+					<button id="deleteProductCancel" class="flex-1 px-4 py-2 text-stone-700 border border-stone-300 rounded-lg font-medium hover:bg-stone-50 transition">Abbrechen</button>
+					<button id="deleteProductConfirm" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition">Löschen</button>
+				</div>
+			</div>
+		</div>
 	</body>
 </html>
 

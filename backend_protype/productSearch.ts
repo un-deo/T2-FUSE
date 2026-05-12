@@ -1405,35 +1405,76 @@ async function getAllUserDashboardData(req: Request): Promise<Response> {
         status: 400,
         headers: corsHeaders(),
       });
-    } else if (user.statusId === 3) { 
-      const users = await prisma.user.findMany({
-        where: {
-          OR: [{ statusId: 1 }, { statusId: 2 }],
-        },
-        select: {
-          userId: true,
-          name: true,
-          email: true,
-          statusId: true,
-        },
-      });
-
-      return new Response(JSON.stringify({
-        success: true,
-        users,
-      }), {
-        status: 200,
-        headers: corsHeaders(),
-      });
-    } else {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Access denied: insufficient permissions",
-      }), {
-        status: 400,
-        headers: corsHeaders(),
-      });
     }
+
+    const [totalUsers, customerUsers, sellerUsers, adminUsers] = await Promise.all([
+      prisma.user.count(),
+      prisma.user.count({ where: { statusId: 1 } }),
+      prisma.user.count({ where: { statusId: 2 } }),
+      prisma.user.count({ where: { statusId: 3 } }),
+    ]);
+
+    const users = await prisma.user.findMany({
+      where: {
+        OR: [{ statusId: 1 }, { statusId: 2 }],
+      },
+      select: {
+        userId: true,
+        name: true,
+        email: true,
+        statusId: true,
+      },
+    });
+
+    // Fetch products with seller information
+    const products = await prisma.produkte.findMany({
+      select: {
+        produktId: true,
+        name: true,
+        beschreibung: true,
+        preis: true,
+        status: true,
+        Bestand: true,
+        kategorieId: true,
+        bildUrl: true,
+        Gewicht: true,
+        Bundesland: true,
+        userId: true,
+      },
+    });
+
+    // Enrich products with seller names
+    const productUsers = new Map();
+    for (const product of products) {
+      if (!productUsers.has(product.userId)) {
+        const seller = await prisma.user.findUnique({
+          where: { userId: product.userId },
+          select: { name: true },
+        });
+        productUsers.set(product.userId, seller?.name || "Unknown");
+      }
+    }
+
+    const enrichedProducts = products.map(p => ({
+      ...p,
+      sellerName: productUsers.get(p.userId),
+      productId: p.produktId,
+    }));
+
+    return new Response(JSON.stringify({
+      success: true,
+      users,
+      products: enrichedProducts,
+      stats: {
+        totalUsers,
+        customerUsers,
+        sellerUsers,
+        adminUsers,
+      },
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
 
  
 
@@ -1470,6 +1511,30 @@ async function editUser(req: Request): Promise<Response> {
       if (Object.prototype.hasOwnProperty.call(body, key)) {
         updateData[key] = (body as any)[key];
       }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updateData, 'statusId')) {
+      const statusValue = Number(updateData.statusId);
+      if (Number.isNaN(statusValue)) {
+        return new Response(JSON.stringify({ success: false, error: 'Invalid statusId' }), { status: 400, headers: corsHeaders() });
+      }
+
+      if (statusValue === 3) {
+        const targetUser = await prisma.user.findUnique({
+          where: { userId: String(userId) },
+          select: { statusId: true },
+        });
+
+        if (!targetUser) {
+          return new Response(JSON.stringify({ success: false, error: 'User not found' }), { status: 404, headers: corsHeaders() });
+        }
+
+        if (targetUser.statusId !== 3) {
+          return new Response(JSON.stringify({ success: false, error: 'Admin role assignment not allowed' }), { status: 403, headers: corsHeaders() });
+        }
+      }
+
+      updateData.statusId = statusValue;
     }
 
     // Hash password if present
@@ -1611,6 +1676,210 @@ async function getAllProductsForAdminDashboard(req: Request): Promise<Response> 
     return new Response(JSON.stringify({
       success: false,
       error: "Fehler beim Abrufen der Produkte für das Admin-Dashboard",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
+async function editProductAsAdmin(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const {
+      userId,
+      productId,
+      name,
+      preis,
+      beschreibung,
+      bestand,
+      status,
+      kategorieId,
+      bildUrl,
+      bundesland,
+      gewicht,
+    } = body;
+
+    if (!userId || !productId || !name || preis === undefined || !beschreibung || !kategorieId || bestand === undefined || bestand === null || bestand === "") {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Erforderliche Felder fehlen",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    // Verify admin access
+    const admin = await prisma.user.findUnique({
+      where: { userId: String(userId) },
+    });
+
+    if (!admin || admin.statusId !== 3) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Zugriff verweigert: Admin-Berechtigung erforderlich",
+      }), {
+        status: 403,
+        headers: corsHeaders(),
+      });
+    }
+
+    const parsedPreis = Number(preis);
+    const parsedBestand = Number(bestand);
+    const parsedGewicht = gewicht === undefined || gewicht === null || gewicht === ""
+      ? null
+      : Number(gewicht);
+
+    if (
+      Number.isNaN(parsedPreis) ||
+      Number.isNaN(parsedBestand) ||
+      (parsedGewicht !== null && Number.isNaN(parsedGewicht))
+    ) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Preis, Bestand und Gewicht müssen Zahlen sein",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const updateData: any = {
+      name: String(name).trim(),
+      beschreibung: String(beschreibung).trim(),
+      preis: parsedPreis,
+      kategorieId: String(kategorieId),
+    };
+
+    updateData.Bestand = parsedBestand;
+
+    if (gewicht !== undefined) {
+      updateData.Gewicht = parsedGewicht;
+    }
+
+    if (bundesland !== undefined) {
+      updateData.Bundesland = bundesland ? String(bundesland).trim() : null;
+    }
+
+    if (bildUrl !== undefined) {
+      updateData.bildUrl = bildUrl ? String(bildUrl) : null;
+    }
+
+    if (status !== undefined) {
+      updateData.status = String(status);
+    }
+
+    const updated = await prisma.produkte.updateMany({
+      where: {
+        produktId: String(productId),
+      },
+      data: updateData,
+    });
+
+    if (updated.count === 0) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Produkt nicht gefunden",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      productId: String(productId),
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("editProductAsAdmin error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Bearbeiten des Produkts",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
+async function deleteProductAsAdmin(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId, productId } = body;
+
+    if (!userId || !productId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "UserID und ProductID sind erforderlich",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    // Verify admin access
+    const admin = await prisma.user.findUnique({
+      where: { userId: String(userId) },
+    });
+
+    if (!admin || admin.statusId !== 3) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Zugriff verweigert: Admin-Berechtigung erforderlich",
+      }), {
+        status: 403,
+        headers: corsHeaders(),
+      });
+    }
+
+    // Get the product to delete the image if needed
+    const product = await prisma.produkte.findUnique({
+      where: { produktId: String(productId) },
+    });
+
+    if (!product) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Produkt nicht gefunden",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    // Delete the product
+    const deleted = await prisma.produkte.deleteMany({
+      where: {
+        produktId: String(productId),
+      },
+    });
+
+    if (deleted.count === 0) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Fehler beim Löschen des Produkts",
+      }), {
+        status: 500,
+        headers: corsHeaders(),
+      });
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      productId: String(productId),
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("deleteProductAsAdmin error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Löschen des Produkts",
     }), {
       status: 500,
       headers: corsHeaders(),
@@ -1760,6 +2029,14 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/admin/products" && req.method === "POST") {
     return await getAllProductsForAdminDashboard(req);
+  }
+
+  if (url.pathname === "/api/admin/edit-product" && req.method === "POST") {
+    return await editProductAsAdmin(req);
+  }
+
+  if (url.pathname === "/api/admin/delete-product" && req.method === "POST") {
+    return await deleteProductAsAdmin(req);
   }
 
   return new Response(JSON.stringify({ error: "not_found" }), {
