@@ -161,6 +161,64 @@ async function uploadImage(file) {
   }
 }
 
+async function addToCart(userId, productId, amount) {
+  const url = "http://localhost:3000/api/add-to-cart";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+        productId: productId,
+        amount: Number(amount),
+      }),
+    });
+
+    const result = await response.json();
+    console.log(result);
+
+    if (!response.ok) {
+      throw new Error(result.error || "Failed to add product to cart");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Add to cart request failed:", error.message);
+    return { success: false, error: error.message || "Netzwerkfehler beim Hinzufügen zum Warenkorb" };
+  }
+}
+
+async function removeFromCart(userId, productId, amount) {
+  const url = "http://localhost:3000/api/remove-from-cart";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+        productId: productId,
+        amount: Number(amount),
+      }),
+    });
+
+    const result = await response.json();
+    console.log(result);
+
+    if (!response.ok) {
+      throw new Error(result.error || "Failed to remove product from cart");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Remove from cart request failed:", error.message);
+    return { success: false, error: error.message || "Netzwerkfehler beim Entfernen aus dem Warenkorb" };
+  }
+}
+
 async function updatePassword(userId, oldPassword, newPassword) {
   const url = "http://localhost:3000/api/update-password";
 
