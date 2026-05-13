@@ -68,7 +68,25 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  updateCartBadge();
+  document.addEventListener("cart-updated", updateCartBadge);
 });
+
+async function updateCartBadge() {
+  const token = localStorage.getItem("userToken");
+  const userId = localStorage.getItem("userId");
+  if (!token || !userId || typeof fetchCart !== "function") return;
+
+  const result = await fetchCart(userId, token);
+  if (!result?.success || !result?.cart) return;
+
+  const count = Number(result.cart.totalItems || 0);
+  const links = Array.from(document.querySelectorAll('a[href="/Frontend/warenkorb.html"]'));
+  links.forEach((link) => {
+    link.textContent = count > 0 ? `Warenkorb (${count})` : "Warenkorb";
+  });
+}
 
 function clearSessionStorage() {
   localStorage.removeItem("userToken");

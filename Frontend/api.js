@@ -368,6 +368,99 @@ async function updateMyProduct(
   }
 }
 
+async function fetchCart(userId, token) {
+  const url = "http://localhost:3000/api/cart";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId, token }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      return { success: false, error: data.error || "Warenkorb konnte nicht geladen werden" };
+    }
+    return data;
+  } catch (error) {
+    console.error("fetchCart failed:", error);
+    return { success: false, error: "Netzwerkfehler beim Laden des Warenkorbs" };
+  }
+}
+
+async function addToCart(userId, token, productId, amount = 1) {
+  const url = "http://localhost:3000/api/add-to-cart";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId, token, productId, amount }),
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("addToCart failed:", error);
+    return { success: false, error: "Netzwerkfehler beim Hinzufügen zum Warenkorb" };
+  }
+}
+
+async function setCartQuantity(userId, token, productId, quantity) {
+  const url = "http://localhost:3000/api/cart/set-quantity";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId, token, productId, quantity }),
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("setCartQuantity failed:", error);
+    return { success: false, error: "Netzwerkfehler beim Aktualisieren der Menge" };
+  }
+}
+
+async function removeCartItemApi(userId, token, productId) {
+  const url = "http://localhost:3000/api/cart/remove-item";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId, token, productId }),
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("removeCartItemApi failed:", error);
+    return { success: false, error: "Netzwerkfehler beim Entfernen des Produkts" };
+  }
+}
+
+async function checkoutCart(userId, token) {
+  const url = "http://localhost:3000/api/checkout";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId, token }),
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("checkoutCart failed:", error);
+    return { success: false, error: "Netzwerkfehler beim Checkout" };
+  }
+}
+
 async function deleteUser(userId) {
   const url = "http://localhost:3000/api/delete-user";
   try {

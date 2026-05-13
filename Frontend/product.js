@@ -1,5 +1,33 @@
 const searchForm = document.querySelector("form");
 const productDisplay = document.getElementById("productDisplay");
+
+if (!document.getElementById("cart-feedback-style")) {
+  const style = document.createElement("style");
+  style.id = "cart-feedback-style";
+  style.textContent = `
+    @keyframes cartFeedbackPop {
+      0% { opacity: 0; transform: translate(-50%, 8px) scale(0.9); }
+      20% { opacity: 1; transform: translate(-50%, -6px) scale(1); }
+      80% { opacity: 1; transform: translate(-50%, -18px) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -30px) scale(0.96); }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function showAddedToCartFeedback(button) {
+  const parent = button.parentElement;
+  if (!parent) return;
+
+  parent.style.position = "relative";
+  const bubble = document.createElement("span");
+  bubble.textContent = "Zum Warenkorb hinzugefügt";
+  bubble.className = "pointer-events-none absolute left-1/2 -top-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-green-600 px-3 py-1 text-[11px] font-medium text-white shadow-lg";
+  bubble.style.animation = "cartFeedbackPop 1200ms ease forwards";
+  parent.appendChild(bubble);
+
+  setTimeout(() => bubble.remove(), 1300);
+}
 searchForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const formData = new FormData(searchForm);
@@ -46,6 +74,38 @@ async function loadRandomProducts() {
 }
 loadRandomProducts();
 
+productDisplay.addEventListener("click", async (event) => {
+  const target = event.target.closest("button[data-product-id]");
+  if (!target) return;
+
+  const token = localStorage.getItem("userToken");
+  const userId = localStorage.getItem("userId");
+  const productId = target.getAttribute("data-product-id");
+
+  if (!token || !userId) {
+    openLoginModal();
+    return;
+  }
+
+  if (!productId) {
+    return;
+  }
+
+  target.disabled = true;
+  const previousHtml = target.innerHTML;
+  target.innerHTML = "...";
+
+  const result = await addToCart(userId, token, productId, 1);
+
+  if (result.success) {
+    showAddedToCartFeedback(target);
+    document.dispatchEvent(new CustomEvent("cart-updated"));
+  }
+
+  target.disabled = false;
+  target.innerHTML = previousHtml;
+});
+
 function displayProducts(products) {
   document.getElementById("productAmountFound").innerText =
     `${products.length} Produkte gefunden`;
@@ -86,6 +146,7 @@ function displayProducts(products) {
               <button
                 class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-amber-600 hover:bg-amber-700 text-white rounded-full w-10 h-10 shadow-lg hover:shadow-amber-600/20"
                 data-testid="add-to-cart-195e1b0b-9b8d-45b7-92e0-fb5ceee469ad"
+                data-product-id="${products[i].produktId}"
                 type="button"
                 aria-label="In den Warenkorb"
               >

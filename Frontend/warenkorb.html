@@ -1,108 +1,100 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="de">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FUSE-SHOP - Warenkorb</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="api.js" defer></script>
   <script src="header.js" defer></script>
-  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <script src="warenkorb.js" defer></script>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
 </head>
-
 <body class="bg-white text-stone-900">
-
+  <header class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-stone-200">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex items-center justify-between h-16 md:h-20">
+        <a href="/Frontend/signin-header.html" class="flex items-center gap-2">
+          <img src="/Frontend/pics/fuseshop-logo.svg" alt="FUSE-SHOP Logo" class="h-14 md:h-16 w-auto" />
+        </a>
+        <nav class="hidden md:flex items-center gap-8">
+          <a href="/Frontend/product.html" class="text-stone-600 hover:text-green-900 font-medium transition">Produkte</a>
+          <a href="/Frontend/about-us.html" class="text-stone-600 hover:text-green-900 font-medium transition">Über Uns</a>
+        </nav>
+        <div class="relative">
+          <button id="menuButton" class="text-2xl p-2 rounded hover:bg-stone-100 transition">☰</button>
+          <ul id="menu" class="hidden absolute right-0 mt-2 w-52 bg-white border border-stone-200 rounded-lg shadow-lg overflow-hidden">
+            <li class="px-4 py-3 border-b border-stone-100">
+              <p id="menu-user-name" class="text-sm font-semibold text-stone-900">Nutzer</p>
+              <p id="menu-user-role" class="text-xs text-stone-500 capitalize">kunde</p>
+            </li>
+            <li id="seller-link" class="hidden"><a href="/Frontend/seller.html" class="flex items-center gap-2 px-4 py-2 hover:bg-stone-100 transition">Verkäufer Bereich</a></li>
+            <li id="admin-link" class="hidden"><a href="/Frontend/admin.html" class="flex items-center gap-2 px-4 py-2 hover:bg-stone-100 transition">Admin Bereich</a></li>
+            <li><a href="/Frontend/warenkorb.html" class="flex items-center gap-2 px-4 py-2 hover:bg-stone-100 transition">Warenkorb</a></li>
+            <li><a href="/Frontend/profil.html" class="flex items-center gap-2 px-4 py-2 hover:bg-stone-100 transition">Mein Profil</a></li>
+            <li class="border-t border-stone-100"><button onclick="clearSessionStorage()" class="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600 transition">Abmelden</button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
 
   <main>
-    <div class="min-h-screen pt-20 px-4" style="background-color: #F9F9F7;">
-      
-      <div id="cart-container" class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow"></div>
+    <div class="min-h-screen pt-20" style="background-color: #F9F9F7;">
+      <div class="max-w-6xl mx-auto px-6 md:px-12 py-12">
+        <div class="flex items-center gap-3 mb-8">
+          <a class="flex items-center gap-1 text-stone-500 hover:text-stone-900 transition-colors" href="/Frontend/product.html">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+            <span class="text-sm">Zurück</span>
+          </a>
+          <h1 class="font-serif text-2xl md:text-3xl font-bold text-stone-900">Warenkorb</h1>
+          <span id="cart-item-count" class="bg-amber-100 text-amber-700 text-sm px-2.5 py-0.5 rounded-full font-medium">0 Artikel</span>
+        </div>
 
+        <div id="cart-message" class="hidden mb-6 rounded-xl border px-4 py-3 text-sm"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-2">
+            <div id="cart-items" class="space-y-4"></div>
+            <button id="clear-cart-btn" class="hidden mt-4 text-sm text-stone-500 hover:text-red-500 transition-colors flex items-center gap-1">Warenkorb leeren</button>
+          </div>
+
+          <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl p-6 border border-stone-100 sticky top-24">
+              <h2 class="font-serif text-xl font-bold text-stone-900 mb-6">Bestellzusammenfassung</h2>
+              <div id="summary-items" class="space-y-3 mb-6"></div>
+              <div class="border-t border-stone-100 pt-4 mb-6">
+                <div class="flex justify-between">
+                  <span class="font-semibold text-stone-900">Gesamt</span>
+                  <span id="cart-total" class="font-mono font-bold text-xl text-amber-600">€0,00</span>
+                </div>
+              </div>
+
+              <div class="mb-6">
+                <p class="text-sm font-medium text-stone-700 mb-3">Lieferoption</p>
+                <div class="space-y-2">
+                  <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors border-amber-400 bg-amber-50">
+                    <input class="accent-amber-600" type="radio" name="delivery" value="lieferung" checked />
+                    <span class="text-sm font-medium text-stone-700">Lieferung nach Hause</span>
+                  </label>
+                  <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors border-stone-200 hover:border-stone-300">
+                    <input class="accent-amber-600" type="radio" name="delivery" value="abholung" />
+                    <span class="text-sm font-medium text-stone-700">Selbstabholung</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="mb-6">
+                <input id="delivery-address" placeholder="Lieferadresse eingeben" class="w-full h-11 px-4 rounded-xl border border-stone-200 bg-stone-50 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" type="text" />
+              </div>
+
+              <button id="checkout-btn" class="w-full h-12 bg-amber-600 hover:bg-amber-700 text-white rounded-full font-medium shadow-md transition-colors">Jetzt bestellen</button>
+              <p class="text-xs text-stone-400 text-center mt-3">Keine Zahlung erforderlich</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
-
-
-  <script>
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    function saveCart() {
-      localStorage.setItem("cart", JSON.stringify(cart));
-    }
-
-    function renderCart() {
-      const container = document.getElementById("cart-container");
-
-      if (cart.length === 0) {
-        container.innerHTML = `
-          <h2 class="text-2xl font-bold mb-4">Ihr Warenkorb ist leer</h2>
-          <a href="/Frontend/product.html" class="bg-amber-600 text-white px-6 py-3 rounded">Produkte entdecken</a>
-        `;
-        return;
-      }
-
-      let html = "<h2 class='text-2xl font-bold mb-6'>Ihr Warenkorb</h2>";
-
-      let total = 0;
-
-      cart.forEach((item, index) => {
-        total += item.price * item.quantity;
-
-        html += `
-          <div class="border-b py-4 flex justify-between items-center">
-            <div>
-              <h3 class="font-semibold">${item.name}</h3>
-              <p>${item.price} €</p>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <button onclick="changeQuantity(${index}, -1)" class="px-2 bg-gray-200">-</button>
-              <span>${item.quantity}</span>
-              <button onclick="changeQuantity(${index}, 1)" class="px-2 bg-gray-200">+</button>
-            </div>
-
-            <button onclick="removeFromCart(${index})" class="text-red-500">❌</button>
-          </div>
-        `;
-      });
-
-      html += `
-        <div class="mt-6">
-          <h3 class="text-xl font-bold">Gesamt: ${total.toFixed(2)} €</h3>
-          <button onclick="checkout()" class="mt-4 bg-green-600 text-white px-6 py-3 rounded">
-            Checkout
-          </button>
-        </div>
-      `;
-
-      container.innerHTML = html;
-    }
-
-    function changeQuantity(index, amount) {
-      cart[index].quantity += amount;
-
-      if (cart[index].quantity <= 0) {
-        cart.splice(index, 1);
-      }
-
-      saveCart();
-      renderCart();
-    }
-
-    function removeFromCart(index) {
-      cart.splice(index, 1);
-      saveCart();
-      renderCart();
-    }
-
-    function checkout() {
-      alert("Danke für Ihren Einkauf!");
-      cart = [];
-      saveCart();
-      renderCart();
-    }
-
-    renderCart();
-  </script>
-
 </body>
 </html>

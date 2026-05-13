@@ -73,6 +73,138 @@ function corsHeaders() {
   };
 }
 
+// Von Georgi hinzugefügt
+function parsePositiveInt(value: unknown): number | null {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    return null;
+  }
+  return parsed;
+}
+
+// Von Georgi hinzugefügt
+async function validateTokenForUserContext(
+  userId: string,
+  token: string,
+): Promise<boolean> {
+  const tokenRecord = await prisma.token.findFirst({
+    where: {
+      token,
+      userId,
+    },
+  });
+
+  if (!tokenRecord) {
+    return false;
+  }
+
+  if (tokenRecord.expiresAt < new Date()) {
+    return false;
+  }
+
+  return true;
+}
+
+// Von Georgi hinzugefügt
+async function getOrCreateCartForUser(userId: string) {
+  const existing = await prisma.warenkorb.findFirst({
+    where: { userId },
+  });
+  if (existing) {
+    return existing;
+  }
+  return await prisma.warenkorb.create({
+    data: {
+      userId,
+      erstellungsdatum: new Date(),
+    },
+  });
+}
+
+// Von Georgi hinzugefügt
+async function buildCartResponse(userId: string) {
+  const cart = await prisma.warenkorb.findFirst({
+    where: { userId },
+    include: {
+      produkte: {
+        include: {
+          produkt: {
+            select: {
+              produktId: true,
+              name: true,
+              preis: true,
+              status: true,
+              bildUrl: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!cart) {
+    return {
+      cartId: null,
+      items: [],
+      totalItems: 0,
+      totalAmount: 0,
+    };
+  }
+
+  const items = cart.produkte.map((item) => {
+    const preis = Number(item.produkt.preis ?? 0);
+    const menge = Number(item.menge ?? 0);
+    return {
+      productId: item.produktId,
+      name: item.produkt.name,
+      price: preis,
+      quantity: menge,
+      status: item.produkt.status,
+      imageUrl: item.produkt.bildUrl,
+      lineTotal: preis * menge,
+    };
+  });
+
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalAmount = items.reduce((sum, item) => sum + item.lineTotal, 0);
+
+  return {
+    cartId: cart.warenkorbId,
+    items,
+    totalItems,
+    totalAmount,
+  };
+}
+
+// Von Georgi hinzugefügt
+async function getAuthorizedUserFromBody(body: Record<string, unknown>) {
+  const userId = String(body.userId ?? "").trim();
+  const token = String(body.token ?? "").trim();
+
+  if (!userId || !token) {
+    return { ok: false as const, response: new Response(JSON.stringify({
+      success: false,
+      error: "Token und UserID sind erforderlich",
+    }), {
+      status: 400,
+      headers: corsHeaders(),
+    }) };
+  }
+
+  const isValidSession = await validateTokenForUserContext(userId, token);
+  if (!isValidSession) {
+    return { ok: false as const, response: new Response(JSON.stringify({
+      success: false,
+      error: "Ungültiger oder abgelaufener Token",
+    }), {
+      status: 401,
+      headers: corsHeaders(),
+    }) };
+  }
+
+  return { ok: true as const, userId };
+}
+
 async function searchHandler(req: Request): Promise<Response> {
   try {
     const url = new URL(req.url);
@@ -1110,86 +1242,91 @@ async function uploadImage(req: Request): Promise<Response> {
 async function addToCart(req: Request): Promise<Response> {
   try {
     const body = await req.json();
-    const { userId, productId, amount } = body;
+    // Von Georgi geändert
+    const auth = await getAuthorizedUserFromBody(body as Record<string, unknown>);
+    if (!auth.ok) {
+      return auth.response;
+    }
 
-    // Implementation for adding product to cart
-    // in modell warenkorbProdukte create a new entry. generate a warenkorbID, add ProductID and amount
-    //then link the warenkorb id to the useID in the modell called warenkorb
-    
-    if (!userId || !productId || amount === undefined) {
+    // Von Georgi geändert
+    const productId = String((body as Record<string, unknown>).productId ?? "").trim();
+    const parsedAmount = parsePositiveInt((body as Record<string, unknown>).amount);
+
+    if (!productId || parsedAmount === null) {
       return new Response(JSON.stringify({
         success: false,
-        error: "UserID, ProductID und Menge sind erforderlich",
+        error: "ProductID und gültige Menge sind erforderlich",
       }), {
         status: 400,
         headers: corsHeaders(),
       });
     }
 
-    //chck if user has a cart already
-    let cart = await prisma.warenkorb.findFirst({
+    // Von Georgi hinzugefügt
+    const product = await prisma.produkte.findFirst({
       where: {
-        userId: String(userId),
+        produktId: productId,
+        status: "active",
+      },
+      select: {
+        produktId: true,
       },
     });
 
-    //check if the product is already in the cart if so change amount, if so adda a new entry to warenkorbProdukte
-    if (cart) {
-      const cartProduct = await prisma.warenkorbProdukte.findFirst({
-        where: {
+    if (!product) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Produkt nicht gefunden oder nicht aktiv",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    // Von Georgi hinzugefügt
+    const cart = await getOrCreateCartForUser(auth.userId);
+
+    // Von Georgi hinzugefügt
+    const existingCartItem = await prisma.warenkorbProdukte.findUnique({
+      where: {
+        warenkorbId_produktId: {
           warenkorbId: cart.warenkorbId,
-          produktId: String(productId),
+          produktId: productId,
         },
-      })
-      if (cartProduct) {
-        await prisma.warenkorbProdukte.update({
-          where: {
-            warenkorbId_produktId: {
-              warenkorbId: cart.warenkorbId,
-              produktId: cartProduct.produktId,
-            },
-          },
-          data: {
-            menge: cartProduct.menge + amount,
-          },
-        });
-      } else if (!cartProduct) {
-        await prisma.warenkorbProdukte.create({
-          data: {
+      },
+    });
+
+    if (existingCartItem) {
+      // Von Georgi hinzugefügt
+      await prisma.warenkorbProdukte.update({
+        where: {
+          warenkorbId_produktId: {
             warenkorbId: cart.warenkorbId,
-            produktId: String(productId),
-            menge: amount,
+            produktId: productId,
           },
-        });
-      } else {
-        return new Response(JSON.stringify({
-          success: false,
-          error: "Fehler beim Hinzufügen zum Warenkorb",
-        }), {
-          status: 500,
-          headers: corsHeaders(),
-        });
-      }
-    } else if (!cart) {
-      //if user has no cart create one and add the product to it
-      cart = await prisma.warenkorb.create({
+        },
         data: {
-          userId: String(userId),
-          erstellungsdatum: new Date(),
+          menge: existingCartItem.menge + parsedAmount,
         },
       });
+    } else {
+      // Von Georgi hinzugefügt
       await prisma.warenkorbProdukte.create({
         data: {
           warenkorbId: cart.warenkorbId,
-          produktId: String(productId),
-          menge: amount,
+          produktId: productId,
+          menge: parsedAmount,
         },
       });
     }
-    
+
+    // Von Georgi hinzugefügt
+    const cartResponse = await buildCartResponse(auth.userId);
+
     return new Response(JSON.stringify({
       success: true,
       message: "Produkt erfolgreich zum Warenkorb hinzugefügt",
+      cart: cartResponse,
     }), {
       status: 200,
       headers: corsHeaders(),
@@ -1210,24 +1347,30 @@ async function addToCart(req: Request): Promise<Response> {
 async function removeFromCart(req: Request): Promise<Response> {
   try {
     const body = await req.json();
-    const { userId, productId, amount } = body;
+    // Von Georgi geändert
+    const auth = await getAuthorizedUserFromBody(body as Record<string, unknown>);
+    if (!auth.ok) {
+      return auth.response;
+    }
 
-    // Implementation for removing product from cart
-    // in modell warenkorbProdukte remove the entry. or decrease by amount. if amount is 0 remove the entry
-    //then remove the link the warenkorb    in the modell called warenkorb    
-    if (!userId || !productId || amount === undefined) {
+    // Von Georgi geändert
+    const productId = String((body as Record<string, unknown>).productId ?? "").trim();
+    const parsedAmount = parsePositiveInt((body as Record<string, unknown>).amount);
+
+    if (!productId || parsedAmount === null) {
       return new Response(JSON.stringify({
         success: false,
-        error: "UserID, ProductID und Menge sind erforderlich",
+        error: "ProductID und gültige Menge sind erforderlich",
       }), {
         status: 400,
         headers: corsHeaders(),
       });
     }
-    
+
+    // Von Georgi hinzugefügt
     const cart = await prisma.warenkorb.findFirst({
       where: {
-        userId: String(userId),
+        userId: auth.userId,
       },
     });
 
@@ -1239,69 +1382,357 @@ async function removeFromCart(req: Request): Promise<Response> {
         status: 404,
         headers: corsHeaders(),
       });
-    } else if (cart) {
-      const cartProduct = await prisma.warenkorbProdukte.findFirst({
-        where: {
+    }
+
+    // Von Georgi hinzugefügt
+    const cartProduct = await prisma.warenkorbProdukte.findUnique({
+      where: {
+        warenkorbId_produktId: {
           warenkorbId: cart.warenkorbId,
-          produktId: String(productId),
+          produktId: productId,
+        },
+      },
+    });
+
+    if (!cartProduct) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Produkt nicht im Warenkorb gefunden",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    if (cartProduct.menge > parsedAmount) {
+      // Von Georgi hinzugefügt
+      await prisma.warenkorbProdukte.update({
+        where: {
+          warenkorbId_produktId: {
+            warenkorbId: cart.warenkorbId,
+            produktId: productId,
+          },
+        },
+        data: {
+          menge: cartProduct.menge - parsedAmount,
+        },
+      });
+    } else {
+      // Von Georgi hinzugefügt
+      await prisma.warenkorbProdukte.delete({
+        where: {
+          warenkorbId_produktId: {
+            warenkorbId: cart.warenkorbId,
+            produktId: productId,
+          },
+        },
+      });
+    }
+
+    // Von Georgi hinzugefügt
+    const cartResponse = await buildCartResponse(auth.userId);
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: "Produkt erfolgreich aus dem Warenkorb entfernt",
+      cart: cartResponse,
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+
+  } catch (err) {
+    // Von Georgi geändert
+    console.error("removeFromCart error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Entfernen aus dem Warenkorb",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
+// Von Georgi hinzugefügt
+async function getCart(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const auth = await getAuthorizedUserFromBody(body as Record<string, unknown>);
+    if (!auth.ok) {
+      return auth.response;
+    }
+
+    const cartResponse = await buildCartResponse(auth.userId);
+
+    return new Response(JSON.stringify({
+      success: true,
+      cart: cartResponse,
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("getCart error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Abrufen des Warenkorbs",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
+// Von Georgi hinzugefügt
+async function setCartItemQuantity(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const auth = await getAuthorizedUserFromBody(body as Record<string, unknown>);
+    if (!auth.ok) {
+      return auth.response;
+    }
+
+    const productId = String((body as Record<string, unknown>).productId ?? "").trim();
+    const quantityRaw = Number((body as Record<string, unknown>).quantity);
+
+    if (!productId || !Number.isInteger(quantityRaw) || quantityRaw < 0) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "ProductID und gültige Menge sind erforderlich",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const cart = await prisma.warenkorb.findFirst({ where: { userId: auth.userId } });
+    if (!cart) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Warenkorb nicht gefunden",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    const cartItem = await prisma.warenkorbProdukte.findUnique({
+      where: {
+        warenkorbId_produktId: {
+          warenkorbId: cart.warenkorbId,
+          produktId: productId,
+        },
+      },
+    });
+
+    if (!cartItem) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Produkt nicht im Warenkorb gefunden",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    if (quantityRaw === 0) {
+      await prisma.warenkorbProdukte.delete({
+        where: {
+          warenkorbId_produktId: {
+            warenkorbId: cart.warenkorbId,
+            produktId: productId,
+          },
+        },
+      });
+    } else {
+      await prisma.warenkorbProdukte.update({
+        where: {
+          warenkorbId_produktId: {
+            warenkorbId: cart.warenkorbId,
+            produktId: productId,
+          },
+        },
+        data: {
+          menge: quantityRaw,
+        },
+      });
+    }
+
+    const cartResponse = await buildCartResponse(auth.userId);
+
+    return new Response(JSON.stringify({
+      success: true,
+      cart: cartResponse,
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("setCartItemQuantity error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Aktualisieren der Warenkorbmenge",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
+// Von Georgi hinzugefügt
+async function removeCartItem(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const auth = await getAuthorizedUserFromBody(body as Record<string, unknown>);
+    if (!auth.ok) {
+      return auth.response;
+    }
+
+    const productId = String((body as Record<string, unknown>).productId ?? "").trim();
+    if (!productId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "ProductID ist erforderlich",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const cart = await prisma.warenkorb.findFirst({ where: { userId: auth.userId } });
+    if (!cart) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Warenkorb nicht gefunden",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    await prisma.warenkorbProdukte.deleteMany({
+      where: {
+        warenkorbId: cart.warenkorbId,
+        produktId: productId,
+      },
+    });
+
+    const cartResponse = await buildCartResponse(auth.userId);
+
+    return new Response(JSON.stringify({
+      success: true,
+      cart: cartResponse,
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("removeCartItem error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Entfernen des Produkts aus dem Warenkorb",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
+// Von Georgi hinzugefügt
+async function checkout(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const auth = await getAuthorizedUserFromBody(body as Record<string, unknown>);
+    if (!auth.ok) {
+      return auth.response;
+    }
+
+    const cart = await prisma.warenkorb.findFirst({
+      where: { userId: auth.userId },
+      include: {
+        produkte: {
+          include: {
+            produkt: {
+              select: {
+                produktId: true,
+                preis: true,
+                status: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!cart || cart.produkte.length === 0) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Warenkorb ist leer",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const invalidItem = cart.produkte.find((item) => item.produkt.status !== "active");
+    if (invalidItem) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Ein oder mehrere Produkte sind nicht mehr verfügbar",
+      }), {
+        status: 409,
+        headers: corsHeaders(),
+      });
+    }
+
+    const totalAmount = cart.produkte.reduce(
+      (sum, item) => sum + Number(item.produkt.preis) * item.menge,
+      0,
+    );
+
+    const result = await prisma.$transaction(async (tx) => {
+      const order = await tx.bestellung.create({
+        data: {
+          userId: auth.userId,
+          datum: new Date(),
+          gesamtbetrag: totalAmount,
         },
       });
 
-      if (!cartProduct) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: "Produkt nicht im Warenkorb gefunden",
-        }), {
-          status: 404,
-          headers: corsHeaders(),
-        });
-      } else if (cartProduct) {
-        if (cartProduct.menge > amount) {
-          await prisma.warenkorbProdukte.update({
-            where: {
-              warenkorbId_produktId: {
-                warenkorbId: cart.warenkorbId,
-                produktId: cartProduct.produktId,
-              },
-            },
-            data: {
-              menge: cartProduct.menge - amount,
-            },
-          });
-        } else {
-          await prisma.warenkorbProdukte.delete({
-            where: {
-              warenkorbId_produktId: {
-                warenkorbId: cart.warenkorbId,
-                produktId: cartProduct.produktId,
-              },
-            },
-          });
-        }
-      } else {
-        return new Response(JSON.stringify({
-          success: false,
-          error: "Fehler beim Entfernen aus dem Warenkorb",
-        }), {
-          status: 500,
-          headers: corsHeaders(),
+      for (const item of cart.produkte) {
+        await tx.bestellungProdukte.create({
+          data: {
+            bestellId: order.bestellId,
+            produktId: item.produktId,
+            menge: item.menge,
+          },
         });
       }
-    }
 
-      return new Response(JSON.stringify({
-        success: true,
-        message: "Produkt erfolgreich aus dem Warenkorb entfernt",
-      }), {
-        status: 200,
-        headers: corsHeaders(),
+      await tx.warenkorbProdukte.deleteMany({
+        where: {
+          warenkorbId: cart.warenkorbId,
+        },
       });
 
+      return order;
+    });
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: "Checkout erfolgreich",
+      orderId: result.bestellId,
+      totalAmount,
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
   } catch (err) {
-    console.error("addToCart error:", err);
+    console.error("checkout error:", err);
     return new Response(JSON.stringify({
       success: false,
-      error: "Fehler beim Hinzufügen zum Warenkorb",
+      error: "Fehler beim Checkout",
     }), {
       status: 500,
       headers: corsHeaders(),
@@ -2013,6 +2444,26 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/remove-from-cart" && req.method === "POST") {
     return await removeFromCart(req);
+  }
+
+  // Von Georgi hinzugefügt
+  if (url.pathname === "/api/cart" && req.method === "POST") {
+    return await getCart(req);
+  }
+
+  // Von Georgi hinzugefügt
+  if (url.pathname === "/api/cart/set-quantity" && req.method === "POST") {
+    return await setCartItemQuantity(req);
+  }
+
+  // Von Georgi hinzugefügt
+  if (url.pathname === "/api/cart/remove-item" && req.method === "POST") {
+    return await removeCartItem(req);
+  }
+
+  // Von Georgi hinzugefügt
+  if (url.pathname === "/api/checkout" && req.method === "POST") {
+    return await checkout(req);
   }
 
   if (url.pathname === "/api/delete-user" && req.method === "POST") {
