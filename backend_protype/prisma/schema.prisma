@@ -105,10 +105,12 @@ model warenkorbProdukte {
 }
 
 model bestellung {
-    bestellId    String   @id @default(uuid())
-    userId       String
-    datum        DateTime
-    gesamtbetrag Float
+    bestellId      String   @id @default(uuid())
+    userId         String
+    datum          DateTime
+    gesamtbetrag   Float
+    lieferadresse  String?
+    Selbstabholung Boolean?
 
     // Beziehungen
     user     user                 @relation(fields: [userId], references: [userId])
