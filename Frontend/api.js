@@ -100,12 +100,26 @@ async function fetchMyProducts(userId) {
     return data;
   } catch (error) {
     console.error("Fetch my products request failed:", error);
-    return { success: false, error: "Netzwerkfehler beim Abrufen der Produkte" };
+    return {
+      success: false,
+      error: "Netzwerkfehler beim Abrufen der Produkte",
+    };
   }
 }
 //fetchMyProducts("c4cd7d0d-5432-45f0-96d3-619d3f09668e");
 
-async function createProduct(userId, name, kategorieId, beschreibung, preis, bildUrl, bestand, bundesland, gewicht, status) {
+async function createProduct(
+  userId,
+  name,
+  kategorieId,
+  beschreibung,
+  preis,
+  bildUrl,
+  bestand,
+  bundesland,
+  gewicht,
+  status,
+) {
   const url = "http://localhost:3000/api/create-product";
 
   try {
@@ -149,14 +163,17 @@ async function createProduct(userId, name, kategorieId, beschreibung, preis, bil
 
 async function uploadImage(file) {
   const form = new FormData();
-  form.append('image', file);
+  form.append("image", file);
   try {
-    const resp = await fetch('http://localhost:3000/api/upload-image', { method: 'POST', body: form });
+    const resp = await fetch("http://localhost:3000/api/upload-image", {
+      method: "POST",
+      body: form,
+    });
     const data = await resp.json();
-    if (!resp.ok) throw new Error(data.error || 'Upload failed');
+    if (!resp.ok) throw new Error(data.error || "Upload failed");
     return data;
   } catch (err) {
-    console.error('Image upload failed:', err.message);
+    console.error("Image upload failed:", err.message);
     throw err;
   }
 }
@@ -186,7 +203,10 @@ async function addToCart(userId, productId, amount) {
     return result;
   } catch (error) {
     console.error("Add to cart request failed:", error.message);
-    return { success: false, error: error.message || "Netzwerkfehler beim Hinzufügen zum Warenkorb" };
+    return {
+      success: false,
+      error: error.message || "Netzwerkfehler beim Hinzufügen zum Warenkorb",
+    };
   }
 }
 
@@ -215,7 +235,10 @@ async function removeFromCart(userId, productId, amount) {
     return result;
   } catch (error) {
     console.error("Remove from cart request failed:", error.message);
-    return { success: false, error: error.message || "Netzwerkfehler beim Entfernen aus dem Warenkorb" };
+    return {
+      success: false,
+      error: error.message || "Netzwerkfehler beim Entfernen aus dem Warenkorb",
+    };
   }
 }
 
@@ -346,7 +369,7 @@ async function updateMyProduct(
         bestand: Number(bestand),
         bundesland: bundesland ? bundesland.trim() : "",
         gewicht: Number(gewicht),
-        status: status ? status : 'active',
+        status: status ? status : "active",
       }),
     });
 
@@ -380,12 +403,18 @@ async function fetchCart(userId, token) {
     });
     const data = await response.json();
     if (!response.ok) {
-      return { success: false, error: data.error || "Warenkorb konnte nicht geladen werden" };
+      return {
+        success: false,
+        error: data.error || "Warenkorb konnte nicht geladen werden",
+      };
     }
     return data;
   } catch (error) {
     console.error("fetchCart failed:", error);
-    return { success: false, error: "Netzwerkfehler beim Laden des Warenkorbs" };
+    return {
+      success: false,
+      error: "Netzwerkfehler beim Laden des Warenkorbs",
+    };
   }
 }
 
@@ -403,7 +432,10 @@ async function addToCart(userId, token, productId, amount = 1) {
     return data;
   } catch (error) {
     console.error("addToCart failed:", error);
-    return { success: false, error: "Netzwerkfehler beim Hinzufügen zum Warenkorb" };
+    return {
+      success: false,
+      error: "Netzwerkfehler beim Hinzufügen zum Warenkorb",
+    };
   }
 }
 
@@ -421,7 +453,10 @@ async function setCartQuantity(userId, token, productId, quantity) {
     return data;
   } catch (error) {
     console.error("setCartQuantity failed:", error);
-    return { success: false, error: "Netzwerkfehler beim Aktualisieren der Menge" };
+    return {
+      success: false,
+      error: "Netzwerkfehler beim Aktualisieren der Menge",
+    };
   }
 }
 
@@ -439,7 +474,10 @@ async function removeCartItemApi(userId, token, productId) {
     return data;
   } catch (error) {
     console.error("removeCartItemApi failed:", error);
-    return { success: false, error: "Netzwerkfehler beim Entfernen des Produkts" };
+    return {
+      success: false,
+      error: "Netzwerkfehler beim Entfernen des Produkts",
+    };
   }
 }
 
@@ -564,6 +602,33 @@ async function getAllProductsForAdminDashboard(userId) {
     return {
       success: false,
       error: error.message || "Netzwerkfehler beim Abrufen der Produktdaten",
+    };
+  }
+}
+
+async function requestSellerStatus(userId) {
+  const url = "http://localhost:3000/api/request-seller-role";
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+      }),
+    });
+
+    const result = await response.json();
+
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.error("Request seller status failed:", error);
+    return {
+      success: false,
+      error: "Netzwerkfehler bei der Anfrage des Verkäufer-Rolls",
     };
   }
 }

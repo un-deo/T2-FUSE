@@ -2318,6 +2318,68 @@ async function deleteProductAsAdmin(req: Request): Promise<Response> {
   }
 }
 
+async function requestSellerRole(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId } = body;
+
+    const user = await prisma.user.findUnique({
+      where: { userId: String(userId) },
+    });
+
+    if (!user) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Benutzer nicht gefunden",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    const existingRequest = await prisma.verkäuferstatusanfrage.findFirst({
+      where: {
+        userId: String(userId),
+      },
+    });
+
+    if (existingRequest) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Es liegt bereits eine Anfrage für den Verkäufer-Status vor",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    await prisma.verkäuferstatusanfrage.create({
+      data: {
+        userId: String(userId),
+        status: "pending",
+        datum: new Date(),
+      },
+    });
+
+    return new Response(JSON.stringify({
+      success: true,
+      userId: String(userId),
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("requestSellerRole error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler bei der Antragstellung für Verkäuferrolle",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -2488,6 +2550,10 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/admin/delete-product" && req.method === "POST") {
     return await deleteProductAsAdmin(req);
+  }
+
+  if (url.pathname === "/api/request-seller-role" && req.method === "POST") {
+    return await requestSellerRole(req);
   }
 
   return new Response(JSON.stringify({ error: "not_found" }), {
