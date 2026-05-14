@@ -8,6 +8,7 @@
     <script src="session-menu.js" defer></script>
     <script src="header.js" defer></script>
     <script src="api.js" defer></script>
+    <script src="product.js" defer></script>
     <style>
       .test {
         color: rgb(255, 136, 0);
@@ -445,135 +446,20 @@
           </a>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div
-            class="group bg-white rounded-2xl overflow-hidden border border-stone-200 hover:border-amber-200 hover:shadow-xl transition-all hover:-translate-y-1"
-          >
-            <div
-              class="aspect-square bg-stone-100 flex items-center justify-center text-stone-400 text-sm"
-            >
-              Bild Platzhalter
-            </div>
-
-            <div class="p-4 md:p-5">
-              <span
-                class="inline-flex px-2.5 py-1 bg-green-900/10 text-green-900 text-xs font-medium rounded-full mb-3"
-              >
-                Honig
-              </span>
-
-              <h3
-                class="font-serif text-lg font-semibold text-stone-900 mb-1 group-hover:text-amber-700"
-              >
-                Produktname
-              </h3>
-
-              <p class="text-stone-500 text-sm mb-3">Region, Österreich</p>
-
-              <div class="flex items-center justify-between">
-                <div>
-                  <span class="font-mono text-xl font-semibold text-amber-600"
-                    >€12.90</span
-                  >
-                  <span class="text-stone-400 text-sm ml-1">/ Einheit</span>
-                </div>
-
-                <button
-                  class="w-10 h-10 rounded-full bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center shadow"
-                >
-                  🛒
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="group bg-white rounded-2xl overflow-hidden border border-stone-200 hover:border-amber-200 hover:shadow-xl transition-all hover:-translate-y-1"
-          >
-            <div
-              class="aspect-square bg-stone-100 flex items-center justify-center text-stone-400 text-sm"
-            >
-              Bild Platzhalter
-            </div>
-            <div class="p-4 md:p-5">
-              <span
-                class="inline-flex px-2.5 py-1 bg-green-900/10 text-green-900 text-xs font-medium rounded-full mb-3"
-              >
-                Kosmetik
-              </span>
-              <h3 class="font-serif text-lg font-semibold text-stone-900 mb-1">
-                Produktname
-              </h3>
-              <p class="text-stone-500 text-sm mb-3">Region, Österreich</p>
-              <div class="flex items-center justify-between">
-                <span class="font-mono text-xl font-semibold text-amber-600"
-                  >€9.90</span
-                >
-                <button class="w-10 h-10 rounded-full bg-amber-600 text-white">
-                  🛒
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="group bg-white rounded-2xl overflow-hidden border border-stone-200 hover:border-amber-200 hover:shadow-xl transition-all hover:-translate-y-1"
-          >
-            <div
-              class="aspect-square bg-stone-100 flex items-center justify-center text-stone-400 text-sm"
-            >
-              Bild Platzhalter
-            </div>
-            <div class="p-4 md:p-5">
-              <span
-                class="inline-flex px-2.5 py-1 bg-green-900/10 text-green-900 text-xs font-medium rounded-full mb-3"
-              >
-                Met
-              </span>
-              <h3 class="font-serif text-lg font-semibold text-stone-900 mb-1">
-                Produktname
-              </h3>
-              <p class="text-stone-500 text-sm mb-3">Region, Österreich</p>
-              <div class="flex items-center justify-between">
-                <span class="font-mono text-xl font-semibold text-amber-600"
-                  >€19.90</span
-                >
-                <button class="w-10 h-10 rounded-full bg-amber-600 text-white">
-                  🛒
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="group bg-white rounded-2xl overflow-hidden border border-stone-200 hover:border-amber-200 hover:shadow-xl transition-all hover:-translate-y-1"
-          >
-            <div
-              class="aspect-square bg-stone-100 flex items-center justify-center text-stone-400 text-sm"
-            >
-              Bild Platzhalter
-            </div>
-            <div class="p-4 md:p-5">
-              <span
-                class="inline-flex px-2.5 py-1 bg-green-900/10 text-green-900 text-xs font-medium rounded-full mb-3"
-              >
-                Bienenwachs
-              </span>
-              <h3 class="font-serif text-lg font-semibold text-stone-900 mb-1">
-                Produktname
-              </h3>
-              <p class="text-stone-500 text-sm mb-3">Region, Österreich</p>
-              <div class="flex items-center justify-between">
-                <span class="font-mono text-xl font-semibold text-amber-600"
-                  >€24.90</span
-                >
-                <button class="w-10 h-10 rounded-full bg-amber-600 text-white">
-                  🛒
-                </button>
-              </div>
-            </div>
-          </div>
+        <form id="productSearchForm" class="hidden">
+          <input name="search" />
+        </form>
+        <div class="mb-4 text-sm text-stone-500" id="productAmountFound">
+          Produktsuche
         </div>
+        <section>
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            data-testid="products-grid"
+            id="productDisplay"
+            data-max="4"
+          ></div>
+        </section>
       </div>
     </section>
 

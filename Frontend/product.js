@@ -1,4 +1,6 @@
-const searchForm = document.querySelector("form");
+// Prefer a dedicated product search form when present to avoid
+// accidentally binding to login/register forms on pages like home.html
+const searchForm = document.getElementById("productSearchForm") || document.querySelector("form");
 const productDisplay = document.getElementById("productDisplay");
 
 if (!document.getElementById("cart-feedback-style")) {
@@ -107,11 +109,12 @@ productDisplay.addEventListener("click", async (event) => {
 });
 
 function displayProducts(products) {
-  document.getElementById("productAmountFound").innerText =
-    `${products.length} Produkte gefunden`;
-  let productamount = products.length;
+  const maxAttr = Number(productDisplay?.dataset?.max);
+  const maxToShow = Number.isFinite(maxAttr) && maxAttr > 0 ? maxAttr : products.length;
+  const amountToShow = Math.min(products.length, maxToShow);
+  document.getElementById("productAmountFound").innerText = `${amountToShow} Produkte gefunden`;
   productDisplay.innerHTML = "";
-  for (let i = 0; i < productamount; i++) {
+  for (let i = 0; i < amountToShow; i++) {
     productDisplay.innerHTML += ` 
         <a
           class="group relative bg-white rounded-2xl overflow-hidden border border-stone-200 hover:border-amber-200 transition-all duration-300 hover:shadow-xl hover:shadow-stone-200/50 hover:-translate-y-1"
