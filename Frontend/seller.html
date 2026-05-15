@@ -193,6 +193,20 @@
                     </div>
                     
                     <div class="space-y-2">
+                        <label class="text-sm font-medium leading-none">Verfügbare Optionen</label>
+                        <div class="flex gap-6 pt-1">
+                            <label class="flex items-center gap-2 text-sm">
+                                <input id="versand" type="checkbox" checked class="rounded border-stone-300 text-amber-600 focus:ring-amber-600" />
+                                Lieferung
+                            </label>
+                            <label class="flex items-center gap-2 text-sm">
+                                <input id="selbstabholung" type="checkbox" checked class="rounded border-stone-300 text-amber-600 focus:ring-amber-600" />
+                                Abholung
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
                         <label class="text-sm font-medium leading-none">Produktbild</label>
                         <input id="imageFile" name="imageFile" type="file" accept="image/*" class="flex h-9 w-full rounded-md border border-stone-300 bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-amber-600" />
                         <div id="imagePreview" class="mt-2"></div>

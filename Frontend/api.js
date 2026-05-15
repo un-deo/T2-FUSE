@@ -119,6 +119,8 @@ async function createProduct(
   bundesland,
   gewicht,
   status,
+  versand,
+  selbstabholung,
 ) {
   const url = "http://localhost:3000/api/create-product";
 
@@ -138,8 +140,9 @@ async function createProduct(
         bestand: bestand !== "" ? Number(bestand) : undefined,
         bundesland: bundesland ? bundesland.trim() : "",
         gewicht: gewicht !== "" ? Number(gewicht) : undefined,
-        // include status if provided
         status: status ? status : undefined,
+        versand: versand === true,
+        selbstabholung: selbstabholung === true,
       }),
     });
 
@@ -349,6 +352,8 @@ async function updateMyProduct(
   bundesland,
   gewicht,
   status,
+  versand,
+  selbstabholung,
 ) {
   const url = "http://localhost:3000/api/update-my-product";
 
@@ -370,6 +375,8 @@ async function updateMyProduct(
         bundesland: bundesland ? bundesland.trim() : "",
         gewicht: Number(gewicht),
         status: status ? status : "active",
+        versand: versand === true,
+        selbstabholung: selbstabholung === true,
       }),
     });
 

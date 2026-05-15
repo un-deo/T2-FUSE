@@ -872,6 +872,8 @@ async function updateMyProduct(req: Request): Promise<Response> {
       bundesland,
       gewicht,
       status,
+      versand,
+      selbstabholung,
     } = body;
 
     if (
@@ -928,6 +930,12 @@ async function updateMyProduct(req: Request): Promise<Response> {
     };
     if (status !== undefined) {
       updateData.status = String(status).trim();
+    }
+    if (versand !== undefined) {
+      updateData.versand = versand === true;
+    }
+    if (selbstabholung !== undefined) {
+      updateData.selbstabholung = selbstabholung === true;
     }
 
     // BEFORE updating, check for an existing product image and delete it if it's
@@ -1121,7 +1129,7 @@ async function deleteProduct(req: Request): Promise<Response> {
 async function createProduct(req: Request): Promise<Response> {
   try {
     const body = await req.json();
-    const { userId, name, kategorieId, beschreibung, preis, bildUrl, bestand, bundesland, gewicht, status } = body;
+    const { userId, name, kategorieId, beschreibung, preis, bildUrl, bestand, bundesland, gewicht, status, versand, selbstabholung } = body;
 
     if (!userId || !name || !kategorieId || !beschreibung || preis === undefined) {
       return new Response(
@@ -1162,8 +1170,8 @@ async function createProduct(req: Request): Promise<Response> {
         kategorieId: String(kategorieId),
         // allow client to set status; default to active
         status: status ? String(status).trim() : "active",
-        selbstabholung: true,
-        versand: true,
+        selbstabholung: selbstabholung === true,
+        versand: versand === true,
         suchfilterattribute: "",
         bildUrl: bildUrl ? String(bildUrl).trim() : null,
         Bestand: (parsedBestand !== null && !Number.isNaN(parsedBestand)) ? parsedBestand : null,
