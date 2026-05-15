@@ -466,6 +466,50 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   };
 
+  // User table filter: searches only ID, Name, E-Mail, Status (case-insensitive)
+  const filterUserTable = (term) => {
+    if (!userTableBody) return;
+    const search = (term || "").trim().toLowerCase();
+    const rows = Array.from(userTableBody.querySelectorAll("tr"));
+
+    if (!search) {
+      rows.forEach((r) => (r.style.display = ""));
+      return;
+    }
+
+    rows.forEach((row) => {
+      const tds = row.querySelectorAll("td");
+
+      if (!tds || tds.length < 4) {
+        row.style.display = "none";
+        return;
+      }
+
+      const idText = (tds[0].textContent || "").toLowerCase();
+      const nameText = (tds[1].textContent || "").toLowerCase();
+      const emailText = (tds[2].textContent || "").toLowerCase();
+      const statusText = (tds[3].textContent || "").toLowerCase();
+
+      if (
+        idText.includes(search) ||
+        nameText.includes(search) ||
+        emailText.includes(search) ||
+        statusText.includes(search)
+      ) {
+        row.style.display = "";
+      } else {
+        row.style.display = "none";
+      }
+    });
+  };
+
+  const searchUsersInput = document.getElementById("searchUsersInput");
+  if (searchUsersInput) {
+    searchUsersInput.addEventListener("input", (e) => {
+      filterUserTable(e.target.value);
+    });
+  }
+
   const renderProductTable = (products) => {
     if (!productTableBody) return;
 

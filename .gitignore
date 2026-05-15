@@ -1,3 +1,4 @@
 # ignore uploaded product pictures
 productpics/
 backend_protype/productpics/
+/test/
