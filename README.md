@@ -45,7 +45,7 @@ MUSS (Abnahme-relevant laut Lastenheft):
 - [ ] Warenkorb vollständig implementieren: add to cart, Menge ändern, remove from cart, cart anzeigen, checkout __**GEORGI**__
 - [ ] Bestellung aufgeben Ende-zu-Ende: Bestellung speichern, Status setzen, Bestellübersicht anzeigen __**GEORGI**__
 - [ ] Bestellbestätigung für Nutzer anzeigen __**GEORGI**__
-- [ ] Verkäuferbereich: eigene Produkte anzeigen, erstellen und bearbeiten (Name, Beschreibung, Preis, Kategorie, Bilder) __**MARCEL**__
+- [X] Verkäuferbereich: eigene Produkte anzeigen, erstellen und bearbeiten (Name, Beschreibung, Preis, Kategorie, Bilder) __**MARCEL**__
 - [ ] Verkäuferbereich: Bestellungen des Verkäufers anzeigen __**MARCEL**__
 - [ ] Verkäuferbereich: Kontaktdaten des Käufers zur Bestellung anzeigen __**MARCEL**__
 - [ ] Verkäuferstatus beantragen (Formular + Speicherung + Admin-Entscheidung) __**MARCEL**__
