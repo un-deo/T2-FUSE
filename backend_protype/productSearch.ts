@@ -2380,6 +2380,130 @@ async function requestSellerRole(req: Request): Promise<Response> {
   }
 }
 
+async function getAllSellerRoleRequests(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId } = body;
+
+    //get all seller role requests, only accessible by admins
+    const admin = await prisma.user.findUnique({
+      where: { userId: String(userId) },
+    });
+
+    if (!admin || admin.statusId !== 3) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Zugriff verweigert: Admin-Berechtigung erforderlich",
+      }), {
+        status: 403,
+        headers: corsHeaders(),
+      });
+    }
+
+    const requests = await prisma.verkäuferstatusanfrage.findMany();
+
+    return new Response(JSON.stringify({
+      success: true,
+      requests,
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("getSellerRoleRequests error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Abrufen der Verkäufer-Rollenanfragen",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
+async function processSellerRoleRequest(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { requestId, status, comment } = body;
+
+    // set status of request to "approved" or "rejected", and also add the comment if provided
+    const request = await prisma.verkäuferstatusanfrage.findUnique({
+      where: { anfrageId: String(requestId) },
+    });
+
+    if (!request) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Anfrage nicht gefunden",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    await prisma.verkäuferstatusanfrage.update({
+      where: { anfrageId: String(requestId) },
+      data: {
+        status: String(status),
+        kommentarAdmin: comment || null,
+      },
+    });
+
+    if (status === "approved") {
+      await prisma.user.update({
+        where: { userId: String(request.userId) },
+        data: { statusId: 2 }, // Assuming 2 represents the seller status
+      });
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: "Verkäufer-Rollenanfrage erfolgreich verarbeitet",
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("processSellerRoleRequest error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler bei der Verarbeitung der Verkäufer-Rollenanfrage",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
+async function getAllUserOrders(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId } = body;
+
+    const orders = await prisma.bestellung.findMany({
+      where: { userId: String(userId) },
+      include: { produkte: true }, 
+    });
+
+    return new Response(JSON.stringify({
+      success: true,
+      orders,
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("getAllUserOrders error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Abrufen der Benutzerbestellungen",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -2554,6 +2678,18 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/request-seller-role" && req.method === "POST") {
     return await requestSellerRole(req);
+  }
+
+  if (url.pathname === "/api/seller-role-requests" && req.method === "POST") {
+    return await getAllSellerRoleRequests(req);
+  }
+
+  if (url.pathname === "/api/process-seller-role-request" && req.method === "POST") {
+    return await processSellerRoleRequest(req);
+  }
+
+  if (url.pathname === "/api/my-orders" && req.method === "POST") {
+    return await getAllUserOrders(req);
   }
 
   return new Response(JSON.stringify({ error: "not_found" }), {

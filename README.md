@@ -77,5 +77,6 @@ SICHERHEIT / BETRIEB -- Am Projektende:
 
 
 ISSUES welche beim nutzen & testen der Seite auftreten
-- wenn die webseite (getestet bei home.html) weniger als eine halbe Bildschirmlaenge lang ist verschwindet das header komplett (alles ausser Logo).
-- man kann nicht auf profukte.html zugreifen. man wird direkt auf home.html verwiesen.
+[ ] wenn die webseite (getestet bei home.html) weniger als eine halbe Bildschirmlaenge lang ist verschwindet das header komplett (alles ausser Logo).
+[ ] man kann nicht auf profukte.html zugreifen. man wird direkt auf home.html verwiesen.
+[ ] wenn der Token abgelaufen ist, wird der user weiterhin als angemeldet angeziegt (man kann auf Profil und so gehen aber die funktionen funktionieren nicht da kein valider token) bzw es wird bsp beim warenkorb ein anmelden knopf angezeigt. user sollte bei abgelaufenem token automatosch abgemeldet werden (vollstaendig)

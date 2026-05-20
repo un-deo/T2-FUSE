@@ -632,3 +632,82 @@ async function requestSellerStatus(userId) {
     };
   }
 }
+
+async function getAllSellerRoleRequests(userId) {
+  const url = "http://localhost:3000/api/seller-role-requests";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+    return {
+      success: false,
+      error:
+        error.message ||
+        "Netzwerkfehler beim Abrufen der Verkäufer-Roll-Anfragen",
+    };
+  }
+}
+
+async function processSellerRoleRequest(requestId, status, comment) {
+  const url = "http://localhost:3000/api/process-seller-role-request";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        requestId: requestId,
+        status: status,
+        comment: comment ? comment.trim() : "",
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+    return {
+      success: false,
+      error:
+        error.message ||
+        "Netzwerkfehler beim Verarbeiten der Verkäufer-Roll-Anfrage",
+    };
+  }
+}
+
+async function getAllUserOrders(userId) {
+  const url = "http://localhost:3000/api/my-orders";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+    return {
+      success: false,
+      error:
+        error.message || "Netzwerkfehler beim Abrufen der Bestellungsdaten",
+    };
+  }
+}
