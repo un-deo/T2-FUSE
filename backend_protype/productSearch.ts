@@ -2432,7 +2432,7 @@ async function getAllSellerRoleRequests(req: Request): Promise<Response> {
 async function processSellerRoleRequest(req: Request): Promise<Response> {
   try {
     const body = await req.json();
-    const { requestId, status, comment } = body;
+    const { requestId, status, admincomment  } = body; //reason
 
     // set status of request to "approved" or "rejected", and also add the comment if provided
     const request = await prisma.verkäuferstatusanfrage.findUnique({
@@ -2453,7 +2453,8 @@ async function processSellerRoleRequest(req: Request): Promise<Response> {
       where: { anfrageId: String(requestId) },
       data: {
         status: String(status),
-        kommentarAdmin: comment || null,
+        kommentarAdmin: admincomment || null,
+        //grund: reason || null,
       },
     });
 

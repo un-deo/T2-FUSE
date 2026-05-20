@@ -666,7 +666,8 @@ async function getAllSellerRoleRequests(userId) {
   }
 }
 
-async function processSellerRoleRequest(requestId, status, comment) {
+async function processSellerRoleRequest(requestId, status, admincomment, ) {
+  //reason
   const url = "http://localhost:3000/api/process-seller-role-request";
   try {
     const response = await fetch(url, {
@@ -677,7 +678,8 @@ async function processSellerRoleRequest(requestId, status, comment) {
       body: JSON.stringify({
         requestId: requestId,
         status: status,
-        comment: comment ? comment.trim() : "",
+        comment: admincomment ? admincomment.trim() : "",
+        //reason: reason ? reason.trim() : "",
       }),
     });
     const data = await response.json();
