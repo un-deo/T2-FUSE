@@ -193,6 +193,20 @@
                     </div>
                     
                     <div class="space-y-2">
+                        <label class="text-sm font-medium leading-none">Verfügbare Optionen</label>
+                        <div class="flex gap-6 pt-1">
+                            <label class="flex items-center gap-2 text-sm">
+                                <input id="versand" type="checkbox" checked class="rounded border-stone-300 text-amber-600 focus:ring-amber-600" />
+                                Lieferung
+                            </label>
+                            <label class="flex items-center gap-2 text-sm">
+                                <input id="selbstabholung" type="checkbox" checked class="rounded border-stone-300 text-amber-600 focus:ring-amber-600" />
+                                Abholung
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
                         <label class="text-sm font-medium leading-none">Produktbild</label>
                         <input id="imageFile" name="imageFile" type="file" accept="image/*" class="flex h-9 w-full rounded-md border border-stone-300 bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-amber-600" />
                         <div id="imagePreview" class="mt-2"></div>
@@ -283,26 +297,14 @@
   <div class="max-w-7xl mx-auto px-6 py-16">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
       <div class="lg:col-span-1">
-        <a class="flex items-center gap-2 mb-4" href="/">
-          <div class="relative">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              class="w-10 h-10 text-amber-600 fill-amber-100"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+            <a class="flex items-center gap-2 mb-4" href="/">
+             <a class="flex items-center gap-2 mb-4" href="/Frontend/home.html">
+              <img
+                src="/Frontend/pics/fuseshop-logo.svg"
+                alt="FUSE-SHOP Logo"
+                class="h-16 md:h-18 w-auto"
               />
-            </svg>
-            <div class="absolute inset-0 flex items-center justify-center">
-              <span class="text-amber-700 font-bold text-xs md:text-sm">F</span>
-            </div>
-          </div>
-          <span class="font-serif text-2xl font-semibold tracking-tight">FUSE-SHOP</span>
-        </a>
+            </a>
         <p class="text-green-200 text-sm leading-relaxed">
           Österreichs Marktplatz für regionale Honig- und Imkereiprodukte. Direkt vom Imker zu Ihnen.
         </p>

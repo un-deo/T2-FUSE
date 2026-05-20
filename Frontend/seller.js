@@ -156,6 +156,11 @@ function openEditModal(product) {
   // set status select
   const statusEl = document.getElementById('status');
   if (statusEl) statusEl.value = product.status || 'active';
+  // set delivery/pickup checkboxes
+  const versandEl = document.getElementById('versand');
+  if (versandEl) versandEl.checked = product.versand === true;
+  const selbstabholungEl = document.getElementById('selbstabholung');
+  if (selbstabholungEl) selbstabholungEl.checked = product.selbstabholung === true;
   currentProductId = product.produktId;
   document.getElementById("editModal").classList.remove("hidden");
 }
@@ -180,6 +185,10 @@ function openCreateModal() {
   if (currentBildUrlInput) currentBildUrlInput.value = '';
   const statusEl = document.getElementById('status');
   if (statusEl) statusEl.value = 'active';
+  const versandEl = document.getElementById('versand');
+  if (versandEl) versandEl.checked = true;
+  const selbstabholungEl = document.getElementById('selbstabholung');
+  if (selbstabholungEl) selbstabholungEl.checked = true;
   currentProductId = null;
   document.getElementById("editModal").classList.remove("hidden");
 }
@@ -202,6 +211,8 @@ document.getElementById("produktForm").addEventListener("submit", async function
   // image file input (file upload replaces previous bildUrl text input)
   const imageInput = document.getElementById("imageFile");
   const status = document.getElementById("status") ? document.getElementById("status").value : 'active';
+  const versand = document.getElementById("versand") ? document.getElementById("versand").checked : true;
+  const selbstabholung = document.getElementById("selbstabholung") ? document.getElementById("selbstabholung").checked : true;
   const bildUrl = null; // will be replaced if an upload occurs
   const productId = document.getElementById("productId").value;
 
@@ -228,12 +239,14 @@ document.getElementById("produktForm").addEventListener("submit", async function
   if (productId) {
     result = await updateMyProduct(
       userId, productId, name, kategorieId, beschreibung,
-      preis, bildUrlToSend, bestand, herkunft, gewicht, status
+      preis, bildUrlToSend, bestand, herkunft, gewicht, status,
+      versand, selbstabholung
     );
   } else {
     result = await createProduct(
       userId, name, kategorieId, beschreibung,
-      preis, bildUrlToSend, bestand, herkunft, gewicht, status
+      preis, bildUrlToSend, bestand, herkunft, gewicht, status,
+      versand, selbstabholung
     );
   }
 
