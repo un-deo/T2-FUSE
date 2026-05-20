@@ -33,6 +33,19 @@ Click a function to jump to its detailed description.
 - [handleLogin (inline POST /api/login)](#handleLogin)
 - [handleRegister (inline POST /api/register)](#handleRegister)
 - [seller.js fetch /api/search?kategorie=all](#sellerSearch)
+ - [createProduct(...)](#createProduct)
+ - [uploadImage(file)](#uploadImage)
+ - [addToCart(userId, productId, amount)](#addToCart_simple)
+ - [addToCart (token variant)](#addToCart_token)
+ - [removeFromCart(userId, productId, amount)](#removeFromCart)
+ - [fetchCart(userId, token)](#fetchCart)
+ - [setCartQuantity(userId, token, productId, quantity)](#setCartQuantity)
+ - [removeCartItemApi(userId, token, productId)](#removeCartItemApi)
+ - [checkoutCart(userId, token)](#checkoutCart)
+ - [requestSellerStatus(userId)](#requestSellerStatus)
+ - [getAllSellerRoleRequests(userId)](#getAllSellerRoleRequests)
+ - [processSellerRoleRequest(requestId, status, comment)](#processSellerRoleRequest)
+ - [getAllUserOrders(userId)](#getAllUserOrders)
 
 ---
 
@@ -409,6 +422,271 @@ Example response (inferred)
 
 ```json
 [ { "kategorieId": 1, "name": "Obst" }, { "kategorieId": 2, "name": "Gemüse" } ]
+```
+
+---
+
+<a id="createProduct"></a>
+### createProduct(userId, name, kategorieId, beschreibung, preis, bildUrl, bestand, bundesland, gewicht, status)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/create-product
+- **Signature:** async function createProduct(userId, name, kategorieId, beschreibung, preis, bildUrl, bestand, bundesland, gewicht, status)
+- **Description:** Creates a new product owned by `userId`. The function trims string fields and coerces numeric fields; it includes `status` only if provided. Returns the parsed backend result (usually contains `success` and `product` / `produktId`).
+
+Example
+
+```js
+const res = await createProduct(userId, 'Apfel', 1, 'Frisch', 2.5, '/img/apfel.jpg', 10, 'Wien', 0.2, 'active');
+if (res.success) console.log('Created', res.product.produktId);
+```
+
+Example response (inferred)
+
+```json
+{ "success": true, "product": { "produktId": "...", "name": "Apfel" } }
+```
+
+- **Notes:** On non-ok responses the helper throws and returns `{ success: false, error: ... }` on network failures.
+
+<a id="uploadImage"></a>
+### uploadImage(file)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/upload-image (multipart/form-data)
+- **Signature:** async function uploadImage(file)
+- **Description:** Uploads a File/Blob to the backend using FormData under the `image` key. Returns parsed JSON from the server. The function throws when the server responds with a non-ok status.
+
+Example
+
+```js
+const data = await uploadImage(fileInput.files[0]);
+console.log(data.imageUrl);
+```
+
+Example response (inferred)
+
+```json
+{ "success": true, "imageUrl": "/uploads/abcd.jpg" }
+```
+
+<a id="addToCart_simple"></a>
+### addToCart(userId, productId, amount)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/add-to-cart
+- **Signature:** async function addToCart(userId, productId, amount)
+- **Description:** Adds a product to the user's cart. This repository contains two variants of `addToCart` (one accepts a `token` parameter — see the token variant below). This simple variant sends `userId`, `productId`, and `amount` and returns the backend result.
+
+Example
+
+```js
+const res = await addToCart(userId, 'produkt-123', 2);
+if (res.success) console.log('Added to cart');
+```
+
+Example response (inferred)
+
+```json
+{ "success": true, "cart": { /* cart summary */ } }
+```
+
+<a id="removeFromCart"></a>
+### removeFromCart(userId, productId, amount)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/remove-from-cart
+- **Signature:** async function removeFromCart(userId, productId, amount)
+- **Description:** Decreases or removes `amount` of `productId` from the user's cart. Returns parsed backend response.
+
+Example
+
+```js
+const res = await removeFromCart(userId, 'produkt-123', 1);
+```
+
+Example response (inferred)
+
+```json
+{ "success": true, "cart": { /* updated cart */ } }
+```
+
+<a id="fetchCart"></a>
+### fetchCart(userId, token)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/cart
+- **Signature:** async function fetchCart(userId, token)
+- **Description:** Loads the user's cart. The function accepts an optional `token` (used by some backends for session validation) and returns `{ success, cart?, error? }`.
+
+Example
+
+```js
+const cartData = await fetchCart(localStorage.getItem('userId'), localStorage.getItem('userToken'));
+if (cartData.success) renderCart(cartData.cart);
+```
+
+Example response (inferred)
+
+```json
+{ "success": true, "cart": [ { "productId": "..", "amount": 2, "price": 5.0 } ] }
+```
+
+<a id="addToCart_token"></a>
+### addToCart(userId, token, productId, amount)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/add-to-cart
+- **Signature:** async function addToCart(userId, token, productId, amount = 1)
+- **Description:** Token-aware variant of `addToCart` that includes the session `token` in the request body. Preferred in flows where the backend requires a token for cart operations. Returns parsed backend result.
+
+Example
+
+```js
+const res = await addToCart(userId, localStorage.getItem('userToken'), 'produkt-123', 3);
+```
+
+Example response (inferred)
+
+```json
+{ "success": true, "cart": { /* updated cart */ } }
+```
+
+<a id="setCartQuantity"></a>
+### setCartQuantity(userId, token, productId, quantity)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/cart/set-quantity
+- **Signature:** async function setCartQuantity(userId, token, productId, quantity)
+- **Description:** Sets the exact quantity for a cart item. Returns parsed backend result.
+
+Example
+
+```js
+const res = await setCartQuantity(userId, token, 'produkt-123', 5);
+```
+
+Example response (inferred)
+
+```json
+{ "success": true, "cart": { /* updated cart */ } }
+```
+
+<a id="removeCartItemApi"></a>
+### removeCartItemApi(userId, token, productId)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/cart/remove-item
+- **Signature:** async function removeCartItemApi(userId, token, productId)
+- **Description:** Removes an item from the user's cart entirely. Returns parsed backend response.
+
+Example
+
+```js
+const res = await removeCartItemApi(userId, token, 'produkt-123');
+```
+
+Example response (inferred)
+
+```json
+{ "success": true }
+```
+
+<a id="checkoutCart"></a>
+### checkoutCart(userId, token)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/checkout
+- **Signature:** async function checkoutCart(userId, token)
+- **Description:** Submits the current cart for checkout/purchase. Returns order result or error information.
+
+Example
+
+```js
+const res = await checkoutCart(userId, localStorage.getItem('userToken'));
+if (res.success) navigateToOrderConfirmation(res.orderId);
+```
+
+Example response (inferred)
+
+```json
+{ "success": true, "orderId": "order-123", "summary": { /* ... */ } }
+```
+
+<a id="requestSellerStatus"></a>
+### requestSellerStatus(userId)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/request-seller-role
+- **Signature:** async function requestSellerStatus(userId)
+- **Description:** Sends a request to become a seller. Returns the parsed backend response (success flag and optional metadata).
+
+Example
+
+```js
+const res = await requestSellerStatus(userId);
+if (res.success) alert('Request submitted');
+```
+
+Example response (inferred)
+
+```json
+{ "success": true, "requestId": "req-456" }
+```
+
+<a id="getAllSellerRoleRequests"></a>
+### getAllSellerRoleRequests(userId)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/seller-role-requests
+- **Signature:** async function getAllSellerRoleRequests(userId)
+- **Description:** (Admin) Retrieves all pending/processed seller-role requests. Returns an array of request objects.
+
+Example response (inferred)
+
+```json
+{ "success": true, "requests": [ { "requestId": "req-1", "userId": "...", "status": "pending" } ] }
+```
+
+<a id="processSellerRoleRequest"></a>
+### processSellerRoleRequest(requestId, status, comment)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/process-seller-role-request
+- **Signature:** async function processSellerRoleRequest(requestId, status, comment)
+- **Description:** (Admin) Processes a seller-role request by setting `status` (e.g. `approved` / `rejected`) and optional `comment`. Returns parsed result.
+
+Example
+
+```js
+const res = await processSellerRoleRequest('req-456', 'approved', 'Good profile');
+```
+
+Example response (inferred)
+
+```json
+{ "success": true }
+```
+
+<a id="getAllUserOrders"></a>
+### getAllUserOrders(userId)
+
+- **File(s):** Frontend/api.js
+- **Endpoint:** POST http://localhost:3000/api/my-orders
+- **Signature:** async function getAllUserOrders(userId)
+- **Description:** Returns the authenticated user's orders. Response typically contains an array of order objects with items, totals and status.
+
+Example
+
+```js
+const orders = await getAllUserOrders(userId);
+console.log(orders);
+```
+
+Example response (inferred)
+
+```json
+{ "success": true, "orders": [ { "orderId": "o1", "items": [ /* ... */ ], "total": 12.5 } ] }
 ```
 
 ---
