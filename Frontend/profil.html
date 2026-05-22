@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FUSE-SHOP – Regionaler Honig direkt vom Imker</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .font-fraunces {
+        font-family: "Fraunces", serif;
+      }
+      .font-manrope {
+        font-family: "Manrope", sans-serif;
+      }
+    </style>
     <script src="api.js" defer></script>
     <script src="session-menu.js" defer></script>
     <script src="profil.js" defer></script>
@@ -337,6 +351,55 @@
           </div>
         </form>
 
+        <div
+          id="sellerRequestCard"
+          class="mt-6 rounded-2xl border border-amber-100/60 bg-gradient-to-br from-amber-50 via-white to-green-50 p-6 shadow-sm font-manrope"
+        >
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="flex items-start gap-4">
+              <div
+                class="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-6 w-6"
+                  aria-hidden="true"
+                >
+                  <path d="M12 3l8 4v6c0 5.55-3.84 8.74-8 10-4.16-1.26-8-4.45-8-10V7l8-4z"></path>
+                  <path d="M9 12l2 2 4-4"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-fraunces text-lg font-semibold text-stone-900">
+                  Verkäufer werden
+                </h3>
+                <p class="text-sm text-stone-600">
+                  Erzähl uns kurz, warum du verkaufen möchtest. Wir prüfen deinen
+                  Antrag und melden uns per E-Mail.
+                </p>
+              </div>
+            </div>
+            <button
+              id="openSellerRequest"
+              type="button"
+              class="inline-flex items-center justify-center gap-2 rounded-full bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-amber-200/70 transition hover:bg-amber-700"
+            >
+              Verkäufer werden
+            </button>
+          </div>
+          <div class="mt-4 flex flex-col gap-2 text-xs text-stone-500 sm:flex-row sm:items-center sm:justify-between">
+            <span>Antwort in 1-2 Werktagen.</span>
+            <span>Dein Antrag bleibt bis zur Entscheidung sichtbar.</span>
+          </div>
+          <p id="sellerRequestStatus" class="mt-3 text-sm font-medium text-stone-600"></p>
+        </div>
+
         <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 mt-6">
           <h3 class="font-serif text-lg font-bold text-stone-900 mb-6">
             Passwort ändern
@@ -412,6 +475,71 @@
         </div>
       </div>
     </section>
+
+    <div id="sellerRequestModal" class="fixed inset-0 z-50 hidden">
+      <div
+        id="sellerRequestOverlay"
+        class="absolute inset-0 bg-stone-900/60 backdrop-blur-sm"
+      ></div>
+      <div class="relative mx-auto flex min-h-screen max-w-xl items-center px-6 py-10">
+        <div
+          class="w-full overflow-hidden rounded-2xl border border-amber-100/70 bg-gradient-to-br from-white via-amber-50 to-stone-50 shadow-2xl font-manrope"
+        >
+          <div class="flex items-start justify-between border-b border-amber-100/60 px-6 py-4">
+            <div>
+              <p class="text-xs uppercase tracking-[0.2em] text-amber-700">
+                Verkäufer-Antrag
+              </p>
+              <h3 class="font-fraunces text-2xl font-semibold text-stone-900">
+                Deine Begründung
+              </h3>
+            </div>
+            <button
+              id="closeSellerRequest"
+              type="button"
+              class="rounded-full border border-stone-200 px-3 py-1 text-xs font-semibold text-stone-600 transition hover:border-stone-300 hover:text-stone-900"
+            >
+              Schließen
+            </button>
+          </div>
+          <form id="sellerRequestForm" class="space-y-5 px-6 py-6">
+            <div class="space-y-2">
+              <label for="sellerReason" class="text-sm font-medium text-stone-700">
+                Warum möchtest du Verkäufer werden?
+              </label>
+              <textarea
+                id="sellerReason"
+                rows="5"
+                required
+                aria-invalid="false"
+                placeholder="Zum Beispiel: Ich stelle regionale Honigprodukte her und möchte sie hier anbieten."
+                class="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-700 shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200"
+              ></textarea>
+              <p class="text-xs text-stone-500">
+                Bitte gib eine kurze Begründung an. Das Feld darf nicht leer sein.
+              </p>
+              <p id="sellerReasonError" class="text-sm text-red-600"></p>
+            </div>
+            <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                id="cancelSellerRequest"
+                type="button"
+                class="rounded-full border border-stone-200 px-5 py-2.5 text-sm font-semibold text-stone-600 transition hover:border-stone-300 hover:text-stone-900"
+              >
+                Abbrechen
+              </button>
+              <button
+                id="submitSellerRequest"
+                type="submit"
+                class="rounded-full bg-green-800 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-200/70 transition hover:bg-green-900"
+              >
+                Antrag senden
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
     <footer class="bg-green-900 text-green-200">
       <div class="max-w-7xl mx-auto px-6 py-16">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">

@@ -613,7 +613,7 @@ async function getAllProductsForAdminDashboard(userId) {
   }
 }
 
-async function requestSellerStatus(userId) {
+async function requestSellerStatus(userId, begruendung) {
   const url = "http://localhost:3000/api/request-seller-role";
 
   try {
@@ -624,6 +624,7 @@ async function requestSellerStatus(userId) {
       },
       body: JSON.stringify({
         userId: userId,
+        begruendung: begruendung ? begruendung.trim() : "",
       }),
     });
 
@@ -666,8 +667,8 @@ async function getAllSellerRoleRequests(userId) {
   }
 }
 
-async function processSellerRoleRequest(requestId, status, admincomment, ) {
-  //reason
+async function processSellerRoleRequest(requestId, status, admincomment, reason) {
+  
   const url = "http://localhost:3000/api/process-seller-role-request";
   try {
     const response = await fetch(url, {
@@ -678,8 +679,8 @@ async function processSellerRoleRequest(requestId, status, admincomment, ) {
       body: JSON.stringify({
         requestId: requestId,
         status: status,
-        comment: admincomment ? admincomment.trim() : "",
-        //reason: reason ? reason.trim() : "",
+        admincomment: admincomment ? admincomment.trim() : "",
+        reason: reason ? reason.trim() : "",
       }),
     });
     const data = await response.json();

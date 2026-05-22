@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   fillProfileForm(user);
   setupFormHandlers();
+  await setupSellerRequestModal();
 });
 
 function syncMenuUserName() {
@@ -51,6 +52,304 @@ function setupFormHandlers() {
 
   profileForm?.addEventListener("submit", handleProfileSubmit);
   passwordForm?.addEventListener("submit", handlePasswordChange);
+}
+
+async function setupSellerRequestModal() {
+  const card = document.getElementById("sellerRequestCard");
+  const openButton = document.getElementById("openSellerRequest");
+  const modal = document.getElementById("sellerRequestModal");
+  const overlay = document.getElementById("sellerRequestOverlay");
+  const closeButton = document.getElementById("closeSellerRequest");
+  const cancelButton = document.getElementById("cancelSellerRequest");
+  const form = document.getElementById("sellerRequestForm");
+  const textarea = document.getElementById("sellerReason");
+  const errorEl = document.getElementById("sellerReasonError");
+  const statusEl = document.getElementById("sellerRequestStatus");
+  const submitButton = document.getElementById("submitSellerRequest");
+
+  if (
+    !card ||
+    !openButton ||
+    !modal ||
+    !overlay ||
+    !closeButton ||
+    !form ||
+    !textarea ||
+    !errorEl ||
+    !statusEl ||
+    !submitButton
+  ) {
+    return;
+  }
+
+  const statusId = localStorage.getItem("statusId");
+  if (statusId === "2" || statusId === "3") {
+    localStorage.removeItem("sellerRequestStatus");
+    card.classList.add("hidden");
+    return;
+  }
+
+  const userId = localStorage.getItem("userId");
+  if (userId) {
+    const existingRequest = await fetchSellerRoleRequest(userId);
+    if (existingRequest?.success && existingRequest.request) {
+      storeSellerRequestStatus(existingRequest.request?.status);
+      const shouldBlock = applySellerRequestState(
+        existingRequest.request,
+        statusEl,
+        openButton,
+      );
+      if (shouldBlock) {
+        return;
+      }
+    } else if (existingRequest?.success && !existingRequest.request) {
+      const shouldBlock = applyStoredSellerRequestState(statusEl, openButton);
+      if (shouldBlock) {
+        return;
+      }
+    } else {
+      const shouldBlock = applyStoredSellerRequestState(statusEl, openButton);
+      if (shouldBlock) {
+        return;
+      }
+    }
+  }
+
+  const openModal = () => {
+    modal.classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
+    textarea.focus();
+  };
+
+  const closeModal = () => {
+    modal.classList.add("hidden");
+    document.body.classList.remove("overflow-hidden");
+    errorEl.textContent = "";
+    textarea.setAttribute("aria-invalid", "false");
+  };
+
+  openButton.addEventListener("click", openModal);
+  closeButton.addEventListener("click", closeModal);
+  cancelButton?.addEventListener("click", closeModal);
+  overlay.addEventListener("click", closeModal);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !modal.classList.contains("hidden")) {
+      closeModal();
+    }
+  });
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const reason = textarea.value.trim();
+    if (!reason) {
+      errorEl.textContent = "Bitte gib eine Begruendung ein.";
+      textarea.setAttribute("aria-invalid", "true");
+      textarea.focus();
+      return;
+    }
+
+    errorEl.textContent = "";
+    textarea.setAttribute("aria-invalid", "false");
+
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      errorEl.textContent = "Benutzersitzung fehlt. Bitte neu anmelden.";
+      return;
+    }
+
+    const originalText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = "Sende...";
+    submitButton.classList.add("opacity-70");
+
+    try {
+      const result = await submitSellerRequest(userId, reason);
+
+      if (result?.success) {
+        const statusText = result?.message || "Antrag wurde erfolgreich abgesendet.";
+        storeSellerRequestStatus("pending");
+        setSellerRequestDisabledState(statusEl, openButton, statusText);
+        form.reset();
+        closeModal();
+      } else {
+        const errorText = result?.error || "Antrag konnte nicht gesendet werden.";
+        if (isSellerRequestAlreadySentError(errorText)) {
+          storeSellerRequestStatus("pending");
+          setSellerRequestDisabledState(
+            statusEl,
+            openButton,
+            "Dein Antrag wurde bereits abgesendet.",
+          );
+          closeModal();
+          return;
+        }
+        errorEl.textContent = errorText;
+      }
+    } catch (error) {
+      errorEl.textContent =
+        error?.message || "Antrag konnte nicht gesendet werden.";
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = originalText || "Antrag senden";
+      submitButton.classList.remove("opacity-70");
+    }
+  });
+}
+
+async function submitSellerRequest(userId, reason) {
+  const url = "http://localhost:3000/api/request-seller-role";
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+        begruendung: reason,
+      }),
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Request seller status failed:", error);
+    return {
+      success: false,
+      error: "Netzwerkfehler bei der Anfrage des Verkäufer-Rolls",
+    };
+  }
+}
+
+async function fetchSellerRoleRequest(userId) {
+  const url = "http://localhost:3000/api/my-seller-role-request";
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+      }),
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Fetch seller request failed:", error);
+    return {
+      success: false,
+      error: "Netzwerkfehler beim Abrufen der Verkäufer-Rollenanfrage",
+    };
+  }
+}
+
+function applySellerRequestState(request, statusEl, openButton) {
+  const status = request?.status || "pending";
+
+  if (status === "rejected") {
+    const comment = (request?.kommentarAdmin || "").trim();
+    const rejectionMessage = comment
+      ? `Dein Antrag wurde abgelehnt: ${comment}`
+      : "Dein Antrag wurde abgelehnt. Du kannst erneut ansuchen.";
+    setSellerRequestRejectedState(
+      statusEl,
+      openButton,
+      rejectionMessage,
+    );
+    return false;
+  }
+
+  if (status === "approved") {
+    setSellerRequestDisabledState(
+      statusEl,
+      openButton,
+      "Dein Antrag wurde genehmigt. Dein Status wird aktualisiert.",
+    );
+    return true;
+  }
+
+  setSellerRequestDisabledState(
+    statusEl,
+    openButton,
+    "Dein Antrag wurde bereits abgesendet.",
+  );
+  return true;
+}
+
+function setSellerRequestDisabledState(statusEl, openButton, message) {
+  setSellerRequestMessage(statusEl, message, "text-amber-700");
+  setSellerRequestButtonState(openButton, true, "Antrag gesendet");
+}
+
+function setSellerRequestRejectedState(statusEl, openButton, message) {
+  setSellerRequestMessage(statusEl, message, "text-red-600");
+  setSellerRequestButtonState(openButton, false, "Erneut anfragen");
+}
+
+function setSellerRequestMessage(statusEl, message, colorClass) {
+  if (!statusEl) {
+    return;
+  }
+
+  statusEl.textContent = message;
+  statusEl.className = `mt-4 text-xl font-semibold ${colorClass}`;
+}
+
+function setSellerRequestButtonState(openButton, disabled, label) {
+  if (!openButton) {
+    return;
+  }
+
+  if (!openButton.dataset.baseClass) {
+    openButton.dataset.baseClass = openButton.className;
+  }
+
+  openButton.disabled = disabled;
+  openButton.textContent = label;
+
+  if (disabled) {
+    openButton.className = `${openButton.dataset.baseClass} bg-stone-300 text-stone-500 shadow-none cursor-not-allowed`;
+    openButton.classList.remove("hover:bg-amber-700");
+    return;
+  }
+
+  openButton.className = openButton.dataset.baseClass;
+}
+
+function storeSellerRequestStatus(status) {
+  if (!status) {
+    return;
+  }
+
+  localStorage.setItem("sellerRequestStatus", status);
+}
+
+function getStoredSellerRequestStatus() {
+  return localStorage.getItem("sellerRequestStatus");
+}
+
+function applyStoredSellerRequestState(statusEl, openButton) {
+  const storedStatus = getStoredSellerRequestStatus();
+  if (!storedStatus) {
+    return false;
+  }
+
+  return applySellerRequestState({ status: storedStatus }, statusEl, openButton);
+}
+
+function isSellerRequestAlreadySentError(errorText) {
+  if (!errorText) {
+    return false;
+  }
+
+  return /bereits\s+eine\s+anfrage|anfrage\s+.*bereits|bereits\s+abgesendet/i
+    .test(errorText);
 }
 
 async function handleProfileSubmit(event) {

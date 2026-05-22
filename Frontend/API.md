@@ -614,17 +614,17 @@ Example response (inferred)
 ```
 
 <a id="requestSellerStatus"></a>
-### requestSellerStatus(userId)
+### requestSellerStatus(userId, begruendung)
 
 - **File(s):** Frontend/api.js
 - **Endpoint:** POST http://localhost:3000/api/request-seller-role
-- **Signature:** async function requestSellerStatus(userId)
-- **Description:** Sends a request to become a seller. Returns the parsed backend response (success flag and optional metadata).
+- **Signature:** async function requestSellerStatus(userId, begruendung)
+- **Description:** Sends a request to become a seller and includes the justification in `begruendung`.
 
 Example
 
 ```js
-const res = await requestSellerStatus(userId);
+const res = await requestSellerStatus(userId, 'Ich moechte meine Produkte anbieten.');
 if (res.success) alert('Request submitted');
 ```
 

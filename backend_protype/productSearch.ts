@@ -1751,7 +1751,7 @@ async function checkout(req: Request): Promise<Response> {
 async function deleteUser(req: Request): Promise<Response> {
   try {
     const body = await req.json();
-    const { userId } = body;
+    const { userId, begruendung } = body;
 
     if (!userId) {
       return new Response(JSON.stringify({
@@ -2329,7 +2329,7 @@ async function deleteProductAsAdmin(req: Request): Promise<Response> {
 async function requestSellerRole(req: Request): Promise<Response> {
   try {
     const body = await req.json();
-    const { userId } = body;
+    const { userId, begruendung } = body;
 
     const user = await prisma.user.findUnique({
       where: { userId: String(userId) },
@@ -2348,6 +2348,12 @@ async function requestSellerRole(req: Request): Promise<Response> {
     const existingRequest = await prisma.verkäuferstatusanfrage.findFirst({
       where: {
         userId: String(userId),
+        status: {
+          in: ["pending", "approved"],
+        },
+      },
+      orderBy: {
+        datum: "desc",
       },
     });
 
@@ -2361,17 +2367,33 @@ async function requestSellerRole(req: Request): Promise<Response> {
       });
     }
 
+    const trimmedBegruendung = typeof begruendung === "string"
+      ? begruendung.trim()
+      : "";
+
+    if (!trimmedBegruendung) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Die Begruendung darf nicht leer sein",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
     await prisma.verkäuferstatusanfrage.create({
       data: {
         userId: String(userId),
         status: "pending",
         datum: new Date(),
+        begruendung: trimmedBegruendung,
       },
     });
 
     return new Response(JSON.stringify({
       success: true,
       userId: String(userId),
+      message: "Antrag wurde erfolgreich abgesendet",
     }), {
       status: 200,
       headers: corsHeaders(),
@@ -2381,6 +2403,66 @@ async function requestSellerRole(req: Request): Promise<Response> {
     return new Response(JSON.stringify({
       success: false,
       error: "Fehler bei der Antragstellung für Verkäuferrolle",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
+async function getSellerRoleRequestForUser(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId } = body;
+
+    if (!userId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Benutzer-ID fehlt",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { userId: String(userId) },
+    });
+
+    if (!user) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Benutzer nicht gefunden",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    const request = await prisma.verkäuferstatusanfrage.findFirst({
+      where: { userId: String(userId) },
+      orderBy: { datum: "desc" },
+    });
+
+    return new Response(JSON.stringify({
+      success: true,
+      request: request
+        ? {
+          anfrageId: request.anfrageId,
+          status: request.status,
+          datum: request.datum,
+          kommentarAdmin: request.kommentarAdmin ?? null,
+        }
+        : null,
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("getSellerRoleRequestForUser error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Abrufen der Verkäufer-Rollenanfrage",
     }), {
       status: 500,
       headers: corsHeaders(),
@@ -2408,7 +2490,24 @@ async function getAllSellerRoleRequests(req: Request): Promise<Response> {
       });
     }
 
-    const requests = await prisma.verkäuferstatusanfrage.findMany();
+    const requests = await prisma.verkäuferstatusanfrage.findMany({
+      include: {
+        user: {
+          select: {
+            userId: true,
+            name: true,
+            email: true,
+            strasse: true,
+            hausnummer: true,
+            postleitzahl: true,
+            land: true,
+          },
+        },
+      },
+      orderBy: {
+        datum: "desc",
+      },
+    });
 
     return new Response(JSON.stringify({
       success: true,
@@ -2432,7 +2531,22 @@ async function getAllSellerRoleRequests(req: Request): Promise<Response> {
 async function processSellerRoleRequest(req: Request): Promise<Response> {
   try {
     const body = await req.json();
-    const { requestId, status, admincomment  } = body; //reason
+    const { requestId, status, admincomment, comment } = body; //reason
+    const resolvedComment = typeof admincomment === "string"
+      ? admincomment.trim()
+      : typeof comment === "string"
+      ? comment.trim()
+      : "";
+
+    if (status === "rejected" && !resolvedComment) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Eine Begruendung ist fuer die Ablehnung erforderlich",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
 
     // set status of request to "approved" or "rejected", and also add the comment if provided
     const request = await prisma.verkäuferstatusanfrage.findUnique({
@@ -2453,7 +2567,7 @@ async function processSellerRoleRequest(req: Request): Promise<Response> {
       where: { anfrageId: String(requestId) },
       data: {
         status: String(status),
-        kommentarAdmin: admincomment || null,
+        kommentarAdmin: resolvedComment || null,
         //grund: reason || null,
       },
     });
@@ -2687,6 +2801,10 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/request-seller-role" && req.method === "POST") {
     return await requestSellerRole(req);
+  }
+
+  if (url.pathname === "/api/my-seller-role-request" && req.method === "POST") {
+    return await getSellerRoleRequestForUser(req);
   }
 
   if (url.pathname === "/api/seller-role-requests" && req.method === "POST") {

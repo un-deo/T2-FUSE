@@ -7,6 +7,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const allProductsToggle = document.getElementById("allProductsToggle");
   const productsContainer = document.getElementById("productsContainer");
 
+  const sellerRequestTableBody = document.getElementById("seller-request-table-body");
+  const sellerRequestsToggle = document.getElementById("sellerRequestsToggle");
+  const sellerRequestsContainer = document.getElementById("sellerRequestsContainer");
+
   // Modals
   const editUserModal = document.getElementById("editUserModal");
   const deleteUserModal = document.getElementById("deleteUserModal");
@@ -36,6 +40,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let currentDeleteProductId = null;
   let isUsersOpen = false;
   let isProductsOpen = false;
+  let isSellerRequestsOpen = false;
 
   if (!userTableBody) {
     return;
@@ -58,6 +63,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
     const status = statusMap[statusId] || statusMap[1];
     return `<span class="inline-flex px-2.5 py-1 ${status.color} text-xs font-medium rounded-full">${status.label}</span>`;
+  };
+
+  const getRequestStatusBadge = (status) => {
+    const normalized = status || "pending";
+    const map = {
+      pending: { label: "Offen", color: "bg-amber-100 text-amber-700" },
+      approved: { label: "Genehmigt", color: "bg-green-100 text-green-700" },
+      rejected: { label: "Abgelehnt", color: "bg-red-100 text-red-700" },
+    };
+    const entry = map[normalized] || map.pending;
+    return `<span class="inline-flex px-2.5 py-1 ${entry.color} text-xs font-medium rounded-full">${entry.label}</span>`;
+  };
+
+  const formatRequestDate = (value) => {
+    if (!value) return "—";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "—";
+    return date.toLocaleDateString("de-AT", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  const formatRequestAddress = (user) => {
+    if (!user) return "—";
+    const parts = [user.strasse, user.hausnummer].filter(Boolean).join(" ");
+    const cityParts = [user.postleitzahl, user.land].filter(Boolean).join(" ");
+    if (!parts && !cityParts) return "—";
+    return [parts, cityParts].filter(Boolean).join(", ");
   };
 
   const userId = localStorage.getItem("userId");
@@ -558,6 +593,157 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   };
 
+  const renderSellerRequestTable = (requests) => {
+    if (!sellerRequestTableBody) return;
+
+    if (!requests || requests.length === 0) {
+      sellerRequestTableBody.innerHTML =
+        '<tr><td colspan="7" class="px-5 py-4 text-center text-stone-600">Keine Verkäufer-Anfragen vorhanden</td></tr>';
+      return;
+    }
+
+    sellerRequestTableBody.innerHTML = requests
+      .map((request) => {
+        const status = request.status || "pending";
+        const isPending = status === "pending" || status === "" || status === null;
+        const user = request.user || {};
+        const commentValue = request.kommentarAdmin || "";
+        const begruendung = request.begruendung || "—";
+        const name = user.name || "Unbekannt";
+        const email = user.email || "—";
+        const address = formatRequestAddress(user);
+
+        return `
+          <tr class="border-b border-stone-100 align-top">
+            <td class="px-5 py-4 text-sm text-stone-600">${formatRequestDate(request.datum)}</td>
+            <td class="px-5 py-4">
+              <div class="font-medium text-stone-900">${name}</div>
+              <div class="text-xs text-stone-500">${email}</div>
+            </td>
+            <td class="px-5 py-4 text-sm text-stone-600">${address}</td>
+            <td class="px-5 py-4 text-sm text-stone-600">${begruendung}</td>
+            <td class="px-5 py-4">${getRequestStatusBadge(status)}</td>
+            <td class="px-5 py-4">
+              <textarea
+                rows="2"
+                class="seller-request-comment w-full rounded-md border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 ${!isPending ? "bg-stone-50 text-stone-500" : ""}"
+                data-request-id="${request.anfrageId}"
+                ${!isPending ? "disabled" : ""}
+                placeholder="Begruendung (Pflicht bei Ablehnung)"
+              >${commentValue}</textarea>
+              <p class="seller-request-error text-xs text-red-600 mt-1" data-request-id="${request.anfrageId}"></p>
+            </td>
+            <td class="px-5 py-4">
+              <div class="flex flex-col gap-2">
+                <button
+                  type="button"
+                  class="approve-seller-request-btn px-3 py-2 text-xs rounded-full bg-green-100 text-green-800 font-medium ${!isPending ? "opacity-50 cursor-not-allowed" : ""}"
+                  data-request-id="${request.anfrageId}"
+                  ${!isPending ? "disabled" : ""}
+                >Annehmen</button>
+                <button
+                  type="button"
+                  class="reject-seller-request-btn px-3 py-2 text-xs rounded-full bg-red-100 text-red-700 font-medium ${!isPending ? "opacity-50 cursor-not-allowed" : ""}"
+                  data-request-id="${request.anfrageId}"
+                  ${!isPending ? "disabled" : ""}
+                >Ablehnen</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    document.querySelectorAll(".approve-seller-request-btn").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const requestId = e.currentTarget.dataset.requestId;
+        await handleSellerRequestAction(requestId, "approved");
+      });
+    });
+
+    document.querySelectorAll(".reject-seller-request-btn").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const requestId = e.currentTarget.dataset.requestId;
+        await handleSellerRequestAction(requestId, "rejected");
+      });
+    });
+  };
+
+  const handleSellerRequestAction = async (requestId, status) => {
+    if (!requestId) return;
+
+    const commentInput = document.querySelector(
+      `.seller-request-comment[data-request-id="${requestId}"]`,
+    );
+    const errorEl = document.querySelector(
+      `.seller-request-error[data-request-id="${requestId}"]`,
+    );
+    const comment = commentInput ? commentInput.value.trim() : "";
+
+    if (status === "rejected" && !comment) {
+      if (errorEl) {
+        errorEl.textContent = "Bitte eine Begruendung fuer die Ablehnung eintragen.";
+      }
+      return;
+    }
+
+    if (errorEl) {
+      errorEl.textContent = "";
+    }
+
+    try {
+      const response = await fetch("http://localhost:3000/api/process-seller-role-request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          requestId,
+          status,
+          admincomment: comment,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        if (errorEl) {
+          errorEl.textContent = data.error || "Anfrage konnte nicht verarbeitet werden.";
+        }
+        return;
+      }
+
+      await loadDataKeepState();
+    } catch (error) {
+      if (errorEl) {
+        errorEl.textContent = "Netzwerkfehler beim Verarbeiten der Anfrage.";
+      }
+    }
+  };
+
+  const loadSellerRequests = async () => {
+    if (!sellerRequestTableBody) return;
+
+    try {
+      const response = await fetch("http://localhost:3000/api/seller-role-requests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Anfragen konnten nicht geladen werden");
+      }
+
+      renderSellerRequestTable(data.requests || []);
+    } catch (error) {
+      sellerRequestTableBody.innerHTML =
+        '<tr><td colspan="7" class="px-5 py-4 text-center text-red-600">Fehler beim Laden der Verkäufer-Anfragen</td></tr>';
+    }
+  };
+
   const updateStatsBoxes = (stats) => {
     if (stats) {
       const totalUsersEl = document.getElementById("admin-total-users");
@@ -594,6 +780,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateStatsBoxes(data.stats);
       renderUserTable(data.users || []);
       renderProductTable(data.products || []);
+      await loadSellerRequests();
     } catch (error) {
       console.error("Admin-Daten Fehler:", error);
       if (userTableBody) {
@@ -627,6 +814,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateStatsBoxes(data.stats);
       renderUserTable(data.users || []);
       renderProductTable(data.products || []);
+      await loadSellerRequests();
       
       if (isUsersOpen) {
         usersContainer.style.maxHeight = usersContainer.scrollHeight + "px";
@@ -634,6 +822,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       
       if (isProductsOpen) {
         productsContainer.style.maxHeight = productsContainer.scrollHeight + "px";
+      }
+
+      if (isSellerRequestsOpen && sellerRequestsContainer) {
+        sellerRequestsContainer.style.maxHeight = sellerRequestsContainer.scrollHeight + "px";
       }
     } catch (error) {
       console.error("Admin-Daten Fehler:", error);
@@ -701,6 +893,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       productsContainer.style.maxHeight = "0";
     }
   });
+
+  if (sellerRequestsToggle && sellerRequestsContainer) {
+    sellerRequestsToggle.addEventListener("click", () => {
+      isSellerRequestsOpen = !isSellerRequestsOpen;
+
+      if (isSellerRequestsOpen) {
+        const toggleIcon = sellerRequestsToggle.querySelector(".toggle-icon");
+        toggleIcon.classList.add("open");
+        sellerRequestsContainer.style.maxHeight = sellerRequestsContainer.scrollHeight + "px";
+      } else {
+        const toggleIcon = sellerRequestsToggle.querySelector(".toggle-icon");
+        toggleIcon.classList.remove("open");
+        sellerRequestsContainer.style.maxHeight = "0";
+      }
+    });
+  }
 
   await loadCategories();
   loadData();

@@ -182,6 +182,50 @@
 			</div>
 		</section>
 
+		<section class="pt-2 md:pt-6 pb-6 md:pb-8 bg-white">
+			<div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+				<div class="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4">
+					<div>
+						<span class="text-amber-600 font-medium text-sm uppercase tracking-wider">Antraege</span>
+						<h2 class="font-serif text-2xl md:text-3xl font-bold text-stone-900 mt-2">Verkaeufer-Anfragen</h2>
+						<p class="text-stone-600 text-sm md:text-base mt-2 max-w-3xl">
+							Pruefe neue Antraege, bestaetige sie oder lehne sie mit Begruendung ab.
+						</p>
+					</div>
+				</div>
+
+				<div class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+					<button id="sellerRequestsToggle" class="w-full px-6 py-4 flex items-center justify-between hover:bg-stone-50 transition-colors duration-200">
+						<div class="flex items-center gap-3">
+							<div class="toggle-icon"></div>
+							<h3 class="font-serif text-2xl font-bold text-stone-900">Anfragen verwalten</h3>
+						</div>
+					</button>
+
+					<div id="sellerRequestsContainer" class="max-h-0 overflow-hidden transition-all duration-300">
+						<div class="overflow-x-auto">
+							<table class="min-w-full bg-white">
+								<thead class="bg-stone-50 border-t border-b border-stone-200">
+									<tr>
+										<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Datum</th>
+										<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Nutzer</th>
+										<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Adresse</th>
+										<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Begruendung</th>
+										<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Status</th>
+										<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Admin-Kommentar</th>
+										<th class="text-left text-sm font-semibold text-stone-700 px-5 py-4">Aktion</th>
+									</tr>
+								</thead>
+								<tbody id="seller-request-table-body">
+									<!-- Wird dynamisch gefuellt -->
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
 		<section class="pt-12 md:pt-16 pb-4 md:pb-6 bg-white">
 			<div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
 				<div class="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4">
