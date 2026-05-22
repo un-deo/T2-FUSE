@@ -1086,26 +1086,37 @@ async function updateUserData(req: Request): Promise<Response> {
 async function deleteProduct(req: Request): Promise<Response> {
   try {
     const body = await req.json();
-    const { userId, productId} = body;
+    const { userId, productId } = body;
+    const productIdValue = String(productId);
+    const userIdValue = String(userId);
 
-    const deleted = await prisma.produkte.deleteMany({
-      where: {
-        produktId: String(productId),
-        userId: String(userId),
-      },
+    const product = await prisma.produkte.findUnique({
+      where: { produktId: productIdValue },
     });
 
-    if (deleted.count === 0) {
+    if (!product || product.userId !== userIdValue) {
       return new Response(JSON.stringify({
         success: false,
         error: "Produkt nicht gefunden oder keine Berechtigung",
-        ID: String(productId),
-        UserId: String(userId),
+        ID: productIdValue,
+        UserId: userIdValue,
       }), {
         status: 404,
         headers: corsHeaders(),
       });
     }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.warenkorbProdukte.deleteMany({
+        where: { produktId: productIdValue },
+      });
+      await tx.bestellungProdukte.deleteMany({
+        where: { produktId: productIdValue },
+      });
+      await tx.produkte.delete({
+        where: { produktId: productIdValue },
+      });
+    });
 
     return new Response(JSON.stringify({
       success: true,
@@ -2249,6 +2260,7 @@ async function deleteProductAsAdmin(req: Request): Promise<Response> {
   try {
     const body = await req.json();
     const { userId, productId } = body;
+    const productIdValue = String(productId);
 
     if (!userId || !productId) {
       return new Response(JSON.stringify({
@@ -2277,7 +2289,7 @@ async function deleteProductAsAdmin(req: Request): Promise<Response> {
 
     // Get the product to delete the image if needed
     const product = await prisma.produkte.findUnique({
-      where: { produktId: String(productId) },
+      where: { produktId: productIdValue },
     });
 
     if (!product) {
@@ -2291,25 +2303,21 @@ async function deleteProductAsAdmin(req: Request): Promise<Response> {
     }
 
     // Delete the product
-    const deleted = await prisma.produkte.deleteMany({
-      where: {
-        produktId: String(productId),
-      },
-    });
-
-    if (deleted.count === 0) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Fehler beim Löschen des Produkts",
-      }), {
-        status: 500,
-        headers: corsHeaders(),
+    await prisma.$transaction(async (tx) => {
+      await tx.warenkorbProdukte.deleteMany({
+        where: { produktId: productIdValue },
       });
-    }
+      await tx.bestellungProdukte.deleteMany({
+        where: { produktId: productIdValue },
+      });
+      await tx.produkte.delete({
+        where: { produktId: productIdValue },
+      });
+    });
 
     return new Response(JSON.stringify({
       success: true,
-      productId: String(productId),
+      productId: productIdValue,
     }), {
       status: 200,
       headers: corsHeaders(),
