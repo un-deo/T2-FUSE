@@ -76,6 +76,7 @@ model verkäuferstatusanfrage {
     userId         String
     status         String?
     datum          DateTime?
+    begruendung    String?
     kommentarAdmin String?
 
     // Beziehungen
