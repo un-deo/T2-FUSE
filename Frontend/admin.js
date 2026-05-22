@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sellerRequestTableBody = document.getElementById("seller-request-table-body");
   const sellerRequestsToggle = document.getElementById("sellerRequestsToggle");
   const sellerRequestsContainer = document.getElementById("sellerRequestsContainer");
+  const sellerRequestFilter = document.getElementById("sellerRequestFilter");
 
   // Modals
   const editUserModal = document.getElementById("editUserModal");
@@ -41,6 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let isUsersOpen = false;
   let isProductsOpen = false;
   let isSellerRequestsOpen = false;
+  let sellerRequestsCache = [];
 
   if (!userTableBody) {
     return;
@@ -74,6 +76,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
     const entry = map[normalized] || map.pending;
     return `<span class="inline-flex px-2.5 py-1 ${entry.color} text-xs font-medium rounded-full">${entry.label}</span>`;
+  };
+
+  const normalizeRequestStatus = (status) => {
+    return status || "pending";
   };
 
   const formatRequestDate = (value) => {
@@ -596,13 +602,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   const renderSellerRequestTable = (requests) => {
     if (!sellerRequestTableBody) return;
 
-    if (!requests || requests.length === 0) {
+    const filterValue = sellerRequestFilter ? sellerRequestFilter.value : "all";
+    const filteredRequests = requests.filter((request) => {
+      const normalized = normalizeRequestStatus(request.status);
+      return filterValue === "all" || normalized === filterValue;
+    });
+
+    if (!filteredRequests || filteredRequests.length === 0) {
       sellerRequestTableBody.innerHTML =
         '<tr><td colspan="7" class="px-5 py-4 text-center text-stone-600">Keine Verkäufer-Anfragen vorhanden</td></tr>';
       return;
     }
 
-    sellerRequestTableBody.innerHTML = requests
+    sellerRequestTableBody.innerHTML = filteredRequests
       .map((request) => {
         const status = request.status || "pending";
         const isPending = status === "pending" || status === "" || status === null;
@@ -737,7 +749,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         throw new Error(data.error || "Anfragen konnten nicht geladen werden");
       }
 
-      renderSellerRequestTable(data.requests || []);
+      sellerRequestsCache = data.requests || [];
+      renderSellerRequestTable(sellerRequestsCache);
     } catch (error) {
       sellerRequestTableBody.innerHTML =
         '<tr><td colspan="7" class="px-5 py-4 text-center text-red-600">Fehler beim Laden der Verkäufer-Anfragen</td></tr>';
@@ -906,6 +919,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         const toggleIcon = sellerRequestsToggle.querySelector(".toggle-icon");
         toggleIcon.classList.remove("open");
         sellerRequestsContainer.style.maxHeight = "0";
+      }
+    });
+  }
+
+  if (sellerRequestFilter) {
+    sellerRequestFilter.addEventListener("change", () => {
+      renderSellerRequestTable(sellerRequestsCache);
+      if (isSellerRequestsOpen && sellerRequestsContainer) {
+        sellerRequestsContainer.style.maxHeight = sellerRequestsContainer.scrollHeight + "px";
       }
     });
   }
