@@ -463,7 +463,7 @@ async function removeCartItemApi(userId, token, productId) {
   }
 }
 
-async function checkoutCart(userId, token) {
+async function checkoutCart(userId, token, lieferadresse, selbstabholung) {
   const url = "http://localhost:3000/api/checkout";
   try {
     const response = await fetch(url, {
@@ -471,13 +471,35 @@ async function checkoutCart(userId, token) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userId, token }),
+      body: JSON.stringify({ userId, token, lieferadresse, selbstabholung }),
     });
     const data = await response.json();
     return data;
   } catch (error) {
     console.error("checkoutCart failed:", error);
     return { success: false, error: "Netzwerkfehler beim Checkout" };
+  }
+}
+
+async function fetchSellerOrders(userId) {
+  const url = "http://localhost:3000/api/seller-orders";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error("fetchSellerOrders failed:", error);
+    return {
+      success: false,
+      error: "Netzwerkfehler beim Abrufen der Bestellungen",
+    };
   }
 }
 

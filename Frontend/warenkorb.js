@@ -190,8 +190,12 @@ checkoutBtn.addEventListener("click", async () => {
     return;
   }
 
+  const deliveryOption = document.querySelector('input[name="delivery"]:checked');
+  const selbstabholung = deliveryOption ? deliveryOption.value === "abholung" : false;
+  const lieferadresse = document.getElementById("delivery-address").value.trim();
+
   checkoutBtn.disabled = true;
-  const result = await checkoutCart(userId, token);
+  const result = await checkoutCart(userId, token, lieferadresse, selbstabholung);
   checkoutBtn.disabled = false;
 
   if (!result.success) {
