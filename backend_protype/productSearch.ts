@@ -1656,6 +1656,9 @@ async function checkout(req: Request): Promise<Response> {
       return auth.response;
     }
 
+    const lieferadresse = String((body as Record<string, unknown>).lieferadresse ?? "").trim() || null;
+    const selbstabholung = (body as Record<string, unknown>).selbstabholung === true;
+
     const cart = await prisma.warenkorb.findFirst({
       where: { userId: auth.userId },
       include: {
@@ -1705,6 +1708,8 @@ async function checkout(req: Request): Promise<Response> {
           userId: auth.userId,
           datum: new Date(),
           gesamtbetrag: totalAmount,
+          lieferadresse: lieferadresse,
+          Selbstabholung: selbstabholung,
         },
       });
 
@@ -2513,6 +2518,137 @@ async function getAllUserOrders(req: Request): Promise<Response> {
   }
 }
 
+async function getSellerOrders(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId } = body;
+
+    if (!userId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "UserID ist erforderlich",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const sellerProducts = await prisma.produkte.findMany({
+      where: { userId: String(userId) },
+      select: { produktId: true, name: true, preis: true, bildUrl: true },
+    });
+
+    if (sellerProducts.length === 0) {
+      return new Response(JSON.stringify({
+        success: true,
+        orders: [],
+      }), {
+        status: 200,
+        headers: corsHeaders(),
+      });
+    }
+
+    const sellerProductIds = sellerProducts.map((p) => p.produktId);
+    const productMap = new Map(sellerProducts.map((p) => [p.produktId, p]));
+
+    const orderItems = await prisma.bestellungProdukte.findMany({
+      where: {
+        produktId: { in: sellerProductIds },
+      },
+      include: {
+        bestellung: {
+          include: {
+            user: {
+              select: {
+                userId: true,
+                name: true,
+                email: true,
+                telefonNr: true,
+                strasse: true,
+                hausnummer: true,
+                postleitzahl: true,
+                land: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const orderMap = new Map<string, {
+      bestellId: string;
+      datum: string;
+      gesamtbetrag: number;
+      lieferadresse: string | null;
+      Selbstabholung: boolean | null;
+      kaeufer: {
+        userId: string;
+        name: string;
+        email: string;
+        telefonNr: string | null;
+        strasse: string | null;
+        hausnummer: string | null;
+        postleitzahl: string | null;
+        land: string | null;
+      };
+      produkte: { produktId: string; name: string; preis: number; bildUrl: string | null; menge: number }[];
+    }>();
+
+    for (const item of orderItems) {
+      const bestellId = item.bestellId;
+      const product = productMap.get(item.produktId);
+      if (!orderMap.has(bestellId)) {
+        orderMap.set(bestellId, {
+          bestellId: item.bestellung.bestellId,
+          datum: item.bestellung.datum.toISOString(),
+          gesamtbetrag: item.bestellung.gesamtbetrag,
+          lieferadresse: item.bestellung.lieferadresse,
+          Selbstabholung: item.bestellung.Selbstabholung,
+          kaeufer: {
+            userId: item.bestellung.user.userId,
+            name: item.bestellung.user.name,
+            email: item.bestellung.user.email,
+            telefonNr: item.bestellung.user.telefonNr,
+            strasse: item.bestellung.user.strasse,
+            hausnummer: item.bestellung.user.hausnummer,
+            postleitzahl: item.bestellung.user.postleitzahl,
+            land: item.bestellung.user.land,
+          },
+          produkte: [],
+        });
+      }
+      if (product) {
+        orderMap.get(bestellId)!.produkte.push({
+          produktId: item.produktId,
+          name: product.name,
+          preis: product.preis,
+          bildUrl: product.bildUrl,
+          menge: item.menge,
+        });
+      }
+    }
+
+    const orders = Array.from(orderMap.values());
+
+    return new Response(JSON.stringify({
+      success: true,
+      orders,
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("getSellerOrders error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Abrufen der Verkäufer-Bestellungen",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -2699,6 +2835,10 @@ async function router(req: Request): Promise<Response> {
 
   if (url.pathname === "/api/my-orders" && req.method === "POST") {
     return await getAllUserOrders(req);
+  }
+
+  if (url.pathname === "/api/seller-orders" && req.method === "POST") {
+    return await getSellerOrders(req);
   }
 
   return new Response(JSON.stringify({ error: "not_found" }), {
