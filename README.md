@@ -47,7 +47,7 @@ MUSS (Abnahme-relevant laut Lastenheft):
 - [ ] Bestellbestätigung für Nutzer anzeigen __**GEORGI**__
 - [X] Verkäuferbereich: eigene Produkte anzeigen, erstellen und bearbeiten (Name, Beschreibung, Preis, Kategorie, Bilder) __**MARCEL**__
 - [X] Verkäuferbereich: Bestellungen des Verkäufers anzeigen __**MARCEL**__
-- [ ] Verkäuferbereich: Kontaktdaten des Käufers zur Bestellung anzeigen __**MARCEL**__
+- [X] Verkäuferbereich: Kontaktdaten des Käufers zur Bestellung anzeigen __**MARCEL**__
 - [ ] Verkäuferstatus beantragen (Formular + Speicherung + Admin-Entscheidung) __**MARCEL**__
 - [ ] Admin-Funktionen vollständig: Nutzer suchen, Profil anzeigen, Profil bearbeiten, Profil löschen __**MORITZ**__
 - [ ] Admin-Funktionen vollständig: Verkäuferstatus zuweisen und entziehen __**MORITZ**__
