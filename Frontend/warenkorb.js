@@ -116,9 +116,16 @@ async function loadCart() {
   }
 
   const result = await fetchCart(userId, token);
+  const errText = (result.error || "").toString();
   if (!result.success) {
-    if ((result.error || "").includes("Token")) {
-      renderLoggedOut();
+    if (/token/i.test(errText) || /abgelau/.test(errText)) {
+      if (typeof clearSessionStorage === "function") {
+        clearSessionStorage();
+      } else {
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("userId");
+        window.location.href = "/Frontend/home.html";
+      }
       return;
     }
     setMessage(result.error || "Warenkorb konnte nicht geladen werden", true);

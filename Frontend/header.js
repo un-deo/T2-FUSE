@@ -1,6 +1,11 @@
 
 document.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("userToken");
+  initHeader().catch((error) => {
+    console.error("Header init failed:", error);
+  });
+});
+
+async function initHeader() {
   const allowGuestByAttr = document.body?.dataset.allowGuest === "true";
   const isProductPage =
     window.location.pathname.endsWith("/product.html") ||
@@ -10,22 +15,34 @@ document.addEventListener("DOMContentLoaded", () => {
   const loggedInHeader = document.getElementById("header-logged-in");
   const loggedOutHeader = document.getElementById("header-logged-out");
 
-  if (loggedInHeader && loggedOutHeader) {
-    if (token) {
+  const setHeaderState = (isLoggedIn) => {
+    if (!loggedInHeader || !loggedOutHeader) return;
+    if (isLoggedIn) {
       loggedInHeader.classList.remove("hidden");
       loggedOutHeader.classList.add("hidden");
     } else {
       loggedOutHeader.classList.remove("hidden");
       loggedInHeader.classList.add("hidden");
     }
-  }
+  };
 
-  if (!token && !allowGuest) {
-    window.location.replace("/Frontend/home.html");
+  const token = localStorage.getItem("userToken");
+  const userId = localStorage.getItem("userId");
+
+  if (!token) {
+    setHeaderState(false);
+    if (!allowGuest) {
+      window.location.replace("/Frontend/home.html");
+    }
     return;
   }
 
-  if (!token) {
+  setHeaderState(true);
+
+  const isValidSession = await validateSession(token, userId);
+  if (!isValidSession) {
+    clearSessionStorage(!allowGuest);
+    setHeaderState(false);
     return;
   }
 
@@ -71,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateCartBadge();
   document.addEventListener("cart-updated", updateCartBadge);
-});
+}
 
 async function updateCartBadge() {
   const token = localStorage.getItem("userToken");
@@ -79,7 +96,15 @@ async function updateCartBadge() {
   if (!token || !userId || typeof fetchCart !== "function") return;
 
   const result = await fetchCart(userId, token);
-  if (!result?.success || !result?.cart) return;
+  if (!result?.success) {
+    const err = (result.error || "").toString();
+    if (/token/i.test(err) || /abgelau/.test(err)) {
+      clearSessionStorage();
+      return;
+    }
+    return;
+  }
+  if (!result?.cart) return;
 
   const count = Number(result.cart.totalItems || 0);
   const links = Array.from(document.querySelectorAll('a[href="/Frontend/warenkorb.html"]'));
@@ -88,10 +113,31 @@ async function updateCartBadge() {
   });
 }
 
-function clearSessionStorage() {
+async function validateSession(token, userId) {
+  if (!token || !userId) return false;
+  try {
+    const response = await fetch("http://localhost:3000/api/validate-token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token, userId }),
+    });
+
+    const data = await response.json();
+    return Boolean(response.ok && data.success);
+  } catch (error) {
+    console.error("Token-Validierung fehlgeschlagen:", error);
+    return false;
+  }
+}
+
+function clearSessionStorage(shouldRedirect = true) {
   localStorage.removeItem("userToken");
   localStorage.removeItem("userId");
   localStorage.removeItem("statusId");
   localStorage.removeItem("userName");
-  window.location.href = "/Frontend/home.html";
+  if (shouldRedirect) {
+    window.location.href = "/Frontend/home.html";
+  }
 }

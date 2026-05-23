@@ -102,6 +102,16 @@ productDisplay.addEventListener("click", async (event) => {
   if (result.success) {
     showAddedToCartFeedback(target);
     document.dispatchEvent(new CustomEvent("cart-updated"));
+  } else {
+    const err = (result.error || "").toString();
+    if (/token/i.test(err) || /abgelau/.test(err)) {
+      // Session expired or invalid — clear session and redirect
+      if (typeof clearSessionStorage === "function") clearSessionStorage();
+      else localStorage.removeItem("userToken");
+      return;
+    }
+    // Other errors are logged
+    console.error("addToCart failed:", result.error);
   }
 
   target.disabled = false;

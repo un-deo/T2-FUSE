@@ -26,33 +26,8 @@ async function fetchUserProfile(userId) {
   }
 }
 
-async function validateSession(token, userId) {
-  try {
-    const response = await fetch("http://localhost:3000/api/validate-token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        token: token, // Der Token aus dem localStorage/Cookie
-        userId: userId, // Die ID des Users
-      }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.success) {
-      console.log("Token ist gültig für User:", data.userId);
-      return true;
-    } else {
-      console.error("Validierung fehlgeschlagen:", data.error);
-      return false;
-    }
-  } catch (error) {
-    console.error("Netzwerkfehler oder Server down:", error);
-    return false;
-  }
-}
+// validateSession is provided by Frontend/session.js and exposed globally.
+// Use `validateSession(token, userId)` from that module instead of redefining it here.
 
 async function ValidatePassword(userId, password) {
   const url = "http://localhost:3000/api/validate-password";
