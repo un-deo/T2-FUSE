@@ -43,9 +43,25 @@ async function setAuthMenuState() {
   if (token) {
     if (guestMenu) guestMenu.classList.add("hidden");
     if (userMenu) userMenu.classList.remove("hidden");
+    syncMenuUserInfo();
   } else {
     if (guestMenu) guestMenu.classList.remove("hidden");
     if (userMenu) userMenu.classList.add("hidden");
+  }
+}
+
+function syncMenuUserInfo() {
+  const nameEl = document.getElementById("menu-user-name");
+  const roleEl = document.getElementById("menu-user-role");
+  const statusId = localStorage.getItem("statusId");
+
+  if (nameEl) {
+    nameEl.textContent = localStorage.getItem("userName") || "Nutzer";
+  }
+
+  if (roleEl) {
+    roleEl.textContent =
+      statusId === "3" ? "admin" : statusId === "2" ? "verkäufer" : "kunde";
   }
 }
 

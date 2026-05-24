@@ -85,32 +85,6 @@ async function initHeader() {
       }
     });
   }
-
-  updateCartBadge();
-  document.addEventListener("cart-updated", updateCartBadge);
-}
-
-async function updateCartBadge() {
-  const token = localStorage.getItem("userToken");
-  const userId = localStorage.getItem("userId");
-  if (!token || !userId || typeof fetchCart !== "function") return;
-
-  const result = await fetchCart(userId, token);
-  if (!result?.success) {
-    const err = (result.error || "").toString();
-    if (/token/i.test(err) || /abgelau/.test(err)) {
-      clearSessionStorage();
-      return;
-    }
-    return;
-  }
-  if (!result?.cart) return;
-
-  const count = Number(result.cart.totalItems || 0);
-  const links = Array.from(document.querySelectorAll('a[href="/Frontend/warenkorb.html"]'));
-  links.forEach((link) => {
-    link.textContent = count > 0 ? `Warenkorb (${count})` : "Warenkorb";
-  });
 }
 
 async function validateSession(token, userId) {
