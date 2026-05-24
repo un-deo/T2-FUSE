@@ -2771,6 +2771,188 @@ async function getSellerOrders(req: Request): Promise<Response> {
   }
 }
 
+async function getAllOrdersForAdmin(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId } = body;
+
+    if (!userId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "UserID ist erforderlich",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const admin = await prisma.user.findUnique({
+      where: { userId: String(userId) },
+      select: { statusId: true },
+    });
+
+    if (!admin || admin.statusId !== 3) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Zugriff verweigert: Admin-Berechtigung erforderlich",
+      }), {
+        status: 403,
+        headers: corsHeaders(),
+      });
+    }
+
+    const orders = await prisma.bestellung.findMany({
+      orderBy: { datum: "desc" },
+      include: {
+        user: {
+          select: {
+            userId: true,
+            name: true,
+            email: true,
+          },
+        },
+        produkte: {
+          include: {
+            produkt: {
+              select: {
+                produktId: true,
+                name: true,
+                user: {
+                  select: {
+                    userId: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const normalizedOrders = orders.map((order: any) => {
+      const sellerNames = new Set<string>();
+
+      const produkte = order.produkte.map((item: any) => {
+        const sellerName = item.produkt.user?.name || "Unbekannt";
+        sellerNames.add(sellerName);
+
+        return {
+          produktId: item.produktId,
+          name: item.produkt.name,
+          menge: item.menge,
+          sellerName,
+        };
+      });
+
+      return {
+        bestellId: order.bestellId,
+        datum: order.datum.toISOString(),
+        gesamtbetrag: order.gesamtbetrag,
+        lieferadresse: order.lieferadresse,
+        Selbstabholung: order.Selbstabholung,
+        kaeufer: {
+          userId: order.user.userId,
+          name: order.user.name,
+          email: order.user.email,
+        },
+        sellerNames: Array.from(sellerNames),
+        produkte,
+      };
+    });
+
+    return new Response(JSON.stringify({
+      success: true,
+      orders: normalizedOrders,
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("getAllOrdersForAdmin error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Abrufen der Bestellungen",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
+async function deleteOrderForAdmin(req: Request): Promise<Response> {
+  try {
+    const body = await req.json();
+    const { userId, bestellId } = body;
+
+    if (!userId || !bestellId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "UserID und BestellID sind erforderlich",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    const admin = await prisma.user.findUnique({
+      where: { userId: String(userId) },
+      select: { statusId: true },
+    });
+
+    if (!admin || admin.statusId !== 3) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Zugriff verweigert: Admin-Berechtigung erforderlich",
+      }), {
+        status: 403,
+        headers: corsHeaders(),
+      });
+    }
+
+    const order = await prisma.bestellung.findUnique({
+      where: { bestellId: String(bestellId) },
+      select: { bestellId: true },
+    });
+
+    if (!order) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Bestellung nicht gefunden",
+      }), {
+        status: 404,
+        headers: corsHeaders(),
+      });
+    }
+
+    await prisma.$transaction([
+      prisma.bestellungProdukte.deleteMany({
+        where: { bestellId: String(bestellId) },
+      }),
+      prisma.bestellung.delete({
+        where: { bestellId: String(bestellId) },
+      }),
+    ]);
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: "Bestellung erfolgreich gelöscht",
+    }), {
+      status: 200,
+      headers: corsHeaders(),
+    });
+  } catch (err) {
+    console.error("deleteOrderForAdmin error:", err);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Fehler beim Löschen der Bestellung",
+    }), {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+}
+
 async function router(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
@@ -2935,12 +3117,20 @@ async function router(req: Request): Promise<Response> {
     return await getAllProductsForAdminDashboard(req);
   }
 
+  if (url.pathname === "/api/admin/orders" && req.method === "POST") {
+    return await getAllOrdersForAdmin(req);
+  }
+
   if (url.pathname === "/api/admin/edit-product" && req.method === "POST") {
     return await editProductAsAdmin(req);
   }
 
   if (url.pathname === "/api/admin/delete-product" && req.method === "POST") {
     return await deleteProductAsAdmin(req);
+  }
+
+  if (url.pathname === "/api/admin/delete-order" && req.method === "POST") {
+    return await deleteOrderForAdmin(req);
   }
 
   if (url.pathname === "/api/request-seller-role" && req.method === "POST") {

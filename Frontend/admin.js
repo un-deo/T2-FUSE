@@ -7,6 +7,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const allProductsToggle = document.getElementById("allProductsToggle");
   const productsContainer = document.getElementById("productsContainer");
 
+  const orderTableBody = document.getElementById("order-table-body");
+  const allOrdersToggle = document.getElementById("allOrdersToggle");
+  const ordersContainer = document.getElementById("ordersContainer");
+
   const sellerRequestTableBody = document.getElementById("seller-request-table-body");
   const sellerRequestsToggle = document.getElementById("sellerRequestsToggle");
   const sellerRequestsContainer = document.getElementById("sellerRequestsContainer");
@@ -41,8 +45,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   let currentDeleteProductId = null;
   let isUsersOpen = false;
   let isProductsOpen = false;
+  let isOrdersOpen = false;
   let isSellerRequestsOpen = false;
   let sellerRequestsCache = [];
+  let adminOrdersCache = [];
 
   if (!userTableBody) {
     return;
@@ -99,6 +105,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     const cityParts = [user.postleitzahl, user.land].filter(Boolean).join(" ");
     if (!parts && !cityParts) return "—";
     return [parts, cityParts].filter(Boolean).join(", ");
+  };
+
+  const formatOrderDate = (value) => {
+    if (!value) return "—";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "—";
+    return date.toLocaleString("de-AT", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const formatOrderSellerNames = (order) => {
+    const sellerNames = Array.isArray(order?.sellerNames) ? order.sellerNames.filter(Boolean) : [];
+
+    if (sellerNames.length > 0) {
+      return [...new Set(sellerNames)].join(", ");
+    }
+
+    const fallbackNames = (order?.produkte || [])
+      .map((item) => item.sellerName)
+      .filter(Boolean);
+
+    return fallbackNames.length > 0 ? [...new Set(fallbackNames)].join(", ") : "Unbekannt";
+  };
+
+  const formatOrderProductSummary = (products) => {
+    if (!Array.isArray(products) || products.length === 0) {
+      return "—";
+    }
+
+    return products
+      .map((product) => `${product.name} x${product.menge}`)
+      .join(", ");
   };
 
   const userId = localStorage.getItem("userId");
@@ -599,6 +642,107 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   };
 
+  const renderOrderTable = (orders) => {
+    if (!orderTableBody) return;
+
+    if (!orders || orders.length === 0) {
+      orderTableBody.innerHTML =
+        '<tr><td colspan="7" class="px-5 py-4 text-center text-stone-600">Keine Bestellungen gefunden</td></tr>';
+      return;
+    }
+
+    orderTableBody.innerHTML = orders
+      .map(
+        (order) =>
+          `<tr class="border-b border-stone-100">
+            <td class="px-5 py-4 text-sm text-stone-600">${String(order.bestellId || "").substring(0, 8).toUpperCase()}</td>
+            <td class="px-5 py-4 text-sm text-stone-600">${formatOrderDate(order.datum)}</td>
+            <td class="px-5 py-4">
+              <div class="font-medium text-stone-900">${order.kaeufer?.name || "Unbekannt"}</div>
+              <div class="text-xs text-stone-500">${order.kaeufer?.email || "—"}</div>
+            </td>
+            <td class="px-5 py-4 text-sm text-stone-600">${formatOrderSellerNames(order)}</td>
+            <td class="px-5 py-4 text-sm text-stone-600">${formatOrderProductSummary(order.produkte)}</td>
+            <td class="px-5 py-4 font-medium">${formatPrice(order.gesamtbetrag || 0)}</td>
+            <td class="px-5 py-4">
+              <button type="button" class="px-3 py-2 text-xs rounded-full bg-red-100 text-red-700 font-medium delete-order-btn" data-order-id="${order.bestellId}">Löschen</button>
+            </td>
+          </tr>`,
+      )
+      .join("");
+
+    document.querySelectorAll(".delete-order-btn").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const targetOrderId = e.currentTarget.dataset.orderId;
+        const order = orders.find((entry) => entry.bestellId === targetOrderId);
+        if (order) {
+          await deleteOrderByAdmin(order);
+        }
+      });
+    });
+  };
+
+  const deleteOrderByAdmin = async (order) => {
+    if (!order?.bestellId) return;
+
+    const buyerName = order.kaeufer?.name || "diese Bestellung";
+    const sellerNames = formatOrderSellerNames(order);
+    const confirmMessage = sellerNames !== "Unbekannt"
+      ? `Möchtest du die Bestellung von ${buyerName} (${sellerNames}) wirklich löschen?`
+      : `Möchtest du die Bestellung von ${buyerName} wirklich löschen?`;
+
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3000/api/admin/delete-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          bestellId: order.bestellId,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Bestellung konnte nicht gelöscht werden");
+      }
+
+      await loadDataKeepState();
+    } catch (error) {
+      console.error("Bestellung-Lösch-Fehler:", error);
+    }
+  };
+
+  const loadAdminOrders = async () => {
+    if (!orderTableBody) return;
+
+    try {
+      const response = await fetch("http://localhost:3000/api/admin/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Bestellungen konnten nicht geladen werden");
+      }
+
+      adminOrdersCache = data.orders || [];
+      renderOrderTable(adminOrdersCache);
+    } catch (error) {
+      orderTableBody.innerHTML =
+        '<tr><td colspan="7" class="px-5 py-4 text-center text-red-600">Fehler beim Laden der Bestellungen</td></tr>';
+    }
+  };
+
   const renderSellerRequestTable = (requests) => {
     if (!sellerRequestTableBody) return;
 
@@ -794,6 +938,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderUserTable(data.users || []);
       renderProductTable(data.products || []);
       await loadSellerRequests();
+      await loadAdminOrders();
     } catch (error) {
       console.error("Admin-Daten Fehler:", error);
       if (userTableBody) {
@@ -828,6 +973,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderUserTable(data.users || []);
       renderProductTable(data.products || []);
       await loadSellerRequests();
+      await loadAdminOrders();
       
       if (isUsersOpen) {
         usersContainer.style.maxHeight = usersContainer.scrollHeight + "px";
@@ -835,6 +981,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       
       if (isProductsOpen) {
         productsContainer.style.maxHeight = productsContainer.scrollHeight + "px";
+      }
+
+      if (isOrdersOpen && ordersContainer) {
+        ordersContainer.style.maxHeight = ordersContainer.scrollHeight + "px";
       }
 
       if (isSellerRequestsOpen && sellerRequestsContainer) {
@@ -907,6 +1057,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  if (allOrdersToggle && ordersContainer) {
+    allOrdersToggle.addEventListener("click", () => {
+      isOrdersOpen = !isOrdersOpen;
+
+      if (isOrdersOpen) {
+        const toggleIcon = allOrdersToggle.querySelector(".toggle-icon");
+        toggleIcon.classList.add("open");
+        ordersContainer.style.maxHeight = ordersContainer.scrollHeight + "px";
+      } else {
+        const toggleIcon = allOrdersToggle.querySelector(".toggle-icon");
+        toggleIcon.classList.remove("open");
+        ordersContainer.style.maxHeight = "0";
+      }
+    });
+  }
+
   if (sellerRequestsToggle && sellerRequestsContainer) {
     sellerRequestsToggle.addEventListener("click", () => {
       isSellerRequestsOpen = !isSellerRequestsOpen;
@@ -933,5 +1099,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   await loadCategories();
-  loadData();
+  await loadData();
 });
