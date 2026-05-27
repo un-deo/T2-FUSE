@@ -6,6 +6,20 @@ const checkoutBtn = document.getElementById("checkout-btn");
 const clearCartBtn = document.getElementById("clear-cart-btn");
 const messageEl = document.getElementById("cart-message");
 
+const receiptModal = document.getElementById("receipt-modal");
+const receiptCustomer = document.getElementById("receipt-customer");
+const receiptItems = document.getElementById("receipt-items");
+const receiptTotal = document.getElementById("receipt-total");
+const receiptDate = document.getElementById("receipt-date");
+const receiptDelivery = document.getElementById("receipt-delivery");
+const receiptError = document.getElementById("receipt-error");
+const receiptActions = document.getElementById("receipt-actions");
+const receiptSuccess = document.getElementById("receipt-success");
+const receiptConfirmBtn = document.getElementById("receipt-confirm-btn");
+const receiptCancelBtn = document.getElementById("receipt-cancel-btn");
+const receiptCloseBtn = document.getElementById("receipt-close-btn");
+const receiptBackdrop = document.getElementById("receipt-backdrop");
+
 let currentCart = null;
 
 function getSession() {
@@ -189,22 +203,107 @@ checkoutBtn.addEventListener("click", async () => {
     renderLoggedOut();
     return;
   }
+  if (!currentCart || !currentCart.items || currentCart.items.length === 0) {
+    setMessage("Ihr Warenkorb ist leer", true);
+    return;
+  }
 
   const deliveryOption = document.querySelector('input[name="delivery"]:checked');
   const selbstabholung = deliveryOption ? deliveryOption.value === "abholung" : false;
   const lieferadresse = document.getElementById("delivery-address").value.trim();
 
-  checkoutBtn.disabled = true;
-  const result = await checkoutCart(userId, token, lieferadresse, selbstabholung);
-  checkoutBtn.disabled = false;
-
-  if (!result.success) {
-    setMessage(result.error || "Checkout fehlgeschlagen", true);
+  const userData = await fetchUserProfile(userId);
+  if (!userData) {
+    setMessage("Benutzerdaten konnten nicht geladen werden", true);
     return;
   }
 
-  await loadCart();
-  setMessage(`Danke für Ihren Einkauf! Bestellnummer: ${result.orderId}`);
+  showReceiptModal(userData, currentCart, selbstabholung, lieferadresse);
 });
+
+function showReceiptModal(userData, cart, selbstabholung, lieferadresse) {
+  receiptSuccess.classList.add("hidden");
+  receiptError.classList.add("hidden");
+  receiptActions.classList.remove("hidden");
+
+  receiptDate.textContent = new Date().toLocaleDateString("de-DE", {
+    year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit",
+  });
+
+  const addrTeile = [userData.strasse, userData.hausnummer].filter(Boolean).join(" ");
+  const plzLand = [userData.postleitzahl, userData.land].filter(Boolean).join(" ");
+  receiptCustomer.innerHTML = `
+    <div><span class="text-stone-500">Name:</span> <span class="font-medium">${userData.name || "-"}</span></div>
+    <div><span class="text-stone-500">E-Mail:</span> ${userData.email || "-"}</div>
+    <div><span class="text-stone-500">Adresse:</span> ${addrTeile || "-"}</div>
+    <div><span class="text-stone-500">PLZ/Land:</span> ${plzLand || "-"}</div>
+    <div><span class="text-stone-500">Telefon:</span> ${userData.telefonNr || "-"}</div>
+  `;
+
+  receiptDelivery.textContent = selbstabholung
+    ? "Selbstabholung"
+    : `Lieferung nach Hause — ${lieferadresse || "Keine Adresse angegeben"}`;
+
+  receiptItems.innerHTML = cart.items.map((item) => `
+    <tr class="border-b border-stone-100">
+      <td class="py-2.5 pr-4">${item.name}</td>
+      <td class="py-2.5 text-center">${item.quantity}</td>
+      <td class="py-2.5 text-right">${eur(item.price)}</td>
+      <td class="py-2.5 text-right font-medium">${eur(item.lineTotal)}</td>
+    </tr>
+  `).join("");
+
+  receiptTotal.textContent = eur(cart.totalAmount);
+
+  receiptModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeReceiptModal() {
+  receiptModal.classList.add("hidden");
+  document.body.style.overflow = "";
+  receiptConfirmBtn.disabled = false;
+  receiptConfirmBtn.textContent = "Bestellung bestätigen";
+  receiptError.classList.add("hidden");
+}
+
+receiptConfirmBtn.addEventListener("click", async () => {
+  const { token, userId } = getSession();
+  if (!token || !userId) return;
+
+  const deliveryOption = document.querySelector('input[name="delivery"]:checked');
+  const selbstabholung = deliveryOption ? deliveryOption.value === "abholung" : false;
+  const lieferadresse = document.getElementById("delivery-address").value.trim();
+
+  receiptConfirmBtn.disabled = true;
+  receiptConfirmBtn.textContent = "Wird verarbeitet...";
+  receiptError.classList.add("hidden");
+
+  const result = await checkoutCart(userId, token, lieferadresse, selbstabholung);
+
+  if (!result.success) {
+    receiptConfirmBtn.disabled = false;
+    receiptConfirmBtn.textContent = "Bestellung bestätigen";
+    receiptError.textContent = result.error || "Bestellung fehlgeschlagen";
+    receiptError.classList.remove("hidden");
+    return;
+  }
+
+  receiptActions.classList.add("hidden");
+  document.getElementById("receipt-success-msg").textContent =
+    `Vielen Dank! Ihre Bestellnummer lautet: ${result.orderId}`;
+  receiptSuccess.classList.remove("hidden");
+
+  await loadCart();
+});
+
+receiptCancelBtn.addEventListener("click", closeReceiptModal);
+
+receiptCloseBtn.addEventListener("click", () => {
+  closeReceiptModal();
+  setMessage("Bestellung erfolgreich aufgegeben!");
+});
+
+receiptBackdrop.addEventListener("click", closeReceiptModal);
 
 loadCart();

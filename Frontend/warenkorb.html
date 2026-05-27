@@ -148,5 +148,94 @@
       </div>
     </div>
   </main>
+
+  <!-- Receipt Modal -->
+  <div id="receipt-modal" class="fixed inset-0 z-[100] hidden">
+    <div id="receipt-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <div class="fixed inset-0 overflow-y-auto">
+      <div class="min-h-full flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+
+          <!-- Main Content -->
+          <div id="receipt-main" class="p-6 md:p-8">
+
+            <!-- Header -->
+            <div class="text-center border-b border-stone-200 pb-4 mb-6">
+              <h2 class="font-serif text-2xl font-bold text-stone-900">FUSE-SHOP</h2>
+              <p id="receipt-date" class="text-stone-500 text-sm mt-1"></p>
+            </div>
+
+            <!-- Customer Data -->
+            <div class="mb-6">
+              <h3 class="font-semibold text-stone-900 mb-3 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Kundendaten
+              </h3>
+              <div id="receipt-customer" class="bg-stone-50 rounded-xl p-4 text-sm grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2"></div>
+            </div>
+
+            <!-- Delivery -->
+            <div class="mb-6">
+              <h3 class="font-semibold text-stone-900 mb-3 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17h14M5 17a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2M5 17a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2"/><path d="M9 17V7"/><path d="M15 17V7"/></svg>
+                Lieferung
+              </h3>
+              <p id="receipt-delivery" class="text-sm text-stone-700 bg-stone-50 rounded-xl p-3"></p>
+            </div>
+
+            <!-- Items -->
+            <div class="mb-6">
+              <h3 class="font-semibold text-stone-900 mb-3 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2h2l2.6 12.37a2 2 0 0 0 2 1.63h9.7a2 2 0 0 0 2-1.7L22 6H6"/></svg>
+                Bestellte Produkte
+              </h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-stone-200 text-stone-500">
+                      <th class="text-left pb-2 font-medium">Produkt</th>
+                      <th class="text-center pb-2 font-medium">Menge</th>
+                      <th class="text-right pb-2 font-medium">Einzelpreis</th>
+                      <th class="text-right pb-2 font-medium">Gesamt</th>
+                    </tr>
+                  </thead>
+                  <tbody id="receipt-items"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Total -->
+            <div class="border-t border-stone-200 pt-4 mb-6">
+              <div class="flex justify-between items-baseline">
+                <span class="text-lg font-bold text-stone-900">Gesamtsumme</span>
+                <span id="receipt-total" class="font-mono text-2xl font-bold text-amber-600"></span>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div id="receipt-actions">
+              <div id="receipt-error" class="hidden mb-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-center"></div>
+              <div class="flex gap-3">
+                <button id="receipt-cancel-btn" class="flex-1 h-11 border border-stone-300 hover:bg-stone-50 rounded-full font-medium text-stone-700 transition-colors">Abbrechen</button>
+                <button id="receipt-confirm-btn" class="flex-1 h-11 bg-amber-600 hover:bg-amber-700 text-white rounded-full font-medium shadow-md transition-colors">Bestellung bestätigen</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Success State -->
+          <div id="receipt-success" class="hidden p-6 md:p-8 text-center border-t border-stone-200">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3 class="font-serif text-xl font-bold text-green-700 mb-2">Bestellung erfolgreich!</h3>
+            <p id="receipt-success-msg" class="text-stone-600 text-sm"></p>
+            <button id="receipt-close-btn" class="mt-6 h-11 px-8 bg-amber-600 hover:bg-amber-700 text-white rounded-full font-medium shadow-md transition-colors">Schließen</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
