@@ -38,6 +38,31 @@ let currentCart = null;
 let itemSelection = {};
 let receiptData = null;
 let customDeliveryAddress = "";
+const CUSTOM_DELIVERY_STORAGE_KEY = "customDeliveryAddress";
+const CUSTOM_DELIVERY_FIELDS_KEY = "customDeliveryAddressFields";
+
+function loadCustomDeliveryFromStorage() {
+  customDeliveryAddress = localStorage.getItem(CUSTOM_DELIVERY_STORAGE_KEY) || "";
+}
+
+function saveCustomDeliveryToStorage(address, fields) {
+  localStorage.setItem(CUSTOM_DELIVERY_STORAGE_KEY, address);
+  localStorage.setItem(CUSTOM_DELIVERY_FIELDS_KEY, JSON.stringify(fields));
+}
+
+function getStoredCustomFields() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(CUSTOM_DELIVERY_FIELDS_KEY) || "{}");
+    return {
+      name: parsed.name || "",
+      street: parsed.street || "",
+      plz: parsed.plz || "",
+      country: parsed.country || "",
+    };
+  } catch {
+    return { name: "", street: "", plz: "", country: "" };
+  }
+}
 
 function getSession() {
   return {
@@ -140,6 +165,7 @@ async function loadAddressOptions() {
   if (!userId) return;
   const user = await fetchUserProfile(userId);
   const parts = [user?.strasse, user?.hausnummer, user?.postleitzahl, user?.land].filter(Boolean).map((v) => String(v).trim()).filter(Boolean);
+  const previousValue = deliveryAddressSelect.value;
   deliveryAddressSelect.innerHTML = "";
 
   const hasWohnadresse = parts.length > 0;
@@ -147,7 +173,7 @@ async function loadAddressOptions() {
     const wohnadresse = parts.join(" ");
     const homeOption = document.createElement("option");
     homeOption.value = wohnadresse;
-    homeOption.textContent = `Wohnadresse: ${wohnadresse}`;
+    homeOption.textContent = wohnadresse;
     deliveryAddressSelect.appendChild(homeOption);
     profileAddressLink.classList.add("hidden");
   } else {
@@ -157,23 +183,34 @@ async function loadAddressOptions() {
   if (customDeliveryAddress) {
     const customOption = document.createElement("option");
     customOption.value = customDeliveryAddress;
-    customOption.textContent = `Neue Lieferadresse: ${customDeliveryAddress}`;
+    customOption.textContent = customDeliveryAddress;
     deliveryAddressSelect.appendChild(customOption);
   }
 
   const newOption = document.createElement("option");
-  newOption.value = "__new_delivery_address__";
-  newOption.textContent = "Neue Lieferadresse eingeben";
+  newOption.value = customDeliveryAddress ? "__edit_custom_delivery_address__" : "__new_delivery_address__";
+  newOption.textContent = customDeliveryAddress
+    ? "Neue Lieferadresse bearbeiten"
+    : "Neue Lieferadresse eingeben";
   deliveryAddressSelect.appendChild(newOption);
 
-  if (!hasWohnadresse && customDeliveryAddress) {
+  if (previousValue && Array.from(deliveryAddressSelect.options).some((opt) => opt.value === previousValue)) {
+    deliveryAddressSelect.value = previousValue;
+  } else if (customDeliveryAddress) {
     deliveryAddressSelect.value = customDeliveryAddress;
+  } else if (hasWohnadresse) {
+    deliveryAddressSelect.value = parts.join(" ");
   }
 }
 
 function openCustomDeliveryModal() {
   customDeliveryError.classList.add("hidden");
   customDeliveryError.textContent = "";
+  const storedFields = getStoredCustomFields();
+  customDeliveryNameInput.value = storedFields.name;
+  customDeliveryStreetInput.value = storedFields.street;
+  customDeliveryPlzInput.value = storedFields.plz;
+  customDeliveryCountryInput.value = storedFields.country;
   customDeliveryModal.classList.remove("hidden");
   document.body.style.overflow = "hidden";
   customDeliveryNameInput.focus();
@@ -185,19 +222,19 @@ function closeCustomDeliveryModal() {
 }
 
 deliveryAddressSelect.addEventListener("change", () => {
-  if (deliveryAddressSelect.value === "__new_delivery_address__") {
+  if (deliveryAddressSelect.value === "__new_delivery_address__" || deliveryAddressSelect.value === "__edit_custom_delivery_address__") {
     openCustomDeliveryModal();
   }
 });
 
 customDeliveryCancelBtn.addEventListener("click", () => {
-  const fallbackOption = Array.from(deliveryAddressSelect.options).find((opt) => opt.value !== "__new_delivery_address__");
+  const fallbackOption = Array.from(deliveryAddressSelect.options).find((opt) => opt.value !== "__new_delivery_address__" && opt.value !== "__edit_custom_delivery_address__");
   deliveryAddressSelect.value = fallbackOption ? fallbackOption.value : "";
   closeCustomDeliveryModal();
 });
 
 customDeliveryBackdrop.addEventListener("click", () => {
-  const fallbackOption = Array.from(deliveryAddressSelect.options).find((opt) => opt.value !== "__new_delivery_address__");
+  const fallbackOption = Array.from(deliveryAddressSelect.options).find((opt) => opt.value !== "__new_delivery_address__" && opt.value !== "__edit_custom_delivery_address__");
   deliveryAddressSelect.value = fallbackOption ? fallbackOption.value : "";
   closeCustomDeliveryModal();
 });
@@ -215,6 +252,7 @@ customDeliverySaveBtn.addEventListener("click", async () => {
   }
 
   customDeliveryAddress = `${name}, ${street}, ${plz}, ${country}`;
+  saveCustomDeliveryToStorage(customDeliveryAddress, { name, street, plz, country });
   await loadAddressOptions();
   deliveryAddressSelect.value = customDeliveryAddress;
   closeCustomDeliveryModal();
@@ -281,7 +319,12 @@ async function doCheckout(selbstabholung) {
   const selected = selbstabholung ? groups.pickup : groups.delivery;
   if (selected.length === 0) return;
 
-  const lieferadresse = selbstabholung ? "" : (deliveryAddressSelect.value || "").trim();
+  let lieferadresse = "";
+  if (!selbstabholung) {
+    const selectedValue = (deliveryAddressSelect.value || "").trim();
+    lieferadresse = selectedValue;
+  }
+
   if (!selbstabholung && (!lieferadresse || lieferadresse === "__new_delivery_address__")) {
     return setMessage("Bitte waehlen Sie eine Lieferadresse aus oder geben Sie eine neue ein.", true);
   }
@@ -378,4 +421,5 @@ receiptCloseBtn.addEventListener("click", () => {
 receiptDownloadBtn.addEventListener("click", downloadReceipt);
 receiptBackdrop.addEventListener("click", closeReceiptModal);
 
+loadCustomDeliveryFromStorage();
 loadCart();
