@@ -19,8 +19,10 @@ const receiptConfirmBtn = document.getElementById("receipt-confirm-btn");
 const receiptCancelBtn = document.getElementById("receipt-cancel-btn");
 const receiptCloseBtn = document.getElementById("receipt-close-btn");
 const receiptBackdrop = document.getElementById("receipt-backdrop");
+const receiptDownloadBtn = document.getElementById("receipt-download-btn");
 
 let currentCart = null;
+let receiptData = null;
 
 function getSession() {
   return {
@@ -222,6 +224,7 @@ checkoutBtn.addEventListener("click", async () => {
 });
 
 function showReceiptModal(userData, cart, selbstabholung, lieferadresse) {
+  receiptData = { userData, cart, selbstabholung, lieferadresse, date: new Date(), orderId: null };
   receiptSuccess.classList.add("hidden");
   receiptError.classList.add("hidden");
   receiptActions.classList.remove("hidden");
@@ -259,6 +262,111 @@ function showReceiptModal(userData, cart, selbstabholung, lieferadresse) {
   document.body.style.overflow = "hidden";
 }
 
+function downloadReceipt() {
+  if (!receiptData) return;
+  const { userData, cart, selbstabholung, lieferadresse, date, orderId } = receiptData;
+
+  const addrTeile = [userData.strasse, userData.hausnummer].filter(Boolean).join(" ");
+  const plzLand = [userData.postleitzahl, userData.land].filter(Boolean).join(" ");
+
+  const deliveryText = selbstabholung
+    ? "Selbstabholung"
+    : `Lieferung nach Hause — ${lieferadresse || "Keine Adresse angegeben"}`;
+
+  const itemsHtml = cart.items.map((item) => `
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e5e5">${item.name}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e5e5;text-align:center">${item.quantity}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e5e5;text-align:right">${eur(item.price)}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e5e5;text-align:right;font-weight:600">${eur(item.lineTotal)}</td>
+    </tr>
+  `).join("");
+
+  const dateStr = date.toLocaleDateString("de-DE", {
+    year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit",
+  });
+
+  const html = `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>FUSE-SHOP Beleg</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; color: #1c1917; }
+    .receipt { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 32px; }
+    h1 { font-family: Georgia, serif; text-align: center; font-size: 24px; margin: 0 0 4px; }
+    .date { text-align: center; color: #78716c; font-size: 13px; margin-bottom: 24px; }
+    h2 { font-size: 14px; margin: 0 0 8px; color: #44403c; }
+    .section { margin-bottom: 20px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; font-size: 13px; }
+    .info-grid .label { color: #78716c; }
+    .info-grid .value { font-weight: 500; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 8px 12px; border-bottom: 2px solid #d6d3d1; color: #78716c; font-weight: 500; }
+    th:nth-child(2) { text-align: center; }
+    th:nth-child(3), th:nth-child(4) { text-align: right; }
+    .total-row { text-align: right; padding: 12px 0 0; border-top: 2px solid #1c1917; margin-top: 8px; }
+    .total-row span { font-size: 18px; font-weight: 700; color: #d97706; }
+    .order-id { text-align: center; font-size: 14px; color: #16a34a; font-weight: 600; margin-top: 16px; }
+    .delivery { font-size: 13px; color: #44403c; background: #f5f5f4; padding: 8px 12px; border-radius: 8px; }
+    @media print { body { padding: 0; } }
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <h1>FUSE-SHOP</h1>
+    <p class="date">${dateStr}${orderId ? ` — Bestell-Nr: ${orderId}` : ""}</p>
+
+    <div class="section">
+      <h2>Kundendaten</h2>
+      <div class="info-grid">
+        <div><span class="label">Name:</span> <span class="value">${userData.name || "-"}</span></div>
+        <div><span class="label">E-Mail:</span> <span class="value">${userData.email || "-"}</span></div>
+        <div><span class="label">Adresse:</span> <span class="value">${addrTeile || "-"}</span></div>
+        <div><span class="label">PLZ/Land:</span> <span class="value">${plzLand || "-"}</span></div>
+        <div><span class="label">Telefon:</span> <span class="value">${userData.telefonNr || "-"}</span></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Lieferung</h2>
+      <div class="delivery">${deliveryText}</div>
+    </div>
+
+    <div class="section">
+      <h2>Bestellte Produkte</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Produkt</th>
+            <th>Menge</th>
+            <th>Einzelpreis</th>
+            <th>Gesamt</th>
+          </tr>
+        </thead>
+        <tbody>${itemsHtml}</tbody>
+      </table>
+      <div class="total-row">
+        Gesamtsumme: <span>${eur(cart.totalAmount)}</span>
+      </div>
+    </div>
+
+    ${orderId ? `<p class="order-id">Bestellung erfolgreich — ${orderId}</p>` : ""}
+  </div>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `FUSE-SHOP_Beleg_${orderId || "entwurf"}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function closeReceiptModal() {
   receiptModal.classList.add("hidden");
   document.body.style.overflow = "";
@@ -290,6 +398,7 @@ receiptConfirmBtn.addEventListener("click", async () => {
   }
 
   receiptActions.classList.add("hidden");
+  receiptData.orderId = result.orderId;
   document.getElementById("receipt-success-msg").textContent =
     `Vielen Dank! Ihre Bestellnummer lautet: ${result.orderId}`;
   receiptSuccess.classList.remove("hidden");
@@ -303,6 +412,8 @@ receiptCloseBtn.addEventListener("click", () => {
   closeReceiptModal();
   setMessage("Bestellung erfolgreich aufgegeben!");
 });
+
+receiptDownloadBtn.addEventListener("click", downloadReceipt);
 
 receiptBackdrop.addEventListener("click", closeReceiptModal);
 
