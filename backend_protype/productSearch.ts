@@ -135,6 +135,10 @@ async function buildCartResponse(userId: string) {
               preis: true,
               status: true,
               bildUrl: true,
+              // Hinzugefügt von Georgi Dimitrov
+              versand: true,
+              // Hinzugefügt von Georgi Dimitrov
+              selbstabholung: true,
             },
           },
         },
@@ -161,6 +165,10 @@ async function buildCartResponse(userId: string) {
       quantity: menge,
       status: item.produkt.status,
       imageUrl: item.produkt.bildUrl,
+      // Hinzugefügt von Georgi Dimitrov
+      versand: item.produkt.versand,
+      // Hinzugefügt von Georgi Dimitrov
+      selbstabholung: item.produkt.selbstabholung,
       lineTotal: preis * menge,
     };
   });
@@ -1676,6 +1684,12 @@ async function checkout(req: Request): Promise<Response> {
 
     const lieferadresse = String((body as Record<string, unknown>).lieferadresse ?? "").trim() || null;
     const selbstabholung = (body as Record<string, unknown>).selbstabholung === true;
+    // Hinzugefügt von Georgi Dimitrov
+    const productIdsFromBody = Array.isArray((body as Record<string, unknown>).productIds)
+      ? ((body as Record<string, unknown>).productIds as unknown[])
+        .map((entry) => String(entry ?? "").trim())
+        .filter((entry) => entry.length > 0)
+      : null;
 
     const cart = await prisma.warenkorb.findFirst({
       where: { userId: auth.userId },
@@ -1687,6 +1701,10 @@ async function checkout(req: Request): Promise<Response> {
                 produktId: true,
                 preis: true,
                 status: true,
+                // Hinzugefügt von Georgi Dimitrov
+                versand: true,
+                // Hinzugefügt von Georgi Dimitrov
+                selbstabholung: true,
               },
             },
           },
@@ -1704,7 +1722,46 @@ async function checkout(req: Request): Promise<Response> {
       });
     }
 
-    const invalidItem = cart.produkte.find((item) => item.produkt.status !== "active");
+    // Geändert von Georgi Dimitrov
+    const selectedItems = productIdsFromBody && productIdsFromBody.length > 0
+      ? cart.produkte.filter((item) => productIdsFromBody.includes(item.produktId))
+      : cart.produkte;
+
+    // Hinzugefügt von Georgi Dimitrov
+    if (selectedItems.length === 0) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Keine gueltigen Produkte fuer den Checkout ausgewaehlt",
+      }), {
+        status: 400,
+        headers: corsHeaders(),
+      });
+    }
+
+    // Hinzugefügt von Georgi Dimitrov
+    const incompatibleItem = selectedItems.find((item) => {
+      if (selbstabholung) {
+        // Geändert von Georgi Dimitrov
+        return item.produkt.selbstabholung != true;
+      }
+      // Geändert von Georgi Dimitrov
+      return item.produkt.versand != true;
+    });
+
+    // Hinzugefügt von Georgi Dimitrov
+    if (incompatibleItem) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: selbstabholung
+          ? "Mindestens ein Produkt erlaubt keine Selbstabholung"
+          : "Mindestens ein Produkt erlaubt keine Lieferung",
+      }), {
+        status: 409,
+        headers: corsHeaders(),
+      });
+    }
+
+    const invalidItem = selectedItems.find((item) => item.produkt.status !== "active");
     if (invalidItem) {
       return new Response(JSON.stringify({
         success: false,
@@ -1715,7 +1772,7 @@ async function checkout(req: Request): Promise<Response> {
       });
     }
 
-    const totalAmount = cart.produkte.reduce(
+    const totalAmount = selectedItems.reduce(
       (sum, item) => sum + Number(item.produkt.preis) * item.menge,
       0,
     );
@@ -1731,7 +1788,7 @@ async function checkout(req: Request): Promise<Response> {
         },
       });
 
-      for (const item of cart.produkte) {
+      for (const item of selectedItems) {
         await tx.bestellungProdukte.create({
           data: {
             bestellId: order.bestellId,
@@ -1741,9 +1798,13 @@ async function checkout(req: Request): Promise<Response> {
         });
       }
 
+      // Geändert von Georgi Dimitrov
       await tx.warenkorbProdukte.deleteMany({
         where: {
           warenkorbId: cart.warenkorbId,
+          produktId: {
+            in: selectedItems.map((entry) => entry.produktId),
+          },
         },
       });
 

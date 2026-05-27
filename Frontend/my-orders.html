@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FUSE-SHOP - Meine Bestellungen</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="api.js" defer></script>
+  <script src="header.js" defer></script>
+  <script src="my-orders.js" defer></script>
+</head>
+<body class="bg-white text-stone-900">
+  <header class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-stone-200">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex items-center justify-between h-16 md:h-20">
+        <a href="/Frontend/signin-header.html" class="flex items-center gap-2">
+          <img src="/Frontend/pics/fuseshop-logo.svg" alt="FUSE-SHOP Logo" class="h-14 md:h-16 w-auto" />
+        </a>
+        <div class="relative">
+          <button id="menuButton" class="text-2xl p-2 rounded hover:bg-stone-100 transition">☰</button>
+          <ul id="menu" class="hidden absolute right-0 mt-2 w-52 bg-white border border-stone-200 rounded-lg shadow-lg overflow-hidden">
+            <li class="px-4 py-3 border-b border-stone-100">
+              <p id="menu-user-name" class="text-sm font-semibold text-stone-900">Nutzer</p>
+              <p id="menu-user-role" class="text-xs text-stone-500 capitalize">kunde</p>
+            </li>
+            <li><a href="/Frontend/warenkorb.html" class="flex items-center gap-2 px-4 py-2 hover:bg-stone-100 transition">Warenkorb</a></li>
+            <li><a href="/Frontend/my-orders.html" class="flex items-center gap-2 px-4 py-2 hover:bg-stone-100 transition">Meine Bestellungen</a></li>
+            <li><a href="/Frontend/profil.html" class="flex items-center gap-2 px-4 py-2 hover:bg-stone-100 transition">Mein Profil</a></li>
+            <li class="border-t border-stone-100"><button id="logoutLink" onclick="clearSessionStorage()" class="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600 transition">Abmelden</button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="min-h-screen bg-[#F9F9F7] py-10">
+    <div class="max-w-5xl mx-auto px-6">
+      <h1 class="font-serif text-3xl font-bold text-stone-900 mb-6">Meine Bestellungen</h1>
+      <div id="ordersContainer" class="space-y-4"></div>
+    </div>
+  </main>
+</body>
+</html>

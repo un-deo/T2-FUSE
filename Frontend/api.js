@@ -463,7 +463,7 @@ async function removeCartItemApi(userId, token, productId) {
   }
 }
 
-async function checkoutCart(userId, token, lieferadresse, selbstabholung) {
+async function checkoutCart(userId, token, lieferadresse, selbstabholung, productIds = []) {
   const url = "http://localhost:3000/api/checkout";
   try {
     const response = await fetch(url, {
@@ -471,7 +471,7 @@ async function checkoutCart(userId, token, lieferadresse, selbstabholung) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userId, token, lieferadresse, selbstabholung }),
+      body: JSON.stringify({ userId, token, lieferadresse, selbstabholung, productIds }),
     });
     const data = await response.json();
     return data;
