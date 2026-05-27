@@ -35,7 +35,7 @@ async function ensureUser(u: {
   };
 
   return prisma.user.upsert({
-    where: { name: u.name },
+    where: { email: u.email },
     update: hashedUser,
     create: hashedUser,
   });

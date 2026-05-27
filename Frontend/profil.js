@@ -27,12 +27,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   cachedProfile = user;
 
+  if (user?.statusId !== undefined && user?.statusId !== null) {
+    const normalizedStatus = String(user.statusId);
+    if (normalizedStatus !== localStorage.getItem("statusId")) {
+      localStorage.setItem("statusId", normalizedStatus);
+    }
+  }
+
   if (user?.name) {
     localStorage.setItem("userName", user.name);
     syncMenuUserName();
   }
 
   fillProfileForm(user);
+  setupRoleBasedMenu();
+  updateProfileStatusBadge();
   setupFormHandlers();
   await setupSellerRequestModal();
 });
@@ -378,16 +387,15 @@ async function handleProfileSubmit(event) {
 
   showProfileMessage("Profil wird gespeichert...", "info");
   try {
-    const result = await updateUserData(
-      userId,
+    const result = await updateUserData(userId, {
       name,
       email,
-      street,
-      houseNumber,
-      postalCode,
-      country,
-      phone,
-    );
+      strasse: street,
+      hausnummer: houseNumber,
+      postleitzahl: postalCode,
+      land: country,
+      telefonNr: phone,
+    });
 
     if (result?.success) {
       cachedProfile = {
@@ -563,6 +571,12 @@ window.togglePasswordVisibility = togglePasswordVisibility;
 
 function setupRoleBasedMenu() {
   const statusId = localStorage.getItem("statusId");
+  const roleEl = document.getElementById("menu-user-role");
+
+  if (roleEl) {
+    roleEl.textContent =
+      statusId === "3" ? "admin" : statusId === "2" ? "verkäufer" : "kunde";
+  }
 
   if (statusId === "2") {
     document.getElementById("seller-link")?.classList.remove("hidden");

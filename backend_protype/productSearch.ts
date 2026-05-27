@@ -425,10 +425,17 @@ async function validateTokenForUser(req: Request): Promise<Response> {
     }
 
     // Token is valid
+    const user = await prisma.user.findUnique({
+      where: { userId },
+      select: { statusId: true, name: true },
+    });
+
     return new Response(
       JSON.stringify({
         success: true,
         userId: tokenRecord.userId,
+        statusId: user?.statusId,
+        userName: user?.name,
       }),
       {
         status: 200,

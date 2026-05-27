@@ -9,7 +9,15 @@ async function validateSession(token, userId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token, userId }),
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
+    if (response.ok && data.success) {
+      if (data.statusId !== undefined && data.statusId !== null) {
+        localStorage.setItem("statusId", String(data.statusId));
+      }
+      if (data.userName) {
+        localStorage.setItem("userName", data.userName);
+      }
+    }
     return Boolean(response.ok && data.success);
   } catch (err) {
     console.error("validateSession (menu) failed:", err);

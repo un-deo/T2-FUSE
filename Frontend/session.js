@@ -15,6 +15,12 @@
       const data = await resp.json().catch(() => ({}));
 
       if (resp.ok && data && data.success) {
+        if (data.statusId !== undefined && data.statusId !== null) {
+          localStorage.setItem("statusId", String(data.statusId));
+        }
+        if (data.userName) {
+          localStorage.setItem("userName", data.userName);
+        }
         window.dispatchEvent(new CustomEvent("session-validated", { detail: { userId: data.userId } }));
         return true;
       }
