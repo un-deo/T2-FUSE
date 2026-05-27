@@ -9,6 +9,15 @@ const checkoutPickupBtn = document.getElementById("checkout-pickup-btn");
 const deliveryAddressWrapper = document.getElementById("delivery-address-wrapper");
 const deliveryAddressSelect = document.getElementById("delivery-address-select");
 const profileAddressLink = document.getElementById("profile-address-link");
+const customDeliveryModal = document.getElementById("custom-delivery-modal");
+const customDeliveryBackdrop = document.getElementById("custom-delivery-backdrop");
+const customDeliveryNameInput = document.getElementById("custom-delivery-name");
+const customDeliveryStreetInput = document.getElementById("custom-delivery-street");
+const customDeliveryPlzInput = document.getElementById("custom-delivery-plz");
+const customDeliveryCountryInput = document.getElementById("custom-delivery-country");
+const customDeliveryError = document.getElementById("custom-delivery-error");
+const customDeliveryCancelBtn = document.getElementById("custom-delivery-cancel");
+const customDeliverySaveBtn = document.getElementById("custom-delivery-save");
 
 const receiptModal = document.getElementById("receipt-modal");
 const receiptCustomer = document.getElementById("receipt-customer");
@@ -28,6 +37,7 @@ const receiptDownloadBtn = document.getElementById("receipt-download-btn");
 let currentCart = null;
 let itemSelection = {};
 let receiptData = null;
+let customDeliveryAddress = "";
 
 function getSession() {
   return {
@@ -131,21 +141,84 @@ async function loadAddressOptions() {
   const user = await fetchUserProfile(userId);
   const parts = [user?.strasse, user?.hausnummer, user?.postleitzahl, user?.land].filter(Boolean).map((v) => String(v).trim()).filter(Boolean);
   deliveryAddressSelect.innerHTML = "";
-  if (parts.length === 0) {
+
+  const hasWohnadresse = parts.length > 0;
+  if (hasWohnadresse) {
+    const wohnadresse = parts.join(" ");
+    const homeOption = document.createElement("option");
+    homeOption.value = wohnadresse;
+    homeOption.textContent = `Wohnadresse: ${wohnadresse}`;
+    deliveryAddressSelect.appendChild(homeOption);
+    profileAddressLink.classList.add("hidden");
+  } else {
     profileAddressLink.classList.remove("hidden");
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = "Keine Lieferadresse gespeichert";
-    deliveryAddressSelect.appendChild(opt);
+  }
+
+  if (customDeliveryAddress) {
+    const customOption = document.createElement("option");
+    customOption.value = customDeliveryAddress;
+    customOption.textContent = `Neue Lieferadresse: ${customDeliveryAddress}`;
+    deliveryAddressSelect.appendChild(customOption);
+  }
+
+  const newOption = document.createElement("option");
+  newOption.value = "__new_delivery_address__";
+  newOption.textContent = "Neue Lieferadresse eingeben";
+  deliveryAddressSelect.appendChild(newOption);
+
+  if (!hasWohnadresse && customDeliveryAddress) {
+    deliveryAddressSelect.value = customDeliveryAddress;
+  }
+}
+
+function openCustomDeliveryModal() {
+  customDeliveryError.classList.add("hidden");
+  customDeliveryError.textContent = "";
+  customDeliveryModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  customDeliveryNameInput.focus();
+}
+
+function closeCustomDeliveryModal() {
+  customDeliveryModal.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+deliveryAddressSelect.addEventListener("change", () => {
+  if (deliveryAddressSelect.value === "__new_delivery_address__") {
+    openCustomDeliveryModal();
+  }
+});
+
+customDeliveryCancelBtn.addEventListener("click", () => {
+  const fallbackOption = Array.from(deliveryAddressSelect.options).find((opt) => opt.value !== "__new_delivery_address__");
+  deliveryAddressSelect.value = fallbackOption ? fallbackOption.value : "";
+  closeCustomDeliveryModal();
+});
+
+customDeliveryBackdrop.addEventListener("click", () => {
+  const fallbackOption = Array.from(deliveryAddressSelect.options).find((opt) => opt.value !== "__new_delivery_address__");
+  deliveryAddressSelect.value = fallbackOption ? fallbackOption.value : "";
+  closeCustomDeliveryModal();
+});
+
+customDeliverySaveBtn.addEventListener("click", async () => {
+  const name = (customDeliveryNameInput.value || "").trim();
+  const street = (customDeliveryStreetInput.value || "").trim();
+  const plz = (customDeliveryPlzInput.value || "").trim();
+  const country = (customDeliveryCountryInput.value || "").trim();
+
+  if (!name || !street || !plz || !country) {
+    customDeliveryError.textContent = "Bitte alle Felder ausfuellen.";
+    customDeliveryError.classList.remove("hidden");
     return;
   }
-  profileAddressLink.classList.add("hidden");
-  const joined = parts.join(" ");
-  const opt = document.createElement("option");
-  opt.value = joined;
-  opt.textContent = joined;
-  deliveryAddressSelect.appendChild(opt);
-}
+
+  customDeliveryAddress = `${name}, ${street}, ${plz}, ${country}`;
+  await loadAddressOptions();
+  deliveryAddressSelect.value = customDeliveryAddress;
+  closeCustomDeliveryModal();
+});
 
 async function loadCart() {
   const { token, userId } = getSession();
@@ -209,7 +282,9 @@ async function doCheckout(selbstabholung) {
   if (selected.length === 0) return;
 
   const lieferadresse = selbstabholung ? "" : (deliveryAddressSelect.value || "").trim();
-  if (!selbstabholung && !lieferadresse) return setMessage("Bitte zuerst eine Lieferadresse im Profil speichern.", true);
+  if (!selbstabholung && (!lieferadresse || lieferadresse === "__new_delivery_address__")) {
+    return setMessage("Bitte waehlen Sie eine Lieferadresse aus oder geben Sie eine neue ein.", true);
+  }
 
   const userData = await fetchUserProfile(userId);
   if (!userData) return setMessage("Benutzerdaten konnten nicht geladen werden", true);
