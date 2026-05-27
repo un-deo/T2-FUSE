@@ -515,7 +515,7 @@ function handleLogin(event) {
     });
 }
 
-function handleRegister(event) {
+async function handleRegister(event) {
   event.preventDefault();
   hideRegisterError();
 
@@ -525,48 +525,77 @@ function handleRegister(event) {
   const phone = document.getElementById("registerPhone").value.trim();
   const address = document.getElementById("registerAddress").value.trim();
 
-  // Disable submit button while processing
   const submitBtn = document.getElementById("registerSubmitBtn");
   submitBtn.disabled = true;
   submitBtn.textContent = "Wird registriert...";
 
-  // Send registration data to backend
-  fetch("http://localhost:3000/api/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name: name,
-      email: email,
-      passwort: password,
-      telefonNr: phone,
-      strasse: address,
-      hausnummer: "",
-      postleitzahl: "",
-      land: "AT",
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        console.log("Registrierung erfolgreich:", data.user);
-        // alert("Registrierung erfolgreich! Willkommen " + data.user.name);
-        closeRegisterModal();
-      } else {
-        showRegisterError(data.error || "Registrierung fehlgeschlagen");
-      }
-    })
-    .catch((error) => {
-      console.error("Registrierung Fehler:", error);
-      showRegisterError(
-        "Verbindung zum Server fehlgeschlagen. Bitte versuchen Sie es später erneut.",
-      );
-    })
-    .finally(() => {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Konto erstellen";
+  try {
+    const response = await fetch("http://localhost:3000/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        passwort: password,
+        telefonNr: phone,
+        strasse: address,
+        hausnummer: "",
+        postleitzahl: "",
+        land: "AT",
+      }),
     });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      showRegisterError(data.error || "Registrierung fehlgeschlagen");
+      return;
+    }
+
+    submitBtn.textContent = "Anmeldung läuft...";
+
+    const loginResponse = await fetch("http://localhost:3000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ Mail: email, pw: password }),
+    });
+
+    const loginData = await loginResponse.json();
+
+    if (loginData.success) {
+      const tokenStr =
+        loginData.token && typeof loginData.token === "object"
+          ? loginData.token.tokenId
+          : loginData.token;
+
+      if (tokenStr) localStorage.setItem("userToken", tokenStr);
+      if (loginData.userId) localStorage.setItem("userId", loginData.userId);
+      if (loginData.statusId !== undefined)
+        localStorage.setItem("statusId", loginData.statusId.toString());
+      if (loginData?.user?.name)
+        localStorage.setItem("userName", loginData.user.name);
+
+      closeRegisterModal();
+      window.location.href = "/Frontend/signin-header.html";
+      return;
+    }
+
+    showRegisterError(
+      loginData.error || "Automatisches Anmelden fehlgeschlagen",
+    );
+  } catch (error) {
+    console.error("Registrierung Fehler:", error);
+    showRegisterError(
+      "Verbindung zum Server fehlgeschlagen. Bitte versuchen Sie es später erneut.",
+    );
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Konto erstellen";
+  }
 }
 
 function switchToRegister(event) {
